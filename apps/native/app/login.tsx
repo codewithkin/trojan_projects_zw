@@ -7,10 +7,13 @@ import {
     Pressable,
     ScrollView,
     View,
+    ImageBackground,
+    StatusBar,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Sun, Zap, Shield } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { ErrorMessage } from "@/components/error-message";
@@ -19,8 +22,15 @@ import { authClient } from "@/lib/auth-client";
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
+const features = [
+    { icon: Sun, text: "Solar Power" },
+    { icon: Shield, text: "CCTV Security" },
+    { icon: Zap, text: "Electrical" },
+];
+
 export default function LoginScreen() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -59,159 +69,283 @@ export default function LoginScreen() {
     const handleGoogleSignIn = async () => {
         setGoogleLoading(true);
         setError(null);
-        // Social sign-in redirects, so we don't catch errors here
         await authClient.signIn.social({
             provider: "google",
         });
-        // Loading state will persist during redirect
     };
 
     return (
-        <View className="flex-1" style={{ backgroundColor: "#ffffff" }}>
+        <View className="flex-1" style={{ backgroundColor: TROJAN_NAVY }}>
+            <StatusBar barStyle="light-content" />
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
             >
                 <ScrollView
-                    contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 16 }}
+                    contentContainerStyle={{ flexGrow: 1 }}
                     keyboardShouldPersistTaps="handled"
                 >
-                    <MotiView
-                        from={{ opacity: 0, translateY: 20 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ type: "timing", duration: 500 }}
+                    {/* Hero Section */}
+                    <View
+                        style={{
+                            paddingTop: insets.top + 40,
+                            paddingBottom: 40,
+                            paddingHorizontal: 24,
+                        }}
                     >
-                        <Card>
-                            <CardHeader className="items-center pb-2">
-                                <MotiView
-                                    from={{ scale: 0.8 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ type: "spring", delay: 200 }}
+                        <MotiView
+                            from={{ opacity: 0, translateY: -20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ type: "timing", duration: 600 }}
+                        >
+                            {/* Logo */}
+                            <View className="flex-row items-center mb-6">
+                                <View
+                                    style={{
+                                        width: 48,
+                                        height: 48,
+                                        borderRadius: 12,
+                                        backgroundColor: TROJAN_GOLD,
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
                                 >
-                                    <CardTitle
-                                        className="text-2xl font-bold"
-                                        style={{ color: TROJAN_NAVY }}
-                                    >
-                                        Welcome Back
-                                    </CardTitle>
-                                    <CardDescription className="mt-2 text-center">
-                                        Sign in to your Trojan Projects account
-                                    </CardDescription>
-                                </MotiView>
-                            </CardHeader>
-
-                            <CardContent className="gap-4">
-                                {/* Google Sign In Button */}
-                                <MotiView
-                                    from={{ opacity: 0, translateX: -20 }}
-                                    animate={{ opacity: 1, translateX: 0 }}
-                                    transition={{ type: "timing", delay: 300 }}
-                                >
-                                    <Button
-                                        variant="outline"
-                                        className="w-full h-12 flex-row items-center justify-center gap-2 active:bg-gray-300"
-                                        style={{
-                                            backgroundColor: "transparent",
-                                        }}
-                                        android_ripple={{ color: "#AAAAAA" }}
-                                        onPress={handleGoogleSignIn}
-                                        disabled={googleLoading}
-                                    >
-                                        <Text className="font-medium">{googleLoading ? "Connecting..." : "Continue with Google"}</Text>
-                                    </Button>
-                                </MotiView>
-
-                                {/* Divider */}
-                                <View className="flex-row items-center my-2">
-                                    <View className="flex-1 h-px bg-border" />
-                                    <Text className="px-4 text-xs text-muted-foreground uppercase">
-                                        Or continue with
-                                    </Text>
-                                    <View className="flex-1 h-px bg-border" />
+                                    <Zap size={28} color={TROJAN_NAVY} />
                                 </View>
-
-                                {/* Error Message */}
-                                <ErrorMessage message={error} />
-
-                                {/* Email Form */}
-                                <MotiView
-                                    from={{ opacity: 0, translateX: -20 }}
-                                    animate={{ opacity: 1, translateX: 0 }}
-                                    transition={{ type: "timing", delay: 400 }}
-                                    className="gap-4"
+                                <Text
+                                    style={{
+                                        color: "#fff",
+                                        fontSize: 24,
+                                        fontWeight: "700",
+                                        marginLeft: 12,
+                                    }}
                                 >
-                                    <View className="gap-2">
-                                        <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>Email</Text>
-                                        <Input
-                                            placeholder="john@example.com"
-                                            value={email}
-                                            onChangeText={setEmail}
-                                            keyboardType="email-address"
-                                            autoCapitalize="none"
-                                            autoCorrect={false}
-                                            editable={!loading}
-                                            className="h-10"
-                                        />
-                                    </View>
+                                    Trojan Projects
+                                </Text>
+                            </View>
 
-                                    <View className="gap-2">
-                                        <View className="flex-row justify-between items-center mb-2">
-                                            <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>Password</Text>
-                                            <Pressable onPress={() => router.push("/forgot-password")}>
-                                                <Text
-                                                    className="text-xs"
-                                                    style={{ color: TROJAN_NAVY }}
-                                                >
-                                                    Forgot password?
-                                                </Text>
-                                            </Pressable>
+                            <Text
+                                style={{
+                                    color: "#fff",
+                                    fontSize: 32,
+                                    fontWeight: "700",
+                                    lineHeight: 40,
+                                }}
+                            >
+                                Power Your Home{"\n"}With Expert Solutions
+                            </Text>
+
+                            <Text
+                                style={{
+                                    color: "rgba(255,255,255,0.7)",
+                                    fontSize: 16,
+                                    marginTop: 12,
+                                    lineHeight: 24,
+                                }}
+                            >
+                                Professional engineering services for solar, security, and electrical systems.
+                            </Text>
+
+                            {/* Features */}
+                            <View className="flex-row mt-6" style={{ gap: 12 }}>
+                                {features.map((feature) => {
+                                    const Icon = feature.icon;
+                                    return (
+                                        <View
+                                            key={feature.text}
+                                            style={{
+                                                flexDirection: "row",
+                                                alignItems: "center",
+                                                backgroundColor: "rgba(255,255,255,0.1)",
+                                                borderRadius: 20,
+                                                paddingHorizontal: 12,
+                                                paddingVertical: 8,
+                                            }}
+                                        >
+                                            <Icon size={16} color={TROJAN_GOLD} />
+                                            <Text
+                                                style={{
+                                                    color: "#fff",
+                                                    fontSize: 13,
+                                                    marginLeft: 6,
+                                                }}
+                                            >
+                                                {feature.text}
+                                            </Text>
                                         </View>
-                                        <Input
-                                            placeholder="••••••••"
-                                            value={password}
-                                            onChangeText={setPassword}
-                                            secureTextEntry
-                                            editable={!loading}
-                                            className="h-10"
-                                        />
-                                    </View>
+                                    );
+                                })}
+                            </View>
+                        </MotiView>
+                    </View>
 
-                                    <Button
-                                        className="w-full h-10 font-semibold"
-                                        style={{ backgroundColor: TROJAN_GOLD }}
-                                        onPress={handleEmailSignIn}
-                                        disabled={loading}
-                                    >
-                                        <Text
-                                            className="font-semibold"
-                                            style={{ color: TROJAN_NAVY }}
-                                        >
-                                            {loading ? "Signing in..." : "Sign In"}
-                                        </Text>
-                                    </Button>
-                                </MotiView>
+                    {/* Form Card */}
+                    <MotiView
+                        from={{ opacity: 0, translateY: 40 }}
+                        animate={{ opacity: 1, translateY: 0 }}
+                        transition={{ type: "timing", duration: 600, delay: 200 }}
+                        style={{
+                            flex: 1,
+                            backgroundColor: "#fff",
+                            borderTopLeftRadius: 32,
+                            borderTopRightRadius: 32,
+                            paddingHorizontal: 24,
+                            paddingTop: 32,
+                            paddingBottom: insets.bottom + 24,
+                        }}
+                    >
+                        <Text
+                            style={{
+                                fontSize: 24,
+                                fontWeight: "700",
+                                color: TROJAN_NAVY,
+                                marginBottom: 8,
+                            }}
+                        >
+                            Welcome Back
+                        </Text>
+                        <Text
+                            style={{
+                                fontSize: 15,
+                                color: "#6B7280",
+                                marginBottom: 24,
+                            }}
+                        >
+                            Sign in to continue to your account
+                        </Text>
 
-                                {/* Sign Up Link */}
-                                <MotiView
-                                    from={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ type: "timing", delay: 500 }}
-                                    className="flex-row justify-center items-center"
+                        {/* Google Sign In */}
+                        <Button
+                            variant="outline"
+                            className="w-full h-14 flex-row items-center justify-center gap-2"
+                            style={{
+                                borderColor: "#E5E7EB",
+                                borderRadius: 14,
+                            }}
+                            onPress={handleGoogleSignIn}
+                            disabled={googleLoading}
+                        >
+                            <Text style={{ fontSize: 16, fontWeight: "500", color: "#374151" }}>
+                                {googleLoading ? "Connecting..." : "Continue with Google"}
+                            </Text>
+                        </Button>
+
+                        {/* Divider */}
+                        <View className="flex-row items-center my-6">
+                            <View className="flex-1 h-px bg-gray-200" />
+                            <Text
+                                style={{
+                                    paddingHorizontal: 16,
+                                    fontSize: 13,
+                                    color: "#9CA3AF",
+                                }}
+                            >
+                                or sign in with email
+                            </Text>
+                            <View className="flex-1 h-px bg-gray-200" />
+                        </View>
+
+                        {/* Error */}
+                        <ErrorMessage message={error} />
+
+                        {/* Email Input */}
+                        <View className="mb-4">
+                            <Text
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: "600",
+                                    color: TROJAN_NAVY,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                Email
+                            </Text>
+                            <Input
+                                placeholder="john@example.com"
+                                value={email}
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                editable={!loading}
+                                className="h-14"
+                                style={{
+                                    borderRadius: 14,
+                                    fontSize: 16,
+                                }}
+                            />
+                        </View>
+
+                        {/* Password Input */}
+                        <View className="mb-6">
+                            <View className="flex-row justify-between items-center mb-2">
+                                <Text
+                                    style={{
+                                        fontSize: 14,
+                                        fontWeight: "600",
+                                        color: TROJAN_NAVY,
+                                    }}
                                 >
-                                    <Text className="text-sm text-muted-foreground">
-                                        Don't have an account?{" "}
+                                    Password
+                                </Text>
+                                <Pressable onPress={() => router.push("/forgot-password")}>
+                                    <Text style={{ fontSize: 13, color: TROJAN_NAVY }}>
+                                        Forgot password?
                                     </Text>
-                                    <Pressable onPress={() => router.push("/signup")}>
-                                        <Text
-                                            className="text-sm font-semibold"
-                                            style={{ color: TROJAN_NAVY }}
-                                        >
-                                            Sign up
-                                        </Text>
-                                    </Pressable>
-                                </MotiView>
-                            </CardContent>
-                        </Card>
+                                </Pressable>
+                            </View>
+                            <Input
+                                placeholder="••••••••"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                                editable={!loading}
+                                className="h-14"
+                                style={{
+                                    borderRadius: 14,
+                                    fontSize: 16,
+                                }}
+                            />
+                        </View>
+
+                        {/* Sign In Button */}
+                        <Button
+                            className="w-full h-14"
+                            style={{
+                                backgroundColor: TROJAN_GOLD,
+                                borderRadius: 14,
+                            }}
+                            onPress={handleEmailSignIn}
+                            disabled={loading}
+                        >
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: "700",
+                                    color: TROJAN_NAVY,
+                                }}
+                            >
+                                {loading ? "Signing in..." : "Sign In"}
+                            </Text>
+                        </Button>
+
+                        {/* Sign Up Link */}
+                        <View className="flex-row justify-center items-center mt-6">
+                            <Text style={{ fontSize: 15, color: "#6B7280" }}>
+                                Don't have an account?{" "}
+                            </Text>
+                            <Pressable onPress={() => router.push("/signup")}>
+                                <Text
+                                    style={{
+                                        fontSize: 15,
+                                        fontWeight: "700",
+                                        color: TROJAN_NAVY,
+                                    }}
+                                >
+                                    Sign up
+                                </Text>
+                            </Pressable>
+                        </View>
                     </MotiView>
                 </ScrollView>
             </KeyboardAvoidingView>
