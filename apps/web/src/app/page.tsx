@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center p-4"
-      style={{ backgroundColor: "#0F1B4D" }}
+      style={{ backgroundColor: "#ffffff" }}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -20,7 +20,7 @@ export default function Home() {
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring" }}
           className="text-5xl font-bold mb-4"
-          style={{ color: "#FFC107" }}
+          style={{ color: "#0F1B4D" }}
         >
           Trojan Projects ZW
         </motion.h1>
@@ -29,7 +29,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-xl text-white/90 mb-8"
+          className="text-xl text-slate-700 mb-8"
         >
           Your project is our mission.
         </motion.p>
@@ -38,7 +38,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-white/80 space-y-2 mb-12"
+          className="text-slate-600 space-y-2 mb-12"
         >
           <p>Multi-service engineering provider specializing in:</p>
           <p className="font-medium" style={{ color: "#FFC107" }}>
@@ -67,7 +67,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="text-sm text-white/60 mt-8"
+          className="text-sm text-slate-500 mt-8"
         >
           📍 Mutare, Zimbabwe | 📱 +263 77 341 2648
         </motion.p>

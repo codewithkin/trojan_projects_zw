@@ -71,7 +71,7 @@ export default function OnboardingScreen() {
     };
 
     return (
-        <View className="flex-1" style={{ backgroundColor: TROJAN_NAVY }}>
+        <View className="flex-1" style={{ backgroundColor: "#ffffff" }}>
             <PagerView
                 ref={pagerRef}
                 style={{ flex: 1 }}
@@ -79,12 +79,12 @@ export default function OnboardingScreen() {
                 onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
             >
                 {slides.map((slide, index) => (
-                    <View key={index} className="flex-1">
+                    <View key={index} className="flex-1" style={{ backgroundColor: "#ffffff" }}>
                         <MotiView
                             from={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ type: "timing", duration: 500 }}
-                            className="flex-1 items-center justify-center px-6"
+                            className="flex-1 items-center justify-center px-6 pt-8"
                         >
                             {/* Image */}
                             <MotiView
@@ -96,11 +96,12 @@ export default function OnboardingScreen() {
                                 <Image
                                     source={{ uri: slide.image }}
                                     style={{
-                                        width: width * 0.8,
-                                        height: height * 0.35,
+                                        width: width * 0.85,
+                                        height: height * 0.3,
                                         borderRadius: 16,
+                                        backgroundColor: "#f0f0f0",
                                     }}
-                                    resizeMode="cover"
+                                    resizeMode="contain"
                                 />
                             </MotiView>
 
@@ -129,7 +130,7 @@ export default function OnboardingScreen() {
                             >
                                 <Text
                                     className="text-3xl font-bold text-center px-4"
-                                    style={{ color: "white" }}
+                                    style={{ color: TROJAN_NAVY }}
                                 >
                                     {slide.title}
                                 </Text>
@@ -144,7 +145,7 @@ export default function OnboardingScreen() {
                             >
                                 <Text
                                     className="text-base text-center px-6 leading-6"
-                                    style={{ color: "rgba(255, 255, 255, 0.8)" }}
+                                    style={{ color: "#4b5563" }}
                                 >
                                     {slide.description}
                                 </Text>
@@ -158,7 +159,7 @@ export default function OnboardingScreen() {
                                         animate={{
                                             width: currentPage === dotIndex ? 24 : 8,
                                             backgroundColor:
-                                                currentPage === dotIndex ? TROJAN_GOLD : "rgba(255, 193, 7, 0.3)",
+                                                currentPage === dotIndex ? TROJAN_GOLD : "rgba(15, 27, 77, 0.2)",
                                         }}
                                         transition={{ type: "timing", duration: 300 }}
                                         className="h-2 rounded-full"
@@ -189,12 +190,12 @@ export default function OnboardingScreen() {
                                     <Button
                                         variant="outline"
                                         className="w-full h-14"
-                                        style={{ borderColor: TROJAN_GOLD }}
+                                        style={{ borderColor: TROJAN_NAVY }}
                                         onPress={handleSignUp}
                                     >
                                         <Text
                                             className="font-semibold text-lg"
-                                            style={{ color: TROJAN_GOLD }}
+                                            style={{ color: TROJAN_NAVY }}
                                         >
                                             Create Account
                                         </Text>
@@ -233,7 +234,7 @@ export default function OnboardingScreen() {
                                     <Pressable onPress={handleGetStarted}>
                                         <Text
                                             className="text-sm"
-                                            style={{ color: "rgba(255, 255, 255, 0.6)" }}
+                                            style={{ color: "#4b5563" }}
                                         >
                                             Skip
                                         </Text>
