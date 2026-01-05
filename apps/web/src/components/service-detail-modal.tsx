@@ -7,6 +7,8 @@ import { type Service, categoryConfig } from "@/data/services";
 import Image from "next/image";
 import { X, Star, Check, Heart, ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
+import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -20,6 +22,8 @@ interface ServiceDetailModalProps {
 export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModalProps) {
     const [selectedImage, setSelectedImage] = useState(0);
     const [isWishlisted, setIsWishlisted] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const { data: session } = authClient.useSession();
 
     if (!service) return null;
 
@@ -215,6 +219,14 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
                                 size="lg"
                                 className="flex-1 rounded-full font-semibold"
                                 style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                                onClick={() => {
+                                    if (!session?.user) {
+                                        setShowAuthModal(true);
+                                    } else {
+                                        // TODO: Implement service request flow
+                                        console.log("Request service:", service.id);
+                                    }
+                                }}
                             >
                                 <ShoppingCart size={20} className="mr-2" />
                                 Request Service
@@ -223,6 +235,12 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
                     </div>
                 </div>
             </DialogContent>
+
+            {/* Auth Modal */}
+            <AuthModal
+                open={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+            />
         </Dialog>
     );
 }
