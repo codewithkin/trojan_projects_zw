@@ -42,16 +42,31 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />
 
-      {/* Search Section */}
-      <section className="py-8 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden py-16 lg:py-24" style={{ backgroundColor: "#F0F9FF" }}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h1
+              className="text-4xl md:text-5xl font-bold leading-tight mb-4"
+              style={{ color: TROJAN_NAVY }}
+            >
+              Find Professional Services
+              <br />
+              <span style={{ color: TROJAN_GOLD }}>You Can Trust</span>
+            </h1>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              Browse our range of expert solar, electrical, security, and more services for your home and business.
+            </p>
+          </div>
+
+          {/* Search Section */}
+          <div className="relative max-w-2xl mx-auto mb-8">
             <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
             <Input
               placeholder="Search services or projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 text-lg rounded-full bg-gray-300 border-0 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-gray-400"
+              className="pl-12 pr-4 py-6 text-lg rounded-full bg-white border-0 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-gray-400 shadow-md"
             />
           </div>
         </div>
