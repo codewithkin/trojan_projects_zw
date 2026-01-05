@@ -45,7 +45,7 @@ export default function SignUpScreen() {
                     Alert.alert(
                         "Success",
                         "Account created! Please check your email to verify.",
-                        [{ text: "OK", onPress: () => router.push("/login") }]
+                        [{ text: "OK", onPress: () => router.push("/user-onboarding") }]
                     );
                 },
                 onError: (error) => {
