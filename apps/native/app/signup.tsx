@@ -1,22 +1,20 @@
-import { MotiView } from "moti";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
     ScrollView,
     View,
 } from "react-native";
+import { MotiView } from "moti";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "expo-router";
 
-// Brand colors
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
@@ -26,40 +24,46 @@ export default function SignUpScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleEmailSignUp = async () => {
+        setError(null);
         if (!name || !email || !password) {
-            Alert.alert("Error", "Please fill in all fields");
+            setError("All fields are required");
             return;
         }
         if (password.length < 8) {
-            Alert.alert("Error", "Password must be at least 8 characters");
+            setError("Password must be at least 8 characters");
             return;
         }
 
         setLoading(true);
-        await authClient.signUp.email(
-            { name, email, password },
-            {
-                onSuccess: () => {
-                    Alert.alert(
-                        "Success",
-                        "Account created! Please check your email to verify.",
-                        [{ text: "OK", onPress: () => router.push("/user-onboarding") }]
-                    );
-                },
-                onError: (error) => {
-                    Alert.alert("Error", error.error.message || "Sign up failed");
-                },
-            }
-        );
-        setLoading(false);
+        try {
+            await authClient.signUp.email(
+                { name, email, password },
+                {
+                    onSuccess: () => {
+                        router.push("/user-onboarding");
+                    },
+                    onError: (error) => {
+                        setError(error.error.message || "Sign up failed");
+                    },
+                }
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleGoogleSignUp = async () => {
-        await authClient.signIn.social({
-            provider: "google",
-        });
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/user-onboarding",
+            });
+        } catch (err) {
+            setError("Google sign up failed");
+        }
     };
 
     return (
@@ -121,6 +125,11 @@ export default function SignUpScreen() {
                                     <View className="flex-1 h-px bg-border" />
                                 </View>
 
+                                {/* Error Message */}
+                                {error && (
+                                    <Text className="text-red-500 text-sm text-center">{error}</Text>
+                                )}
+
                                 {/* Email Form */}
                                 <MotiView
                                     from={{ opacity: 0, translateX: -20 }}
@@ -129,18 +138,19 @@ export default function SignUpScreen() {
                                     className="gap-4"
                                 >
                                     <View className="gap-2">
-                                        <Text className="text-sm font-medium">Full Name</Text>
+                                        <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>Full Name</Text>
                                         <Input
                                             placeholder="John Doe"
                                             value={name}
                                             onChangeText={setName}
                                             autoCapitalize="words"
-                                            className="h-12"
+                                            editable={!loading}
+                                            className="h-10"
                                         />
                                     </View>
 
                                     <View className="gap-2">
-                                        <Text className="text-sm font-medium">Email</Text>
+                                        <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>Email</Text>
                                         <Input
                                             placeholder="john@example.com"
                                             value={email}
@@ -148,29 +158,31 @@ export default function SignUpScreen() {
                                             keyboardType="email-address"
                                             autoCapitalize="none"
                                             autoCorrect={false}
-                                            className="h-12"
+                                            editable={!loading}
+                                            className="h-10"
                                         />
                                     </View>
 
                                     <View className="gap-2">
-                                        <Text className="text-sm font-medium">Password</Text>
+                                        <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>Password</Text>
                                         <Input
                                             placeholder="••••••••"
                                             value={password}
                                             onChangeText={setPassword}
                                             secureTextEntry
-                                            className="h-12"
+                                            editable={!loading}
+                                            className="h-10"
                                         />
                                     </View>
 
                                     <Button
-                                        className="w-full h-12"
+                                        className="w-full h-10 font-semibold"
                                         style={{ backgroundColor: TROJAN_GOLD }}
                                         onPress={handleEmailSignUp}
                                         disabled={loading}
                                     >
                                         <Text
-                                            className="font-semibold text-base"
+                                            className="font-semibold"
                                             style={{ color: TROJAN_NAVY }}
                                         >
                                             {loading ? "Creating account..." : "Create Account"}
@@ -183,7 +195,7 @@ export default function SignUpScreen() {
                                     from={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ type: "timing", delay: 500 }}
-                                    className="flex-row justify-center items-center mt-2"
+                                    className="flex-row justify-center items-center"
                                 >
                                     <Text className="text-sm text-muted-foreground">
                                         Already have an account?{" "}

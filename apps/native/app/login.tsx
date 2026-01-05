@@ -1,7 +1,7 @@
 import { MotiView } from "moti";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -14,9 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "expo-router";
 
-// Brand colors
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
@@ -25,36 +23,46 @@ export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleEmailSignIn = async () => {
+        setError(null);
         if (!email || !password) {
-            Alert.alert("Error", "Please fill in all fields");
+            setError("Email and password are required");
             return;
         }
 
         setLoading(true);
-        await authClient.signIn.email(
-            { email, password },
-            {
-                onSuccess: () => {
-                    router.replace("/(drawer)/(tabs)");
-                },
-                onError: (error) => {
-                    if (error.error.status === 403) {
-                        Alert.alert("Error", "Please verify your email address first");
-                    } else {
-                        Alert.alert("Error", error.error.message || "Sign in failed");
-                    }
-                },
-            }
-        );
-        setLoading(false);
+        try {
+            await authClient.signIn.email(
+                { email, password },
+                {
+                    onSuccess: () => {
+                        router.replace("/(drawer)/(tabs)");
+                    },
+                    onError: (error) => {
+                        if (error.error.status === 403) {
+                            setError("Please verify your email address first");
+                        } else {
+                            setError(error.error.message || "Sign in failed");
+                        }
+                    },
+                }
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleGoogleSignIn = async () => {
-        await authClient.signIn.social({
-            provider: "google",
-        });
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/dashboard",
+            });
+        } catch (err) {
+            setError("Google sign in failed");
+        }
     };
 
     return (
@@ -116,6 +124,11 @@ export default function LoginScreen() {
                                     <View className="flex-1 h-px bg-border" />
                                 </View>
 
+                                {/* Error Message */}
+                                {error && (
+                                    <Text className="text-red-500 text-sm text-center">{error}</Text>
+                                )}
+
                                 {/* Email Form */}
                                 <MotiView
                                     from={{ opacity: 0, translateX: -20 }}
@@ -124,7 +137,7 @@ export default function LoginScreen() {
                                     className="gap-4"
                                 >
                                     <View className="gap-2">
-                                        <Text className="text-sm font-medium">Email</Text>
+                                        <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>Email</Text>
                                         <Input
                                             placeholder="john@example.com"
                                             value={email}
@@ -132,13 +145,14 @@ export default function LoginScreen() {
                                             keyboardType="email-address"
                                             autoCapitalize="none"
                                             autoCorrect={false}
-                                            className="h-12"
+                                            editable={!loading}
+                                            className="h-10"
                                         />
                                     </View>
 
                                     <View className="gap-2">
-                                        <View className="flex-row justify-between items-center">
-                                            <Text className="text-sm font-medium">Password</Text>
+                                        <View className="flex-row justify-between items-center mb-2">
+                                            <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>Password</Text>
                                             <Pressable onPress={() => router.push("/forgot-password")}>
                                                 <Text
                                                     className="text-xs"
@@ -153,18 +167,19 @@ export default function LoginScreen() {
                                             value={password}
                                             onChangeText={setPassword}
                                             secureTextEntry
-                                            className="h-12"
+                                            editable={!loading}
+                                            className="h-10"
                                         />
                                     </View>
 
                                     <Button
-                                        className="w-full h-12"
+                                        className="w-full h-10 font-semibold"
                                         style={{ backgroundColor: TROJAN_GOLD }}
                                         onPress={handleEmailSignIn}
                                         disabled={loading}
                                     >
                                         <Text
-                                            className="font-semibold text-base"
+                                            className="font-semibold"
                                             style={{ color: TROJAN_NAVY }}
                                         >
                                             {loading ? "Signing in..." : "Sign In"}
@@ -177,7 +192,7 @@ export default function LoginScreen() {
                                     from={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ type: "timing", delay: 500 }}
-                                    className="flex-row justify-center items-center mt-2"
+                                    className="flex-row justify-center items-center"
                                 >
                                     <Text className="text-sm text-muted-foreground">
                                         Don't have an account?{" "}
