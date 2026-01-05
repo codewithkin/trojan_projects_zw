@@ -9,6 +9,7 @@ import {
     View,
     ImageBackground,
     StatusBar,
+    useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Sun, Zap, Shield } from "lucide-react-native";
@@ -31,6 +32,10 @@ const features = [
 export default function LoginScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const { width: screenWidth } = useWindowDimensions();
+    const isTablet = screenWidth >= 768;
+    const isLargeTablet = screenWidth >= 1024;
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -88,9 +93,12 @@ export default function LoginScreen() {
                     {/* Hero Section */}
                     <View
                         style={{
-                            paddingTop: insets.top + 40,
-                            paddingBottom: 40,
-                            paddingHorizontal: 24,
+                            paddingTop: insets.top + (isTablet ? 60 : 40),
+                            paddingBottom: isTablet ? 60 : 40,
+                            paddingHorizontal: isTablet ? 48 : 24,
+                            maxWidth: isLargeTablet ? 800 : undefined,
+                            alignSelf: "center",
+                            width: "100%",
                         }}
                     >
                         <MotiView
@@ -102,22 +110,22 @@ export default function LoginScreen() {
                             <View className="flex-row items-center mb-6">
                                 <View
                                     style={{
-                                        width: 48,
-                                        height: 48,
-                                        borderRadius: 12,
+                                        width: isTablet ? 56 : 48,
+                                        height: isTablet ? 56 : 48,
+                                        borderRadius: isTablet ? 16 : 12,
                                         backgroundColor: TROJAN_GOLD,
                                         alignItems: "center",
                                         justifyContent: "center",
                                     }}
                                 >
-                                    <Zap size={28} color={TROJAN_NAVY} />
+                                    <Zap size={isTablet ? 32 : 28} color={TROJAN_NAVY} />
                                 </View>
                                 <Text
                                     style={{
                                         color: "#fff",
-                                        fontSize: 24,
+                                        fontSize: isTablet ? 28 : 24,
                                         fontWeight: "700",
-                                        marginLeft: 12,
+                                        marginLeft: isTablet ? 16 : 12,
                                     }}
                                 >
                                     Trojan Projects
@@ -127,9 +135,9 @@ export default function LoginScreen() {
                             <Text
                                 style={{
                                     color: "#fff",
-                                    fontSize: 32,
+                                    fontSize: isTablet ? 40 : 32,
                                     fontWeight: "700",
-                                    lineHeight: 40,
+                                    lineHeight: isTablet ? 50 : 40,
                                 }}
                             >
                                 Power Your Home{"\n"}With Expert Solutions
@@ -138,16 +146,16 @@ export default function LoginScreen() {
                             <Text
                                 style={{
                                     color: "rgba(255,255,255,0.7)",
-                                    fontSize: 16,
-                                    marginTop: 12,
-                                    lineHeight: 24,
+                                    fontSize: isTablet ? 18 : 16,
+                                    marginTop: isTablet ? 16 : 12,
+                                    lineHeight: isTablet ? 28 : 24,
                                 }}
                             >
                                 Professional engineering services for solar, security, and electrical systems.
                             </Text>
 
                             {/* Features */}
-                            <View className="flex-row mt-6" style={{ gap: 12 }}>
+                            <View className="flex-row mt-6" style={{ gap: isTablet ? 16 : 12 }}>
                                 {features.map((feature) => {
                                     const Icon = feature.icon;
                                     return (
@@ -157,17 +165,17 @@ export default function LoginScreen() {
                                                 flexDirection: "row",
                                                 alignItems: "center",
                                                 backgroundColor: "rgba(255,255,255,0.1)",
-                                                borderRadius: 20,
-                                                paddingHorizontal: 12,
-                                                paddingVertical: 8,
+                                                borderRadius: isTablet ? 24 : 20,
+                                                paddingHorizontal: isTablet ? 16 : 12,
+                                                paddingVertical: isTablet ? 10 : 8,
                                             }}
                                         >
-                                            <Icon size={16} color={TROJAN_GOLD} />
+                                            <Icon size={isTablet ? 20 : 16} color={TROJAN_GOLD} />
                                             <Text
                                                 style={{
                                                     color: "#fff",
-                                                    fontSize: 13,
-                                                    marginLeft: 6,
+                                                    fontSize: isTablet ? 15 : 13,
+                                                    marginLeft: isTablet ? 8 : 6,
                                                 }}
                                             >
                                                 {feature.text}
@@ -187,28 +195,31 @@ export default function LoginScreen() {
                         style={{
                             flex: 1,
                             backgroundColor: "#fff",
-                            borderTopLeftRadius: 32,
-                            borderTopRightRadius: 32,
-                            paddingHorizontal: 24,
-                            paddingTop: 32,
-                            paddingBottom: insets.bottom + 24,
+                            borderTopLeftRadius: isTablet ? 40 : 32,
+                            borderTopRightRadius: isTablet ? 40 : 32,
+                            paddingHorizontal: isTablet ? 48 : 24,
+                            paddingTop: isTablet ? 48 : 32,
+                            paddingBottom: insets.bottom + (isTablet ? 32 : 24),
+                            maxWidth: isLargeTablet ? 600 : undefined,
+                            alignSelf: "center",
+                            width: "100%",
                         }}
                     >
                         <Text
                             style={{
-                                fontSize: 24,
+                                fontSize: isTablet ? 28 : 24,
                                 fontWeight: "700",
                                 color: TROJAN_NAVY,
-                                marginBottom: 8,
+                                marginBottom: isTablet ? 12 : 8,
                             }}
                         >
                             Welcome Back
                         </Text>
                         <Text
                             style={{
-                                fontSize: 15,
+                                fontSize: isTablet ? 17 : 15,
                                 color: "#6B7280",
-                                marginBottom: 24,
+                                marginBottom: isTablet ? 32 : 24,
                             }}
                         >
                             Sign in to continue to your account
@@ -217,26 +228,27 @@ export default function LoginScreen() {
                         {/* Google Sign In */}
                         <Button
                             variant="outline"
-                            className="w-full h-14 flex-row items-center justify-center gap-2"
+                            className="w-full flex-row items-center justify-center gap-2"
                             style={{
                                 borderColor: "#E5E7EB",
-                                borderRadius: 14,
+                                borderRadius: isTablet ? 16 : 14,
+                                height: isTablet ? 56 : 48,
                             }}
                             onPress={handleGoogleSignIn}
                             disabled={googleLoading}
                         >
-                            <Text style={{ fontSize: 16, fontWeight: "500", color: "#374151" }}>
+                            <Text style={{ fontSize: isTablet ? 17 : 16, fontWeight: "500", color: "#374151" }}>
                                 {googleLoading ? "Connecting..." : "Continue with Google"}
                             </Text>
                         </Button>
 
                         {/* Divider */}
-                        <View className="flex-row items-center my-6">
+                        <View className="flex-row items-center" style={{ marginVertical: isTablet ? 32 : 24 }}>
                             <View className="flex-1 h-px bg-gray-200" />
                             <Text
                                 style={{
                                     paddingHorizontal: 16,
-                                    fontSize: 13,
+                                    fontSize: isTablet ? 14 : 13,
                                     color: "#9CA3AF",
                                 }}
                             >
@@ -249,13 +261,13 @@ export default function LoginScreen() {
                         <ErrorMessage message={error} />
 
                         {/* Email Input */}
-                        <View className="mb-4">
+                        <View style={{ marginBottom: isTablet ? 20 : 16 }}>
                             <Text
                                 style={{
-                                    fontSize: 14,
+                                    fontSize: isTablet ? 15 : 14,
                                     fontWeight: "600",
                                     color: TROJAN_NAVY,
-                                    marginBottom: 8,
+                                    marginBottom: isTablet ? 10 : 8,
                                 }}
                             >
                                 Email
@@ -268,20 +280,20 @@ export default function LoginScreen() {
                                 autoCapitalize="none"
                                 autoCorrect={false}
                                 editable={!loading}
-                                className="h-14"
                                 style={{
-                                    borderRadius: 14,
-                                    fontSize: 16,
+                                    borderRadius: isTablet ? 16 : 14,
+                                    fontSize: isTablet ? 17 : 16,
+                                    height: isTablet ? 56 : 48,
                                 }}
                             />
                         </View>
 
                         {/* Password Input */}
-                        <View className="mb-6">
-                            <View className="flex-row justify-between items-center mb-2">
+                        <View style={{ marginBottom: isTablet ? 32 : 24 }}>
+                            <View className="flex-row justify-between items-center" style={{ marginBottom: isTablet ? 10 : 8 }}>
                                 <Text
                                     style={{
-                                        fontSize: 14,
+                                        fontSize: isTablet ? 15 : 14,
                                         fontWeight: "600",
                                         color: TROJAN_NAVY,
                                     }}
@@ -289,7 +301,7 @@ export default function LoginScreen() {
                                     Password
                                 </Text>
                                 <Pressable onPress={() => router.push("/forgot-password")}>
-                                    <Text style={{ fontSize: 13, color: TROJAN_NAVY }}>
+                                    <Text style={{ fontSize: isTablet ? 14 : 13, color: TROJAN_NAVY }}>
                                         Forgot password?
                                     </Text>
                                 </Pressable>
@@ -300,27 +312,28 @@ export default function LoginScreen() {
                                 onChangeText={setPassword}
                                 secureTextEntry
                                 editable={!loading}
-                                className="h-14"
                                 style={{
-                                    borderRadius: 14,
-                                    fontSize: 16,
+                                    borderRadius: isTablet ? 16 : 14,
+                                    fontSize: isTablet ? 17 : 16,
+                                    height: isTablet ? 56 : 48,
                                 }}
                             />
                         </View>
 
                         {/* Sign In Button */}
                         <Button
-                            className="w-full h-14"
+                            className="w-full"
                             style={{
                                 backgroundColor: TROJAN_GOLD,
-                                borderRadius: 14,
+                                borderRadius: isTablet ? 16 : 14,
+                                height: isTablet ? 56 : 48,
                             }}
                             onPress={handleEmailSignIn}
                             disabled={loading}
                         >
                             <Text
                                 style={{
-                                    fontSize: 16,
+                                    fontSize: isTablet ? 17 : 16,
                                     fontWeight: "700",
                                     color: TROJAN_NAVY,
                                 }}
@@ -330,14 +343,14 @@ export default function LoginScreen() {
                         </Button>
 
                         {/* Sign Up Link */}
-                        <View className="flex-row justify-center items-center mt-6">
-                            <Text style={{ fontSize: 15, color: "#6B7280" }}>
+                        <View className="flex-row justify-center items-center" style={{ marginTop: isTablet ? 32 : 24 }}>
+                            <Text style={{ fontSize: isTablet ? 16 : 15, color: "#6B7280" }}>
                                 Don't have an account?{" "}
                             </Text>
                             <Pressable onPress={() => router.push("/signup")}>
                                 <Text
                                     style={{
-                                        fontSize: 15,
+                                        fontSize: isTablet ? 16 : 15,
                                         fontWeight: "700",
                                         color: TROJAN_NAVY,
                                     }}

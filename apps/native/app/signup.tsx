@@ -7,6 +7,7 @@ import {
     ScrollView,
     View,
     StatusBar,
+    useWindowDimensions,
 } from "react-native";
 import { MotiView } from "moti";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,6 +31,10 @@ const benefits = [
 export default function SignUpScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const { width: screenWidth } = useWindowDimensions();
+    const isTablet = screenWidth >= 768;
+    const isLargeTablet = screenWidth >= 1024;
+    
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -88,9 +93,12 @@ export default function SignUpScreen() {
                     {/* Hero Section */}
                     <View
                         style={{
-                            paddingTop: insets.top + 32,
-                            paddingBottom: 32,
-                            paddingHorizontal: 24,
+                            paddingTop: insets.top + (isTablet ? 48 : 32),
+                            paddingBottom: isTablet ? 48 : 32,
+                            paddingHorizontal: isTablet ? 48 : 24,
+                            maxWidth: isLargeTablet ? 800 : undefined,
+                            alignSelf: "center",
+                            width: "100%",
                         }}
                     >
                         <MotiView
@@ -102,22 +110,22 @@ export default function SignUpScreen() {
                             <View className="flex-row items-center mb-5">
                                 <View
                                     style={{
-                                        width: 44,
-                                        height: 44,
-                                        borderRadius: 12,
+                                        width: isTablet ? 52 : 44,
+                                        height: isTablet ? 52 : 44,
+                                        borderRadius: isTablet ? 14 : 12,
                                         backgroundColor: TROJAN_GOLD,
                                         alignItems: "center",
                                         justifyContent: "center",
                                     }}
                                 >
-                                    <Zap size={26} color={TROJAN_NAVY} />
+                                    <Zap size={isTablet ? 30 : 26} color={TROJAN_NAVY} />
                                 </View>
                                 <Text
                                     style={{
                                         color: "#fff",
-                                        fontSize: 22,
+                                        fontSize: isTablet ? 26 : 22,
                                         fontWeight: "700",
-                                        marginLeft: 12,
+                                        marginLeft: isTablet ? 16 : 12,
                                     }}
                                 >
                                     Trojan Projects
@@ -127,31 +135,31 @@ export default function SignUpScreen() {
                             <Text
                                 style={{
                                     color: "#fff",
-                                    fontSize: 28,
+                                    fontSize: isTablet ? 36 : 28,
                                     fontWeight: "700",
-                                    lineHeight: 36,
+                                    lineHeight: isTablet ? 46 : 36,
                                 }}
                             >
                                 Start Your Journey{"\n"}With Us Today
                             </Text>
 
                             {/* Benefits */}
-                            <View style={{ marginTop: 16 }}>
+                            <View style={{ marginTop: isTablet ? 24 : 16 }}>
                                 {benefits.map((benefit) => (
                                     <View
                                         key={benefit}
                                         style={{
                                             flexDirection: "row",
                                             alignItems: "center",
-                                            marginTop: 8,
+                                            marginTop: isTablet ? 12 : 8,
                                         }}
                                     >
-                                        <CheckCircle size={16} color={TROJAN_GOLD} />
+                                        <CheckCircle size={isTablet ? 20 : 16} color={TROJAN_GOLD} />
                                         <Text
                                             style={{
                                                 color: "rgba(255,255,255,0.8)",
-                                                fontSize: 14,
-                                                marginLeft: 10,
+                                                fontSize: isTablet ? 16 : 14,
+                                                marginLeft: isTablet ? 12 : 10,
                                             }}
                                         >
                                             {benefit}
@@ -170,28 +178,31 @@ export default function SignUpScreen() {
                         style={{
                             flex: 1,
                             backgroundColor: "#fff",
-                            borderTopLeftRadius: 32,
-                            borderTopRightRadius: 32,
-                            paddingHorizontal: 24,
-                            paddingTop: 28,
-                            paddingBottom: insets.bottom + 24,
+                            borderTopLeftRadius: isTablet ? 40 : 32,
+                            borderTopRightRadius: isTablet ? 40 : 32,
+                            paddingHorizontal: isTablet ? 48 : 24,
+                            paddingTop: isTablet ? 40 : 28,
+                            paddingBottom: insets.bottom + (isTablet ? 32 : 24),
+                            maxWidth: isLargeTablet ? 600 : undefined,
+                            alignSelf: "center",
+                            width: "100%",
                         }}
                     >
                         <Text
                             style={{
-                                fontSize: 22,
+                                fontSize: isTablet ? 28 : 22,
                                 fontWeight: "700",
                                 color: TROJAN_NAVY,
-                                marginBottom: 6,
+                                marginBottom: isTablet ? 10 : 6,
                             }}
                         >
                             Create Account
                         </Text>
                         <Text
                             style={{
-                                fontSize: 14,
+                                fontSize: isTablet ? 16 : 14,
                                 color: "#6B7280",
-                                marginBottom: 20,
+                                marginBottom: isTablet ? 28 : 20,
                             }}
                         >
                             Sign up to get started
@@ -200,26 +211,27 @@ export default function SignUpScreen() {
                         {/* Google Sign Up */}
                         <Button
                             variant="outline"
-                            className="w-full h-14 flex-row items-center justify-center gap-2"
+                            className="w-full flex-row items-center justify-center gap-2"
                             style={{
                                 borderColor: "#E5E7EB",
-                                borderRadius: 14,
+                                borderRadius: isTablet ? 16 : 14,
+                                height: isTablet ? 56 : 48,
                             }}
                             onPress={handleGoogleSignUp}
                             disabled={googleLoading}
                         >
-                            <Text style={{ fontSize: 16, fontWeight: "500", color: "#374151" }}>
+                            <Text style={{ fontSize: isTablet ? 17 : 16, fontWeight: "500", color: "#374151" }}>
                                 {googleLoading ? "Connecting..." : "Continue with Google"}
                             </Text>
                         </Button>
 
                         {/* Divider */}
-                        <View className="flex-row items-center my-5">
+                        <View className="flex-row items-center" style={{ marginVertical: isTablet ? 28 : 20 }}>
                             <View className="flex-1 h-px bg-gray-200" />
                             <Text
                                 style={{
                                     paddingHorizontal: 14,
-                                    fontSize: 13,
+                                    fontSize: isTablet ? 14 : 13,
                                     color: "#9CA3AF",
                                 }}
                             >
@@ -232,13 +244,13 @@ export default function SignUpScreen() {
                         <ErrorMessage message={error} />
 
                         {/* Name Input */}
-                        <View className="mb-3">
+                        <View style={{ marginBottom: isTablet ? 16 : 12 }}>
                             <Text
                                 style={{
-                                    fontSize: 14,
+                                    fontSize: isTablet ? 15 : 14,
                                     fontWeight: "600",
                                     color: TROJAN_NAVY,
-                                    marginBottom: 8,
+                                    marginBottom: isTablet ? 10 : 8,
                                 }}
                             >
                                 Full Name
@@ -249,22 +261,22 @@ export default function SignUpScreen() {
                                 onChangeText={setName}
                                 autoCapitalize="words"
                                 editable={!loading}
-                                className="h-14"
                                 style={{
-                                    borderRadius: 14,
-                                    fontSize: 16,
+                                    borderRadius: isTablet ? 16 : 14,
+                                    fontSize: isTablet ? 17 : 16,
+                                    height: isTablet ? 56 : 48,
                                 }}
                             />
                         </View>
 
                         {/* Email Input */}
-                        <View className="mb-3">
+                        <View style={{ marginBottom: isTablet ? 16 : 12 }}>
                             <Text
                                 style={{
-                                    fontSize: 14,
+                                    fontSize: isTablet ? 15 : 14,
                                     fontWeight: "600",
                                     color: TROJAN_NAVY,
-                                    marginBottom: 8,
+                                    marginBottom: isTablet ? 10 : 8,
                                 }}
                             >
                                 Email
@@ -277,22 +289,22 @@ export default function SignUpScreen() {
                                 autoCapitalize="none"
                                 autoCorrect={false}
                                 editable={!loading}
-                                className="h-14"
                                 style={{
-                                    borderRadius: 14,
-                                    fontSize: 16,
+                                    borderRadius: isTablet ? 16 : 14,
+                                    fontSize: isTablet ? 17 : 16,
+                                    height: isTablet ? 56 : 48,
                                 }}
                             />
                         </View>
 
                         {/* Password Input */}
-                        <View className="mb-5">
+                        <View style={{ marginBottom: isTablet ? 28 : 20 }}>
                             <Text
                                 style={{
-                                    fontSize: 14,
+                                    fontSize: isTablet ? 15 : 14,
                                     fontWeight: "600",
                                     color: TROJAN_NAVY,
-                                    marginBottom: 8,
+                                    marginBottom: isTablet ? 10 : 8,
                                 }}
                             >
                                 Password
@@ -303,17 +315,17 @@ export default function SignUpScreen() {
                                 onChangeText={setPassword}
                                 secureTextEntry
                                 editable={!loading}
-                                className="h-14"
                                 style={{
-                                    borderRadius: 14,
-                                    fontSize: 16,
+                                    borderRadius: isTablet ? 16 : 14,
+                                    fontSize: isTablet ? 17 : 16,
+                                    height: isTablet ? 56 : 48,
                                 }}
                             />
                             <Text
                                 style={{
-                                    fontSize: 12,
+                                    fontSize: isTablet ? 13 : 12,
                                     color: "#9CA3AF",
-                                    marginTop: 6,
+                                    marginTop: isTablet ? 8 : 6,
                                 }}
                             >
                                 Must be at least 8 characters
@@ -322,17 +334,18 @@ export default function SignUpScreen() {
 
                         {/* Sign Up Button */}
                         <Button
-                            className="w-full h-14"
+                            className="w-full"
                             style={{
                                 backgroundColor: TROJAN_GOLD,
-                                borderRadius: 14,
+                                borderRadius: isTablet ? 16 : 14,
+                                height: isTablet ? 56 : 48,
                             }}
                             onPress={handleEmailSignUp}
                             disabled={loading}
                         >
                             <Text
                                 style={{
-                                    fontSize: 16,
+                                    fontSize: isTablet ? 17 : 16,
                                     fontWeight: "700",
                                     color: TROJAN_NAVY,
                                 }}
@@ -342,14 +355,14 @@ export default function SignUpScreen() {
                         </Button>
 
                         {/* Sign In Link */}
-                        <View className="flex-row justify-center items-center mt-5">
-                            <Text style={{ fontSize: 15, color: "#6B7280" }}>
+                        <View className="flex-row justify-center items-center" style={{ marginTop: isTablet ? 28 : 20 }}>
+                            <Text style={{ fontSize: isTablet ? 16 : 15, color: "#6B7280" }}>
                                 Already have an account?{" "}
                             </Text>
                             <Pressable onPress={() => router.push("/login")}>
                                 <Text
                                     style={{
-                                        fontSize: 15,
+                                        fontSize: isTablet ? 16 : 15,
                                         fontWeight: "700",
                                         color: TROJAN_NAVY,
                                     }}
