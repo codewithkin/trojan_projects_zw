@@ -2,7 +2,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import React from "react";
-import { Pressable, Text, View, Image } from "react-native";
+import { Pressable, Text, View, Image, useWindowDimensions } from "react-native";
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { authClient } from "@/lib/auth-client";
@@ -13,6 +13,8 @@ const TROJAN_GOLD = "#FFC107";
 function CustomDrawerContent(props: any) {
   const insets = useSafeAreaInsets();
   const { data: session } = authClient.useSession();
+  const { width: screenWidth } = useWindowDimensions();
+  const isTablet = screenWidth >= 768;
 
   const userInitials = session?.user?.name
     ? session.user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -24,17 +26,17 @@ function CustomDrawerContent(props: any) {
       <View
         style={{
           backgroundColor: TROJAN_NAVY,
-          paddingTop: insets.top + 20,
-          paddingBottom: 24,
-          paddingHorizontal: 20,
+          paddingTop: insets.top + (isTablet ? 28 : 20),
+          paddingBottom: isTablet ? 28 : 24,
+          paddingHorizontal: isTablet ? 28 : 20,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View
             style={{
-              width: 56,
-              height: 56,
-              borderRadius: 28,
+              width: isTablet ? 72 : 56,
+              height: isTablet ? 72 : 56,
+              borderRadius: isTablet ? 36 : 28,
               backgroundColor: TROJAN_GOLD,
               alignItems: "center",
               justifyContent: "center",
@@ -45,19 +47,19 @@ function CustomDrawerContent(props: any) {
             {session?.user?.image ? (
               <Image
                 source={{ uri: session.user.image }}
-                style={{ width: 56, height: 56, borderRadius: 28 }}
+                style={{ width: isTablet ? 72 : 56, height: isTablet ? 72 : 56, borderRadius: isTablet ? 36 : 28 }}
               />
             ) : (
-              <Text style={{ fontSize: 20, fontWeight: "bold", color: TROJAN_NAVY }}>
+              <Text style={{ fontSize: isTablet ? 26 : 20, fontWeight: "bold", color: TROJAN_NAVY }}>
                 {userInitials}
               </Text>
             )}
           </View>
-          <View style={{ marginLeft: 14 }}>
-            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}>
+          <View style={{ marginLeft: isTablet ? 18 : 14, flex: 1 }}>
+            <Text style={{ color: "#fff", fontSize: isTablet ? 22 : 18, fontWeight: "600" }}>
               {session?.user?.name || "Welcome"}
             </Text>
-            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginTop: 2 }}>
+            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 15 : 13, marginTop: 2 }}>
               {session?.user?.email || "Sign in to continue"}
             </Text>
           </View>
@@ -66,31 +68,31 @@ function CustomDrawerContent(props: any) {
         <View
           style={{
             flexDirection: "row",
-            marginTop: 20,
+            marginTop: isTablet ? 24 : 20,
             backgroundColor: "rgba(255,255,255,0.1)",
-            borderRadius: 12,
-            padding: 12,
+            borderRadius: isTablet ? 16 : 12,
+            padding: isTablet ? 16 : 12,
           }}
         >
           <View style={{ flex: 1, alignItems: "center" }}>
-            <Text style={{ color: TROJAN_GOLD, fontSize: 20, fontWeight: "bold" }}>2</Text>
-            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Projects</Text>
+            <Text style={{ color: TROJAN_GOLD, fontSize: isTablet ? 24 : 20, fontWeight: "bold" }}>2</Text>
+            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 13 : 11 }}>Projects</Text>
           </View>
           <View style={{ width: 1, backgroundColor: "rgba(255,255,255,0.2)" }} />
           <View style={{ flex: 1, alignItems: "center" }}>
-            <Text style={{ color: TROJAN_GOLD, fontSize: 20, fontWeight: "bold" }}>3</Text>
-            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Quotes</Text>
+            <Text style={{ color: TROJAN_GOLD, fontSize: isTablet ? 24 : 20, fontWeight: "bold" }}>3</Text>
+            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 13 : 11 }}>Quotes</Text>
           </View>
           <View style={{ width: 1, backgroundColor: "rgba(255,255,255,0.2)" }} />
           <View style={{ flex: 1, alignItems: "center" }}>
-            <Text style={{ color: TROJAN_GOLD, fontSize: 20, fontWeight: "bold" }}>5★</Text>
-            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 11 }}>Rating</Text>
+            <Text style={{ color: TROJAN_GOLD, fontSize: isTablet ? 24 : 20, fontWeight: "bold" }}>5★</Text>
+            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 13 : 11 }}>Rating</Text>
           </View>
         </View>
       </View>
 
       {/* Drawer Items */}
-      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: 10 }}>
+      <DrawerContentScrollView {...props} contentContainerStyle={{ paddingTop: isTablet ? 14 : 10 }}>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
 
@@ -99,11 +101,11 @@ function CustomDrawerContent(props: any) {
         style={{
           borderTopWidth: 1,
           borderTopColor: "#E5E7EB",
-          padding: 20,
-          paddingBottom: insets.bottom + 20,
+          padding: isTablet ? 24 : 20,
+          paddingBottom: insets.bottom + (isTablet ? 24 : 20),
         }}
       >
-        <Text style={{ color: "#9CA3AF", fontSize: 12, textAlign: "center" }}>
+        <Text style={{ color: "#9CA3AF", fontSize: isTablet ? 14 : 12, textAlign: "center" }}>
           Trojan Projects v1.0.0
         </Text>
       </View>
@@ -112,6 +114,10 @@ function CustomDrawerContent(props: any) {
 }
 
 function DrawerLayout() {
+  const { width: screenWidth } = useWindowDimensions();
+  const isTablet = screenWidth >= 768;
+  const drawerWidth = isTablet ? 360 : 300;
+
   return (
     <Drawer
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -128,18 +134,18 @@ function DrawerLayout() {
         headerTitleStyle: {
           fontWeight: "700",
           color: TROJAN_NAVY,
-          fontSize: 18,
+          fontSize: isTablet ? 20 : 18,
         },
         drawerStyle: {
           backgroundColor: "#ffffff",
-          width: 300,
+          width: drawerWidth,
         },
         drawerActiveBackgroundColor: `${TROJAN_GOLD}20`,
         drawerActiveTintColor: TROJAN_NAVY,
         drawerInactiveTintColor: "#6B7280",
         drawerLabelStyle: {
           marginLeft: -16,
-          fontSize: 15,
+          fontSize: isTablet ? 17 : 15,
           fontWeight: "500",
         },
       }}
