@@ -184,6 +184,10 @@ export default function OnboardingScreen() {
                     animate={{ opacity: 1 }}
                     transition={{ type: "timing", duration: 500 }}
                     className="flex-1 items-center px-6 pt-8"
+                    style={{
+                        borderTopLeftRadius: 24,
+                        borderTopRightRadius: 24,
+                    }}
                 >
                     {/* Title */}
                     <MotiView
@@ -254,7 +258,6 @@ export default function OnboardingScreen() {
                             <Button
                                 variant="outline"
                                 className="w-full h-14"
-                                style={{ borderColor: TROJAN_NAVY }}
                                 onPress={handleSignUp}
                             >
                                 <Text
@@ -407,7 +410,6 @@ export default function OnboardingScreen() {
                             <Button
                                 variant="outline"
                                 className="w-full h-14"
-                                style={{ borderColor: TROJAN_NAVY }}
                                 onPress={handleSignUp}
                             >
                                 <Text
