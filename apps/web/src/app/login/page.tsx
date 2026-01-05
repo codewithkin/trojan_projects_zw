@@ -50,17 +50,12 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     setError(null);
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/dashboard",
-      });
-    } catch (err) {
-      setError("Google sign in failed");
-      toast.error("Google sign in failed");
-    } finally {
-      setGoogleLoading(false);
-    }
+    // Social sign-in redirects, so we don't catch errors here
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+    });
+    // Loading state will persist during redirect
   };
 
   return (

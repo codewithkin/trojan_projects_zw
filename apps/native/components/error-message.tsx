@@ -18,13 +18,13 @@ export function ErrorMessage({ message }: ErrorMessageProps) {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "timing", duration: 200 }}
         >
-            <View 
-                className="flex-row items-center gap-2 p-3 rounded-lg"
+            <View
+                className="flex-row items-center justify-center gap-2 p-3 rounded-lg"
                 style={{ backgroundColor: "#FEE2E2" }}
             >
                 <AlertCircle size={18} color="#DC2626" />
                 <Text 
-                    className="flex-1 text-sm"
+                    className="flex-1 text-sm text-center"
                     style={{ color: "#991B1B" }}
                 >
                     {message}

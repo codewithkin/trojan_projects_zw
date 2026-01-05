@@ -58,15 +58,12 @@ export default function LoginScreen() {
 
     const handleGoogleSignIn = async () => {
         setGoogleLoading(true);
-        try {
-            await authClient.signIn.social({
-                provider: "google",
-            });
-        } catch (err) {
-            setError("Google sign in failed");
-        } finally {
-            setGoogleLoading(false);
-        }
+        setError(null);
+        // Social sign-in redirects, so we don't catch errors here
+        await authClient.signIn.social({
+            provider: "google",
+        });
+        // Loading state will persist during redirect
     };
 
     return (

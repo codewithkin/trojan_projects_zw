@@ -58,14 +58,13 @@ export default function SignUpScreen() {
     };
 
     const handleGoogleSignUp = async () => {
-        try {
-            await authClient.signIn.social({
-                provider: "google",
-                callbackURL: "/user-onboarding",
-            });
-        } catch (err) {
-            setError("Google sign up failed");
-        }
+        setGoogleLoading(true);
+        setError(null);
+        // Social sign-in redirects, so we don't catch errors here
+        await authClient.signIn.social({
+            provider: "google",
+        });
+        // Loading state will persist during redirect
     };
 
     return (
