@@ -182,18 +182,16 @@ export default function ProjectsPage() {
                                                 {project.stages.map((stage, index) => (
                                                     <div
                                                         key={index}
-                                                        className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                                                            stage.completed ? "bg-green-50" : "bg-gray-50"
-                                                        }`}
+                                                        className={`flex items-center gap-2 px-3 py-2 rounded-lg ${stage.completed ? "bg-green-50" : "bg-gray-50"
+                                                            }`}
                                                     >
                                                         <CheckCircle2
                                                             size={16}
                                                             className={stage.completed ? "text-green-600" : "text-gray-300"}
                                                         />
                                                         <span
-                                                            className={`text-xs font-medium ${
-                                                                stage.completed ? "text-green-700" : "text-gray-500"
-                                                            }`}
+                                                            className={`text-xs font-medium ${stage.completed ? "text-green-700" : "text-gray-500"
+                                                                }`}
                                                         >
                                                             {stage.name}
                                                         </span>
