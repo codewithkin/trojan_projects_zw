@@ -1,6 +1,8 @@
 // Services offered by Trojan Projects
 // This will be replaced with admin-created services from the database
 
+import { Sun, Camera, Zap, Droplets, Wrench } from "lucide-react";
+
 export interface Service {
     id: string;
     name: string;
@@ -21,6 +23,14 @@ export interface Service {
     rating?: number;
     reviewCount?: number;
 }
+
+export const categoryConfig = {
+    solar: { label: "Solar", color: "#FFC107", icon: Sun },
+    cctv: { label: "CCTV", color: "#3B82F6", icon: Camera },
+    electrical: { label: "Electrical", color: "#8B5CF6", icon: Zap },
+    water: { label: "Water", color: "#06B6D4", icon: Droplets },
+    welding: { label: "Welding", color: "#F97316", icon: Wrench },
+} as const;
 
 export const services: Service[] = [
     {

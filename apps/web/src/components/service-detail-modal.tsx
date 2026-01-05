@@ -239,7 +239,7 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
             {/* Auth Modal */}
             <AuthModal
                 open={showAuthModal}
-                onClose={() => setShowAuthModal(false)}
+                onOpenChange={setShowAuthModal}
             />
         </Dialog>
     );
