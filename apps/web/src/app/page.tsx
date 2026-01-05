@@ -69,7 +69,7 @@ export default function Home() {
           transition={{ delay: 1 }}
           className="text-sm text-slate-500 mt-8"
         >
-          📍 Mutare, Zimbabwe | 📱 +263 77 341 2648
+          Mutare, Zimbabwe | +263 77 341 2648
         </motion.p>
       </motion.div>
     </div>

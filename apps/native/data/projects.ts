@@ -37,12 +37,12 @@ export const projects: Project[] = [
         ],
         brands: ["MUST", "GROWART", "SUMRY", "SAKO"],
         images: [
-            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/one.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/two.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/three.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/four.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/five.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/six.jpg"
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/10-kva-solar-system/one.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/10-kva-solar-system/two.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/10-kva-solar-system/three.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/10-kva-solar-system/four.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/10-kva-solar-system/five.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/10-kva-solar-system/six.jpg"
         ]
     },
     {
@@ -69,8 +69,8 @@ export const projects: Project[] = [
         ],
         brands: ["Must", "Sumry"],
         images: [
-            "https://trojan-projects.s3.amazonaws.com/in-house/1.5-kva-solar-system/one.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/1.5-kva-solar-system/two.jpg"
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/1.5-kva-solar-system/one.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/1.5-kva-solar-system/two.jpg"
         ]
     },
     {
@@ -97,9 +97,9 @@ export const projects: Project[] = [
         ],
         brands: ["Must", "Growart", "Sumry", "Code"],
         images: [
-            "https://trojan-projects.s3.amazonaws.com/in-house/3.5-kva-solar-system/one.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/3.5-kva-solar-system/two.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/3.5-kva-solar-system/three.jpg"
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/3.5-kva-solar-system/one.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/3.5-kva-solar-system/two.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/3.5-kva-solar-system/three.jpg"
         ]
     },
     {
@@ -121,11 +121,11 @@ export const projects: Project[] = [
         ],
         brands: [],
         images: [
-            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/one.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/two.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/three.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/four.jpg",
-            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/five.jpg"
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/cctv-installation/one.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/cctv-installation/two.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/cctv-installation/three.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/cctv-installation/four.jpg",
+            "https://trojan-projects-zw.s3.amazonaws.com/in-house/cctv-installation/five.jpg"
         ]
     }
 ];
