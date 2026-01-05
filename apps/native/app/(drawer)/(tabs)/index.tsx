@@ -1,180 +1,263 @@
-import { ScrollView, View, Image, Pressable } from "react-native";
+import { useState } from "react";
+import { ScrollView, View, TextInput, Pressable, SafeAreaView, StatusBar, Platform } from "react-native";
 import { useRouter } from "expo-router";
-import { ArrowRight, Clock, CheckCircle2, Sun, Camera, Zap } from "lucide-react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DashboardStats } from "@/components/stats-card";
-import { projects } from "@/data/projects";
+import { ServiceCard } from "@/components/service-card";
+import { services, categoryConfig, type ServiceCategory } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-const recentActivity = [
-  {
-    id: 1,
-    title: "Quote Requested",
-    description: "3.5 KVA Solar System",
-    time: "2 hours ago",
-    status: "pending",
-  },
-  {
-    id: 2,
-    title: "Installation Complete",
-    description: "CCTV 4-camera system",
-    time: "Yesterday",
-    status: "completed",
-  },
-];
-
-const quickActions = [
-  { name: "Solar", icon: Sun, color: "#FFC107" },
-  { name: "CCTV", icon: Camera, color: "#3B82F6" },
-  { name: "Electrical", icon: Zap, color: "#8B5CF6" },
-];
+const categories: (ServiceCategory | "all")[] = ["all", "solar", "cctv", "electrical", "water", "welding"];
 
 export default function Home() {
   const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | "all">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredServices = services.filter((service) => {
+    const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
+    const matchesSearch = 
+      service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const featuredServices = services.filter((s) => s.featured);
 
   return (
-    <ScrollView className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
-      <View className="p-4">
+    <SafeAreaView 
+      style={{ 
+        flex: 1, 
+        backgroundColor: "#F9FAFB",
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}
+    >
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6">
-          <View>
-            <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-              Welcome back! 👋
-            </Text>
-            <Text className="text-gray-500 mt-1">
-              Here's what's happening
-            </Text>
+        <View style={{ padding: 16, backgroundColor: TROJAN_NAVY }}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: "white", fontSize: 22, fontWeight: "700" }}>
+                Trojan Projects
+              </Text>
+              <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, marginTop: 2 }}>
+                Quality installations you can trust
+              </Text>
+            </View>
+            <Pressable 
+              onPress={() => router.push("/profile")}
+              style={{ 
+                width: 44, 
+                height: 44, 
+                borderRadius: 22, 
+                backgroundColor: TROJAN_GOLD,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Ionicons name="person" size={22} color={TROJAN_NAVY} />
+            </Pressable>
           </View>
-          <Button
-            className="rounded-full"
-            style={{ backgroundColor: TROJAN_GOLD }}
-            onPress={() => router.push("/quotes")}
+
+          {/* Search Bar */}
+          <View 
+            style={{ 
+              flexDirection: "row", 
+              alignItems: "center", 
+              backgroundColor: "white", 
+              borderRadius: 12,
+              paddingHorizontal: 14,
+              height: 48,
+            }}
           >
-            <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
-              Get Quote
-            </Text>
-          </Button>
+            <Ionicons name="search" size={20} color="#9CA3AF" />
+            <TextInput
+              placeholder="Search services..."
+              placeholderTextColor="#9CA3AF"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={{ 
+                flex: 1, 
+                marginLeft: 10, 
+                fontSize: 15,
+                color: TROJAN_NAVY,
+              }}
+            />
+            {searchQuery.length > 0 && (
+              <Pressable onPress={() => setSearchQuery("")}>
+                <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+              </Pressable>
+            )}
+          </View>
         </View>
 
-        {/* Stats */}
-        <DashboardStats
-          stats={{
-            projects: 1,
-            quotes: 2,
-            revenue: "US$4,050",
-            growth: "15%",
-          }}
-        />
-
-        {/* Quick Actions */}
-        <View className="mt-6">
-          <Text className="text-lg font-semibold mb-4" style={{ color: TROJAN_NAVY }}>
-            Quick Actions
-          </Text>
-          <View className="flex-row gap-3">
-            {quickActions.map((action) => {
-              const Icon = action.icon;
+        <View style={{ padding: 16 }}>
+          {/* Category Pills */}
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={{ marginBottom: 20, marginHorizontal: -16, paddingHorizontal: 16 }}
+          >
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat;
+              const config = cat === "all" ? null : categoryConfig[cat];
               return (
                 <Pressable
-                  key={action.name}
-                  onPress={() => router.push("/services")}
-                  className="flex-1 bg-white rounded-xl border border-gray-100 p-4 items-center"
-                  style={{ elevation: 1 }}
+                  key={cat}
+                  onPress={() => setSelectedCategory(cat)}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    paddingHorizontal: 16,
+                    paddingVertical: 10,
+                    borderRadius: 20,
+                    marginRight: 10,
+                    backgroundColor: isActive ? TROJAN_NAVY : "white",
+                    borderWidth: 1,
+                    borderColor: isActive ? TROJAN_NAVY : "#E5E7EB",
+                  }}
                 >
-                  <View
-                    className="w-12 h-12 rounded-full items-center justify-center mb-2"
-                    style={{ backgroundColor: `${action.color}20` }}
+                  {config && (
+                    <Ionicons 
+                      name={config.icon as any} 
+                      size={16} 
+                      color={isActive ? "white" : config.color}
+                      style={{ marginRight: 6 }}
+                    />
+                  )}
+                  <Text 
+                    style={{ 
+                      color: isActive ? "white" : "#374151",
+                      fontWeight: "600",
+                      fontSize: 13,
+                    }}
                   >
-                    <Icon size={24} color={action.color} />
-                  </View>
-                  <Text className="font-medium text-gray-900">{action.name}</Text>
+                    {cat === "all" ? "All Services" : config?.label}
+                  </Text>
                 </Pressable>
               );
             })}
-          </View>
-        </View>
+          </ScrollView>
 
-        {/* Recent Activity */}
-        <View className="mt-6">
-          <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-lg font-semibold" style={{ color: TROJAN_NAVY }}>
-              Recent Activity
-            </Text>
-            <Pressable onPress={() => router.push("/projects")}>
-              <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>
-                View all
-              </Text>
-            </Pressable>
-          </View>
-          <Card className="bg-white">
-            <CardContent className="p-0">
-              {recentActivity.map((activity, index) => (
-                <View
-                  key={activity.id}
-                  className={`flex-row items-center gap-3 p-4 ${index < recentActivity.length - 1 ? "border-b border-gray-100" : ""
-                    }`}
-                >
-                  <View
-                    className={`w-10 h-10 rounded-full items-center justify-center ${activity.status === "completed" ? "bg-green-100" : "bg-yellow-100"
-                      }`}
-                  >
-                    {activity.status === "completed" ? (
-                      <CheckCircle2 size={20} color="#16A34A" />
-                    ) : (
-                      <Clock size={20} color="#CA8A04" />
-                    )}
-                  </View>
-                  <View className="flex-1">
-                    <Text className="font-medium text-gray-900">{activity.title}</Text>
-                    <Text className="text-sm text-gray-500">{activity.description}</Text>
-                  </View>
-                  <Text className="text-xs text-gray-400">{activity.time}</Text>
-                </View>
-              ))}
-            </CardContent>
-          </Card>
-        </View>
-
-        {/* Popular Services */}
-        <View className="mt-6 mb-8">
-          <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-lg font-semibold" style={{ color: TROJAN_NAVY }}>
-              Popular Services
-            </Text>
-            <Pressable onPress={() => router.push("/services")}>
-              <Text className="text-sm font-medium" style={{ color: TROJAN_NAVY }}>
-                Browse all
-              </Text>
-            </Pressable>
-          </View>
-          {projects.slice(0, 3).map((product) => (
-            <Pressable
-              key={product.id}
-              onPress={() => router.push("/services")}
-              className="flex-row items-center gap-3 bg-white rounded-xl border border-gray-100 p-3 mb-3"
-              style={{ elevation: 1 }}
-            >
-              <Image
-                source={{ uri: product.images[0] }}
-                className="w-14 h-14 rounded-lg"
-                resizeMode="cover"
-              />
-              <View className="flex-1">
-                <Text className="font-medium text-gray-900" numberOfLines={1}>
-                  {product.name}
+          {/* Featured Section (only when "all" is selected) */}
+          {selectedCategory === "all" && searchQuery === "" && featuredServices.length > 0 && (
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+                <View 
+                  style={{ 
+                    width: 6, 
+                    height: 20, 
+                    backgroundColor: TROJAN_GOLD, 
+                    borderRadius: 3,
+                    marginRight: 8,
+                  }} 
+                />
+                <Text style={{ fontSize: 18, fontWeight: "700", color: TROJAN_NAVY }}>
+                  Featured Services
                 </Text>
-                <Text className="text-xs text-gray-500">{product.priceRange}</Text>
               </View>
-              <ArrowRight size={18} color="#9CA3AF" />
+              {featuredServices.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onPress={() => console.log("Navigate to service:", service.id)}
+                />
+              ))}
+            </View>
+          )}
+
+          {/* All Services Section */}
+          <View>
+            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
+              <View 
+                style={{ 
+                  width: 6, 
+                  height: 20, 
+                  backgroundColor: TROJAN_GOLD, 
+                  borderRadius: 3,
+                  marginRight: 8,
+                }} 
+              />
+              <Text style={{ fontSize: 18, fontWeight: "700", color: TROJAN_NAVY }}>
+                {selectedCategory === "all" 
+                  ? (searchQuery ? "Search Results" : "All Services") 
+                  : categoryConfig[selectedCategory].label
+                }
+              </Text>
+              <Text style={{ marginLeft: 8, color: "#9CA3AF", fontSize: 14 }}>
+                ({filteredServices.length})
+              </Text>
+            </View>
+
+            {filteredServices.length > 0 ? (
+              filteredServices.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onPress={() => console.log("Navigate to service:", service.id)}
+                />
+              ))
+            ) : (
+              <View style={{ alignItems: "center", paddingVertical: 40, backgroundColor: "white", borderRadius: 16 }}>
+                <Ionicons name="search-outline" size={48} color="#D1D5DB" />
+                <Text style={{ fontSize: 16, fontWeight: "600", color: TROJAN_NAVY, marginTop: 12 }}>
+                  No services found
+                </Text>
+                <Text style={{ fontSize: 14, color: "#9CA3AF", marginTop: 4, textAlign: "center" }}>
+                  Try adjusting your search or category filter
+                </Text>
+                <Pressable 
+                  onPress={() => { setSearchQuery(""); setSelectedCategory("all"); }}
+                  style={{ 
+                    marginTop: 16, 
+                    backgroundColor: TROJAN_GOLD, 
+                    paddingHorizontal: 20, 
+                    paddingVertical: 10, 
+                    borderRadius: 20,
+                  }}
+                >
+                  <Text style={{ color: TROJAN_NAVY, fontWeight: "600" }}>
+                    Clear Filters
+                  </Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+
+          {/* CTA Section */}
+          <View 
+            style={{ 
+              marginTop: 24,
+              marginBottom: 32,
+              padding: 20, 
+              backgroundColor: TROJAN_NAVY, 
+              borderRadius: 20,
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>
+              Need a Custom Quote?
+            </Text>
+            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, marginTop: 4, marginBottom: 16 }}>
+              Contact us for personalized solutions tailored to your needs.
+            </Text>
+            <Pressable 
+              style={{ 
+                backgroundColor: TROJAN_GOLD, 
+                paddingVertical: 12, 
+                borderRadius: 20,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: 15 }}>
+                Request Quote
+              </Text>
             </Pressable>
-          ))}
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
