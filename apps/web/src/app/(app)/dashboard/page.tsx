@@ -53,7 +53,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold" style={{ color: TROJAN_NAVY }}>
-                            Welcome back! 👋
+                            Welcome back!
                         </h1>
                         <p className="text-gray-500 mt-1">Here&apos;s what&apos;s happening with your projects</p>
                     </div>
@@ -113,8 +113,8 @@ export default function DashboardPage() {
                                         >
                                             <div
                                                 className={`w-10 h-10 rounded-full flex items-center justify-center ${activity.status === "completed" || activity.status === "approved"
-                                                        ? "bg-green-100"
-                                                        : "bg-yellow-100"
+                                                    ? "bg-green-100"
+                                                    : "bg-yellow-100"
                                                     }`}
                                             >
                                                 <activity.icon
