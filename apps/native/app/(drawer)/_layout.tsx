@@ -117,7 +117,7 @@ function DrawerLayout() {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerTintColor: TROJAN_NAVY,
-        headerStyle: { 
+        headerStyle: {
           backgroundColor: "#ffffff",
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
@@ -130,7 +130,7 @@ function DrawerLayout() {
           color: TROJAN_NAVY,
           fontSize: 18,
         },
-        drawerStyle: { 
+        drawerStyle: {
           backgroundColor: "#ffffff",
           width: 300,
         },

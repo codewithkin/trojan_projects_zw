@@ -92,11 +92,10 @@ export default function Projects() {
                     <Pressable
                         key={filter.value}
                         onPress={() => setSelectedFilter(filter.value)}
-                        className={`mr-2 px-4 py-2 rounded-full border ${
-                            selectedFilter === filter.value
+                        className={`mr-2 px-4 py-2 rounded-full border ${selectedFilter === filter.value
                                 ? "border-transparent"
                                 : "border-gray-200 bg-white"
-                        }`}
+                            }`}
                         style={
                             selectedFilter === filter.value
                                 ? { backgroundColor: TROJAN_NAVY }
@@ -104,9 +103,8 @@ export default function Projects() {
                         }
                     >
                         <Text
-                            className={`text-sm font-medium ${
-                                selectedFilter === filter.value ? "text-white" : "text-gray-600"
-                            }`}
+                            className={`text-sm font-medium ${selectedFilter === filter.value ? "text-white" : "text-gray-600"
+                                }`}
                         >
                             {filter.label}
                         </Text>
