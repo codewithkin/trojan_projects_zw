@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, Shield, Clock, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,12 +35,14 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredServices = services.filter((service) => {
-    const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
-    const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
+      const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Package, Clock, CheckCircle2, AlertCircle, Truck, XCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,19 +22,23 @@ const tabs: { id: ProjectStatus | "all"; label: string; icon: typeof Clock; colo
 export default function ProjectsPage() {
     const [activeTab, setActiveTab] = useState<ProjectStatus | "all">("all");
 
-    const filteredProjects = userProjects.filter((project) => {
-        if (activeTab === "all") return true;
-        return project.status === activeTab;
-    });
+    const filteredProjects = useMemo(() => {
+        return userProjects.filter((project) => {
+            if (activeTab === "all") return true;
+            return project.status === activeTab;
+        });
+    }, [activeTab]);
 
     const getTabCount = (tabId: ProjectStatus | "all") => {
         if (tabId === "all") return userProjects.length;
         return userProjects.filter((p) => p.status === tabId).length;
     };
 
-    const totalInvestment = userProjects
-        .filter(p => p.status !== "cancelled")
-        .reduce((sum, p) => sum + p.price, 0);
+    const totalInvestment = useMemo(() => {
+        return userProjects
+            .filter(p => p.status !== "cancelled")
+            .reduce((sum, p) => sum + p.price, 0);
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50">
