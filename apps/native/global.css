@@ -3,3 +3,8 @@
 @import "heroui-native/styles";
 
 @source './node_modules/heroui-native/lib';
+
+/* Force light mode to match web app - disable dark theme */
+:root {
+  color-scheme: light only;
+}

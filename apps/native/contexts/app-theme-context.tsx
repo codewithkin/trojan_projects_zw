@@ -14,33 +14,41 @@ type AppThemeContextType = {
 const AppThemeContext = createContext<AppThemeContextType | undefined>(undefined);
 
 export const AppThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  // Force light theme to match web app (no dark mode)
+  React.useEffect(() => {
+    Uniwind.setTheme("light");
+  }, []);
+
   const { theme } = useUniwind();
 
   const isLight = useMemo(() => {
-    return theme === "light";
-  }, [theme]);
+    return true; // Always light mode
+  }, []);
 
   const isDark = useMemo(() => {
-    return theme === "dark";
-  }, [theme]);
+    return false; // Never dark mode
+  }, []);
 
   const setTheme = useCallback((newTheme: ThemeName) => {
-    Uniwind.setTheme(newTheme);
+    // Only allow light theme
+    if (newTheme === "light") {
+      Uniwind.setTheme(newTheme);
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
-    Uniwind.setTheme(theme === "light" ? "dark" : "light");
-  }, [theme]);
+    // Do nothing - theme is locked to light
+  }, []);
 
   const value = useMemo(
     () => ({
-      currentTheme: theme,
+      currentTheme: "light",
       isLight,
       isDark,
       setTheme,
       toggleTheme,
     }),
-    [theme, isLight, isDark, setTheme, toggleTheme],
+    [isLight, isDark, setTheme, toggleTheme],
   );
 
   return <AppThemeContext.Provider value={value}>{children}</AppThemeContext.Provider>;
