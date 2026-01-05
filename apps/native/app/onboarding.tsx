@@ -84,6 +84,13 @@ export default function OnboardingScreen() {
             { width: width * 0.22, height: width * 0.22 },
         ];
 
+        const bubbleAnimations = [
+            { translateY: [0, -15, 0], duration: 2000 },
+            { translateY: [0, -20, 0], duration: 2500 },
+            { translateY: [0, -12, 0], duration: 1800 },
+            { translateY: [0, -18, 0], duration: 2200 },
+        ];
+
         return (
             <MotiView
                 from={{ scale: 0.8, opacity: 0 }}
@@ -96,12 +103,22 @@ export default function OnboardingScreen() {
                     {images.slice(0, 4).map((image, idx) => (
                         <MotiView
                             key={idx}
-                            from={{ scale: 0, rotate: "-10deg" }}
-                            animate={{ scale: 1, rotate: "0deg" }}
+                            from={{ scale: 0, rotate: "-10deg", translateY: 50 }}
+                            animate={{
+                                scale: 1,
+                                rotate: "0deg",
+                                translateY: bubbleAnimations[idx].translateY,
+                            }}
                             transition={{
                                 type: "spring",
                                 delay: 300 + idx * 100,
                                 damping: 10,
+                                translateY: {
+                                    type: "timing",
+                                    duration: bubbleAnimations[idx].duration,
+                                    loop: true,
+                                    delay: 800 + idx * 200,
+                                },
                             }}
                         >
                             <Image
