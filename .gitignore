@@ -39,6 +39,10 @@ lerna-debug.log*
 # Better-T-Stack
 .alchemy
 
+# Native builds (Android/iOS)
+apps/native/android/
+apps/native/ios/
+
 # Testing
 coverage
 .nyc_output
