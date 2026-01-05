@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Star, Heart } from "lucide-react";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { type Service } from "@/data/services";
 
@@ -142,3 +142,5 @@ export function ServiceCard({ service }: ServiceCardProps) {
         </div>
     );
 }
+
+export default memo(ServiceCard);

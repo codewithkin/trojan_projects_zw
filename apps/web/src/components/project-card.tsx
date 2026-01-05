@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Clock, CheckCircle2, XCircle, Truck, AlertCircle, Calendar, MapPin, User } from "lucide-react";
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { type UserProject, type ProjectStatus } from "@/data/services";
 
@@ -167,3 +168,5 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
         </div>
     );
 }
+
+export default memo(ProjectCard);
