@@ -8,10 +8,15 @@
     },
     "name": "trojan_projects_zw",
     "slug": "trojan_projects_zw",
-    "plugins": ["expo-font"],
+    "plugins": [
+      "expo-font"
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "android": {
+      "package": "com.codewithkin.trojan_projects_zw"
     }
   }
 }
