@@ -1,117 +1,181 @@
-import { Button, ErrorView, Spinner, Surface, TextField } from "heroui-native";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 
-function signUpHandler({
-  name,
-  email,
-  password,
-  setError,
-  setIsLoading,
-  setName,
-  setEmail,
-  setPassword,
-}: {
-  name: string;
-  email: string;
-  password: string;
-  setError: (error: string | null) => void;
-  setIsLoading: (loading: boolean) => void;
-  setName: (name: string) => void;
-  setEmail: (email: string) => void;
-  setPassword: (password: string) => void;
-}) {
-  setIsLoading(true);
-  setError(null);
+const TROJAN_NAVY = "#0F1B4D";
+const TROJAN_GOLD = "#FFC107";
 
-  authClient.signUp.email(
-    {
-      name,
-      email,
-      password,
-    },
-    {
-      onError(error) {
-        setError(error.error?.message || "Failed to sign up");
-        setIsLoading(false);
-      },
-      onSuccess() {
-        setName("");
-        setEmail("");
-        setPassword("");
-      },
-      onFinished() {
-        setIsLoading(false);
-      },
-    },
-  );
-}
-
-export function SignUp() {
+function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handlePress() {
-    signUpHandler({
-      name,
-      email,
-      password,
-      setError,
-      setIsLoading,
-      setName,
-      setEmail,
-      setPassword,
-    });
-  }
+  const handleEmailSignUp = async () => {
+    setError(null);
+    if (!name || !email || !password) {
+      setError("All fields are required");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await authClient.signUp.email(
+        { name, email, password },
+        {
+          onSuccess: () => {
+            router.push("/user-onboarding");
+          },
+          onError: (error) => {
+            setError(error.error.message || "Sign up failed");
+          },
+        }
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/user-onboarding",
+      });
+    } catch (err) {
+      setError("Google sign up failed");
+    }
+  };
 
   return (
-    <Surface variant="secondary" className="p-4 rounded-lg">
-      <Text className="text-foreground font-medium mb-4">Create Account</Text>
+    <View className="flex-1 items-center justify-center p-4">
+      <View className="w-full max-w-md">
+        {/* Card container with white background */}
+        <View
+          style={{
+            backgroundColor: "#ffffff",
+            borderRadius: 8,
+            padding: 24,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 12,
+            elevation: 5,
+          }}
+        >
+          {/* Header */}
+          <Text
+            className="text-2xl font-bold text-center mb-2"
+            style={{ color: TROJAN_NAVY }}
+          >
+            Create Account
+          </Text>
+          <Text className="text-center text-muted-foreground mb-6">
+            Join Trojan Projects ZW today
+          </Text>
 
-      <ErrorView isInvalid={!!error} className="mb-3">
-        {error}
-      </ErrorView>
+          {/* Google Button */}
+          <Button
+            variant="outline"
+            className="w-full h-12 mb-4 flex-row items-center justify-center gap-2"
+            onPress={handleGoogleSignUp}
+          >
+            <Text className="font-medium">Continue with Google</Text>
+          </Button>
 
-      <View className="gap-3">
-        <TextField>
-          <TextField.Label>Name</TextField.Label>
-          <TextField.Input value={name} onChangeText={setName} placeholder="John Doe" />
-        </TextField>
+          {/* Divider */}
+          <View className="flex-row items-center my-4">
+            <View className="flex-1 h-px bg-border" />
+            <Text className="px-3 text-xs text-muted-foreground uppercase">
+              Or continue with
+            </Text>
+            <View className="flex-1 h-px bg-border" />
+          </View>
 
-        <TextField>
-          <TextField.Label>Email</TextField.Label>
-          <TextField.Input
-            value={email}
-            onChangeText={setEmail}
-            placeholder="email@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </TextField>
-
-        <TextField>
-          <TextField.Label>Password</TextField.Label>
-          <TextField.Input
-            value={password}
-            onChangeText={setPassword}
-            placeholder="••••••••"
-            secureTextEntry
-          />
-        </TextField>
-
-        <Button onPress={handlePress} isDisabled={isLoading} className="mt-1">
-          {isLoading ? (
-            <Spinner size="sm" color="default" />
-          ) : (
-            <Button.Label>Create Account</Button.Label>
+          {/* Error Message */}
+          {error && (
+            <Text className="text-red-500 text-sm mb-4 text-center">{error}</Text>
           )}
-        </Button>
+
+          {/* Name Input */}
+          <View className="mb-4">
+            <Text className="text-sm font-medium mb-2" style={{ color: TROJAN_NAVY }}>
+              Full Name
+            </Text>
+            <Input
+              placeholder="John Doe"
+              value={name}
+              onChangeText={setName}
+              editable={!isLoading}
+              className="h-10 px-3"
+            />
+          </View>
+
+          {/* Email Input */}
+          <View className="mb-4">
+            <Text className="text-sm font-medium mb-2" style={{ color: TROJAN_NAVY }}>
+              Email
+            </Text>
+            <Input
+              placeholder="john@example.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!isLoading}
+              className="h-10 px-3"
+            />
+          </View>
+
+          {/* Password Input */}
+          <View className="mb-6">
+            <Text className="text-sm font-medium mb-2" style={{ color: TROJAN_NAVY }}>
+              Password
+            </Text>
+            <Input
+              placeholder="••••••••"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              editable={!isLoading}
+              className="h-10 px-3"
+            />
+          </View>
+
+          {/* Create Account Button */}
+          <Button
+            className="w-full h-10 font-semibold mb-4"
+            style={{ backgroundColor: TROJAN_GOLD }}
+            onPress={handleEmailSignUp}
+            disabled={isLoading}
+          >
+            <Text style={{ color: TROJAN_NAVY }} className="font-semibold">
+              {isLoading ? "Creating account..." : "Create Account"}
+            </Text>
+          </Button>
+
+          {/* Sign In Link */}
+          <View className="flex-row justify-center">
+            <Text className="text-sm text-muted-foreground">
+              Already have an account?{" "}
+            </Text>
+            <Pressable onPress={onSwitchToSignIn}>
+              <Text className="text-sm font-semibold" style={{ color: TROJAN_NAVY }}>
+                Sign in
+              </Text>
+            </Pressable>
+          </View>
+        </View>
       </View>
-    </Surface>
+    </View>
   );
 }
+
+export { SignUp };
