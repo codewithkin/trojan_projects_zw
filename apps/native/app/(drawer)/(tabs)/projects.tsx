@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ScrollView, View, Pressable, SafeAreaView, StatusBar, Platform } from "react-native";
+import { useState, useMemo } from "react";
+import { ScrollView, View, Pressable, SafeAreaView, StatusBar, Platform, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
@@ -22,21 +22,32 @@ const tabs: { id: TabId; label: string; icon: string; color: string }[] = [
 
 export default function Projects() {
     const router = useRouter();
+    const { width } = useWindowDimensions();
     const [activeTab, setActiveTab] = useState<TabId>("all");
 
-    const filteredProjects = userProjects.filter((project) => {
-        if (activeTab === "all") return true;
-        return project.status === activeTab;
-    });
+    // Responsive breakpoints
+    const isTablet = width >= 768;
+    const isLargeTablet = width >= 1024;
+    const contentPadding = isTablet ? 24 : 16;
+    const gridColumns = isLargeTablet ? 2 : 1;
+
+    const filteredProjects = useMemo(() => {
+        return userProjects.filter((project) => {
+            if (activeTab === "all") return true;
+            return project.status === activeTab;
+        });
+    }, [activeTab]);
 
     const getTabCount = (tabId: TabId) => {
         if (tabId === "all") return userProjects.length;
         return userProjects.filter((p) => p.status === tabId).length;
     };
 
-    const totalInvestment = userProjects
-        .filter(p => p.status !== "cancelled")
-        .reduce((sum, p) => sum + p.price, 0);
+    const totalInvestment = useMemo(() => {
+        return userProjects
+            .filter(p => p.status !== "cancelled")
+            .reduce((sum, p) => sum + p.price, 0);
+    }, []);
 
     return (
         <SafeAreaView
@@ -48,116 +59,183 @@ export default function Projects() {
         >
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
                 {/* Header */}
-                <View style={{ padding: 16 }}>
+                <View style={{ 
+                    padding: contentPadding,
+                    maxWidth: isLargeTablet ? 1200 : undefined,
+                    alignSelf: "center",
+                    width: "100%",
+                }}>
                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                        <Text style={{ fontSize: 24, fontWeight: "700", color: TROJAN_NAVY }}>
+                        <Text style={{ fontSize: isTablet ? 30 : 24, fontWeight: "700", color: TROJAN_NAVY }}>
                             My Projects
                         </Text>
                         <Pressable
                             onPress={() => router.push("/")}
                             style={{
                                 backgroundColor: TROJAN_GOLD,
-                                paddingHorizontal: 16,
-                                paddingVertical: 10,
+                                paddingHorizontal: isTablet ? 20 : 16,
+                                paddingVertical: isTablet ? 12 : 10,
                                 borderRadius: 20,
                                 flexDirection: "row",
                                 alignItems: "center",
                                 gap: 6,
                             }}
                         >
-                            <Ionicons name="add" size={18} color={TROJAN_NAVY} />
-                            <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: 14 }}>
+                            <Ionicons name="add" size={isTablet ? 20 : 18} color={TROJAN_NAVY} />
+                            <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: isTablet ? 16 : 14 }}>
                                 New
                             </Text>
                         </Pressable>
                     </View>
-                    <Text style={{ color: "#6B7280", fontSize: 14 }}>
+                    <Text style={{ color: "#6B7280", fontSize: isTablet ? 16 : 14 }}>
                         Track and manage your service requests
                     </Text>
                 </View>
 
                 {/* Stats Cards */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={{ paddingLeft: 16, marginBottom: 16 }}
-                    contentContainerStyle={{ paddingRight: 16 }}
-                >
-                    {tabs.slice(1).map((tab) => {
-                        const count = getTabCount(tab.id);
-                        const isActive = activeTab === tab.id;
-                        return (
-                            <Pressable
-                                key={tab.id}
-                                onPress={() => setActiveTab(tab.id)}
-                                style={{
-                                    backgroundColor: "white",
-                                    borderRadius: 16,
-                                    padding: 14,
-                                    marginRight: 10,
-                                    minWidth: 110,
-                                    borderWidth: 2,
-                                    borderColor: isActive ? tab.color : "transparent",
-                                    shadowColor: "#000",
-                                    shadowOffset: { width: 0, height: 2 },
-                                    shadowOpacity: isActive ? 0.1 : 0.03,
-                                    shadowRadius: 4,
-                                    elevation: isActive ? 4 : 2,
-                                }}
-                            >
-                                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                                    <View
-                                        style={{
-                                            width: 36,
-                                            height: 36,
-                                            borderRadius: 18,
-                                            backgroundColor: `${tab.color}20`,
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                        }}
-                                    >
-                                        <Ionicons name={tab.icon as any} size={18} color={tab.color} />
+                {isTablet ? (
+                    <View style={{ 
+                        flexDirection: "row", 
+                        paddingHorizontal: contentPadding, 
+                        marginBottom: 16,
+                        gap: 12,
+                        maxWidth: isLargeTablet ? 1200 : undefined,
+                        alignSelf: "center",
+                        width: "100%",
+                    }}>
+                        {tabs.slice(1).map((tab) => {
+                            const count = getTabCount(tab.id);
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <Pressable
+                                    key={tab.id}
+                                    onPress={() => setActiveTab(tab.id)}
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: "white",
+                                        borderRadius: 16,
+                                        padding: 16,
+                                        borderWidth: 2,
+                                        borderColor: isActive ? tab.color : "transparent",
+                                        shadowColor: "#000",
+                                        shadowOffset: { width: 0, height: 2 },
+                                        shadowOpacity: isActive ? 0.1 : 0.03,
+                                        shadowRadius: 4,
+                                        elevation: isActive ? 4 : 2,
+                                    }}
+                                >
+                                    <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                                        <View
+                                            style={{
+                                                width: 44,
+                                                height: 44,
+                                                borderRadius: 22,
+                                                backgroundColor: `${tab.color}20`,
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                            }}
+                                        >
+                                            <Ionicons name={tab.icon as any} size={22} color={tab.color} />
+                                        </View>
+                                        <View>
+                                            <Text style={{ fontSize: 24, fontWeight: "700", color: TROJAN_NAVY }}>
+                                                {count}
+                                            </Text>
+                                            <Text style={{ fontSize: 12, color: "#9CA3AF" }}>
+                                                {tab.label}
+                                            </Text>
+                                        </View>
                                     </View>
-                                    <View>
-                                        <Text style={{ fontSize: 20, fontWeight: "700", color: TROJAN_NAVY }}>
-                                            {count}
-                                        </Text>
-                                        <Text style={{ fontSize: 11, color: "#9CA3AF" }}>
-                                            {tab.label}
-                                        </Text>
+                                </Pressable>
+                            );
+                        })}
+                    </View>
+                ) : (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={{ paddingLeft: contentPadding, marginBottom: 16 }}
+                        contentContainerStyle={{ paddingRight: contentPadding }}
+                    >
+                        {tabs.slice(1).map((tab) => {
+                            const count = getTabCount(tab.id);
+                            const isActive = activeTab === tab.id;
+                            return (
+                                <Pressable
+                                    key={tab.id}
+                                    onPress={() => setActiveTab(tab.id)}
+                                    style={{
+                                        backgroundColor: "white",
+                                        borderRadius: 16,
+                                        padding: 14,
+                                        marginRight: 10,
+                                        minWidth: 110,
+                                        borderWidth: 2,
+                                        borderColor: isActive ? tab.color : "transparent",
+                                        shadowColor: "#000",
+                                        shadowOffset: { width: 0, height: 2 },
+                                        shadowOpacity: isActive ? 0.1 : 0.03,
+                                        shadowRadius: 4,
+                                        elevation: isActive ? 4 : 2,
+                                    }}
+                                >
+                                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                                        <View
+                                            style={{
+                                                width: 36,
+                                                height: 36,
+                                                borderRadius: 18,
+                                                backgroundColor: `${tab.color}20`,
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                            }}
+                                        >
+                                            <Ionicons name={tab.icon as any} size={18} color={tab.color} />
+                                        </View>
+                                        <View>
+                                            <Text style={{ fontSize: 20, fontWeight: "700", color: TROJAN_NAVY }}>
+                                                {count}
+                                            </Text>
+                                            <Text style={{ fontSize: 11, color: "#9CA3AF" }}>
+                                                {tab.label}
+                                            </Text>
+                                        </View>
                                     </View>
-                                </View>
-                            </Pressable>
-                        );
-                    })}
-                </ScrollView>
+                                </Pressable>
+                            );
+                        })}
+                    </ScrollView>
+                )}
 
                 {/* Total Investment Banner */}
                 <View
                     style={{
-                        marginHorizontal: 16,
+                        marginHorizontal: contentPadding,
                         marginBottom: 16,
                         backgroundColor: TROJAN_NAVY,
-                        borderRadius: 16,
-                        padding: 16,
+                        borderRadius: isTablet ? 20 : 16,
+                        padding: isTablet ? 24 : 16,
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "space-between",
+                        maxWidth: isLargeTablet ? 1200 - contentPadding * 2 : undefined,
+                        alignSelf: "center",
+                        width: isLargeTablet ? "100%" : undefined,
                     }}
                 >
                     <View>
-                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, marginBottom: 2 }}>
+                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 14 : 12, marginBottom: 2 }}>
                             Total Investment
                         </Text>
-                        <Text style={{ color: "white", fontSize: 24, fontWeight: "700" }}>
+                        <Text style={{ color: "white", fontSize: isTablet ? 32 : 24, fontWeight: "700" }}>
                             US${totalInvestment.toLocaleString()}
                         </Text>
                     </View>
                     <View style={{ alignItems: "flex-end" }}>
-                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, marginBottom: 2 }}>
+                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 14 : 12, marginBottom: 2 }}>
                             Total Projects
                         </Text>
-                        <Text style={{ color: TROJAN_GOLD, fontSize: 24, fontWeight: "700" }}>
+                        <Text style={{ color: TROJAN_GOLD, fontSize: isTablet ? 32 : 24, fontWeight: "700" }}>
                             {userProjects.length}
                         </Text>
                     </View>
@@ -167,8 +245,8 @@ export default function Projects() {
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    style={{ paddingLeft: 16, marginBottom: 16 }}
-                    contentContainerStyle={{ paddingRight: 16 }}
+                    style={{ paddingLeft: contentPadding, marginBottom: 16 }}
+                    contentContainerStyle={{ paddingRight: contentPadding }}
                 >
                     {tabs.map((tab) => {
                         const isActive = activeTab === tab.id;
@@ -180,10 +258,10 @@ export default function Projects() {
                                 style={{
                                     flexDirection: "row",
                                     alignItems: "center",
-                                    paddingHorizontal: 14,
-                                    paddingVertical: 10,
+                                    paddingHorizontal: isTablet ? 18 : 14,
+                                    paddingVertical: isTablet ? 12 : 10,
                                     borderRadius: 20,
-                                    marginRight: 8,
+                                    marginRight: isTablet ? 12 : 8,
                                     backgroundColor: isActive ? TROJAN_NAVY : "white",
                                     gap: 6,
                                 }}
@@ -226,41 +304,56 @@ export default function Projects() {
                 </ScrollView>
 
                 {/* Projects List */}
-                <View style={{ paddingHorizontal: 16, paddingBottom: 32 }}>
+                <View style={{ 
+                    paddingHorizontal: contentPadding, 
+                    paddingBottom: 32,
+                    maxWidth: isLargeTablet ? 1200 : undefined,
+                    alignSelf: "center",
+                    width: "100%",
+                }}>
                     {filteredProjects.length > 0 ? (
-                        filteredProjects.map((project) => (
-                            <ProjectCard
-                                key={project.id}
-                                project={project}
-                                onPress={() => console.log("View project:", project.id)}
-                            />
-                        ))
+                        <View style={{
+                            flexDirection: isTablet ? "row" : "column",
+                            flexWrap: "wrap",
+                            gap: isTablet ? 16 : 12,
+                        }}>
+                            {filteredProjects.map((project) => (
+                                <View key={project.id} style={{
+                                    width: isTablet ? `${100 / gridColumns - 2}%` : "100%",
+                                }}>
+                                    <ProjectCard
+                                        project={project}
+                                        onPress={() => console.log("View project:", project.id)}
+                                    />
+                                </View>
+                            ))}
+                        </View>
                     ) : (
                         <View
                             style={{
                                 alignItems: "center",
-                                paddingVertical: 48,
+                                paddingVertical: isTablet ? 64 : 48,
                                 backgroundColor: "white",
                                 borderRadius: 20,
                             }}
                         >
                             <View
                                 style={{
-                                    width: 64,
-                                    height: 64,
-                                    borderRadius: 32,
+                                    width: isTablet ? 80 : 64,
+                                    height: isTablet ? 80 : 64,
+                                    borderRadius: isTablet ? 40 : 32,
                                     backgroundColor: `${TROJAN_GOLD}20`,
                                     alignItems: "center",
                                     justifyContent: "center",
                                     marginBottom: 16,
                                 }}
                             >
-                                <Ionicons name="layers-outline" size={32} color={TROJAN_GOLD} />
+                                <Ionicons name="layers-outline" size={isTablet ? 40 : 32} color={TROJAN_GOLD} />
                             </View>
-                            <Text style={{ fontSize: 18, fontWeight: "600", color: TROJAN_NAVY, marginBottom: 4 }}>
+                            <Text style={{ fontSize: isTablet ? 22 : 18, fontWeight: "600", color: TROJAN_NAVY, marginBottom: 4 }}>
                                 No projects found
                             </Text>
-                            <Text style={{ fontSize: 14, color: "#9CA3AF", textAlign: "center", paddingHorizontal: 32 }}>
+                            <Text style={{ fontSize: isTablet ? 16 : 14, color: "#9CA3AF", textAlign: "center", paddingHorizontal: 32 }}>
                                 {activeTab === "all"
                                     ? "You haven't requested any services yet. Browse our services to get started!"
                                     : `You don't have any ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()} projects.`

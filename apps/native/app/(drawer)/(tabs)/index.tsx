@@ -51,9 +51,9 @@ export default function Home() {
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={{ padding: contentPadding, backgroundColor: TROJAN_NAVY }}>
-          <View style={{ 
-            flexDirection: "row", 
-            alignItems: "center", 
+          <View style={{
+            flexDirection: "row",
+            alignItems: "center",
             marginBottom: 16,
             maxWidth: isLargeTablet ? 1200 : undefined,
             alignSelf: "center",
@@ -117,7 +117,7 @@ export default function Home() {
           </View>
         </View>
 
-        <View style={{ 
+        <View style={{
           padding: contentPadding,
           maxWidth: isLargeTablet ? 1200 : undefined,
           alignSelf: "center",
@@ -187,13 +187,13 @@ export default function Home() {
                   Featured Services
                 </Text>
               </View>
-              <View style={{ 
-                flexDirection: isTablet ? "row" : "column", 
+              <View style={{
+                flexDirection: isTablet ? "row" : "column",
                 flexWrap: "wrap",
                 gap: isTablet ? 16 : 12,
               }}>
                 {featuredServices.map((service) => (
-                  <View key={service.id} style={{ 
+                  <View key={service.id} style={{
                     width: isTablet ? `${100 / gridColumns - 2}%` : "100%",
                   }}>
                     <ServiceCard
@@ -230,13 +230,13 @@ export default function Home() {
             </View>
 
             {filteredServices.length > 0 ? (
-              <View style={{ 
-                flexDirection: isTablet ? "row" : "column", 
+              <View style={{
+                flexDirection: isTablet ? "row" : "column",
                 flexWrap: "wrap",
                 gap: isTablet ? 16 : 12,
               }}>
                 {filteredServices.map((service) => (
-                  <View key={service.id} style={{ 
+                  <View key={service.id} style={{
                     width: isTablet ? `${100 / gridColumns - 2}%` : "100%",
                   }}>
                     <ServiceCard
@@ -247,11 +247,11 @@ export default function Home() {
                 ))}
               </View>
             ) : (
-              <View style={{ 
-                alignItems: "center", 
-                paddingVertical: isTablet ? 60 : 40, 
-                backgroundColor: "white", 
-                borderRadius: 16 
+              <View style={{
+                alignItems: "center",
+                paddingVertical: isTablet ? 60 : 40,
+                backgroundColor: "white",
+                borderRadius: 16
               }}>
                 <Ionicons name="search-outline" size={isTablet ? 64 : 48} color="#D1D5DB" />
                 <Text style={{ fontSize: isTablet ? 20 : 16, fontWeight: "600", color: TROJAN_NAVY, marginTop: 12 }}>

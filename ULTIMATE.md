@@ -495,3 +495,5 @@ chore: maintenance tasks
 4. **Mobile Implementation**: Convert web features to mobile
 5. **Admin Dashboard**: Build admin interface for business operations
 
+
+On the home page at the top, delete the text that says "trojan proje
