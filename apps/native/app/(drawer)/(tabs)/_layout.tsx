@@ -43,29 +43,11 @@ export default function TabLayout() {
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
                 borderRadius: 12,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
               }}
             >
-              <Ionicons name={focused ? "home" : "home-outline"} size={22} color={color} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="services"
-        options={{
-          title: "Services",
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <View
-              style={{
-                backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: 12,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-              }}
-            >
-              <Ionicons name={focused ? "grid" : "grid-outline"} size={22} color={color} />
+              <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
             </View>
           ),
         }}
@@ -79,29 +61,11 @@ export default function TabLayout() {
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
                 borderRadius: 12,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
               }}
             >
-              <MaterialIcons name={focused ? "work" : "work-outline"} size={22} color={color} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="quotes"
-        options={{
-          title: "Quotes",
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <View
-              style={{
-                backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: 12,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-              }}
-            >
-              <Ionicons name={focused ? "document-text" : "document-text-outline"} size={22} color={color} />
+              <MaterialIcons name={focused ? "work" : "work-outline"} size={24} color={color} />
             </View>
           ),
         }}
@@ -115,13 +79,26 @@ export default function TabLayout() {
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
                 borderRadius: 12,
-                paddingHorizontal: 12,
-                paddingVertical: 6,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
               }}
             >
-              <Ionicons name={focused ? "person" : "person-outline"} size={22} color={color} />
+              <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} />
             </View>
           ),
+        }}
+      />
+      {/* Hide deprecated tabs */}
+      <Tabs.Screen
+        name="services"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="quotes"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
