@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, View, useWindowDimensions } from "react-native";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ const TROJAN_GOLD = "#FFC107";
 
 function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
   const router = useRouter();
+  const { width: screenWidth } = useWindowDimensions();
+  const isTablet = screenWidth >= 768;
+  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,13 +59,13 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
 
   return (
     <View className="flex-1 items-center justify-center p-4">
-      <View className="w-full max-w-md">
+      <View className="w-full" style={{ maxWidth: isTablet ? 500 : 400 }}>
         {/* Card container with white background */}
         <View
           style={{
             backgroundColor: "#ffffff",
-            borderRadius: 8,
-            padding: 24,
+            borderRadius: isTablet ? 16 : 8,
+            padding: isTablet ? 40 : 24,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.15,
@@ -72,28 +75,32 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
         >
           {/* Header */}
           <Text
-            className="text-2xl font-bold text-center mb-2"
-            style={{ color: TROJAN_NAVY }}
+            className="font-bold text-center mb-2"
+            style={{ color: TROJAN_NAVY, fontSize: isTablet ? 28 : 24 }}
           >
             Create Account
           </Text>
-          <Text className="text-center text-muted-foreground mb-6">
+          <Text 
+            className="text-center text-muted-foreground"
+            style={{ fontSize: isTablet ? 16 : 14, marginBottom: isTablet ? 32 : 24 }}
+          >
             Join Trojan Projects ZW today
           </Text>
 
           {/* Google Button */}
           <Button
             variant="outline"
-            className="w-full h-12 mb-4 flex-row items-center justify-center gap-2"
+            className="w-full flex-row items-center justify-center gap-2"
+            style={{ height: isTablet ? 52 : 48, marginBottom: isTablet ? 20 : 16 }}
             onPress={handleGoogleSignUp}
           >
-            <Text className="font-medium">Continue with Google</Text>
+            <Text className="font-medium" style={{ fontSize: isTablet ? 16 : 14 }}>Continue with Google</Text>
           </Button>
 
           {/* Divider */}
-          <View className="flex-row items-center my-4">
+          <View className="flex-row items-center" style={{ marginVertical: isTablet ? 20 : 16 }}>
             <View className="flex-1 h-px bg-border" />
-            <Text className="px-3 text-xs text-muted-foreground uppercase">
+            <Text className="px-3 text-muted-foreground uppercase" style={{ fontSize: isTablet ? 13 : 12 }}>
               Or continue with
             </Text>
             <View className="flex-1 h-px bg-border" />
@@ -101,12 +108,20 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
 
           {/* Error Message */}
           {error && (
-            <Text className="text-red-500 text-sm mb-4 text-center">{error}</Text>
+            <Text 
+              className="text-red-500 text-center"
+              style={{ fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 20 : 16 }}
+            >
+              {error}
+            </Text>
           )}
 
           {/* Name Input */}
-          <View className="mb-4">
-            <Text className="text-sm font-medium mb-2" style={{ color: TROJAN_NAVY }}>
+          <View style={{ marginBottom: isTablet ? 20 : 16 }}>
+            <Text 
+              className="font-medium" 
+              style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 10 : 8 }}
+            >
               Full Name
             </Text>
             <Input
@@ -114,13 +129,17 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
               value={name}
               onChangeText={setName}
               editable={!isLoading}
-              className="h-10 px-3"
+              className="px-3"
+              style={{ height: isTablet ? 48 : 40, fontSize: isTablet ? 16 : 14 }}
             />
           </View>
 
           {/* Email Input */}
-          <View className="mb-4">
-            <Text className="text-sm font-medium mb-2" style={{ color: TROJAN_NAVY }}>
+          <View style={{ marginBottom: isTablet ? 20 : 16 }}>
+            <Text 
+              className="font-medium" 
+              style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 10 : 8 }}
+            >
               Email
             </Text>
             <Input
@@ -130,13 +149,17 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
               keyboardType="email-address"
               autoCapitalize="none"
               editable={!isLoading}
-              className="h-10 px-3"
+              className="px-3"
+              style={{ height: isTablet ? 48 : 40, fontSize: isTablet ? 16 : 14 }}
             />
           </View>
 
           {/* Password Input */}
-          <View className="mb-6">
-            <Text className="text-sm font-medium mb-2" style={{ color: TROJAN_NAVY }}>
+          <View style={{ marginBottom: isTablet ? 28 : 24 }}>
+            <Text 
+              className="font-medium" 
+              style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 10 : 8 }}
+            >
               Password
             </Text>
             <Input
@@ -145,29 +168,30 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
               onChangeText={setPassword}
               secureTextEntry
               editable={!isLoading}
-              className="h-10 px-3"
+              className="px-3"
+              style={{ height: isTablet ? 48 : 40, fontSize: isTablet ? 16 : 14 }}
             />
           </View>
 
           {/* Create Account Button */}
           <Button
-            className="w-full h-10 font-semibold mb-4"
-            style={{ backgroundColor: TROJAN_GOLD }}
+            className="w-full font-semibold"
+            style={{ backgroundColor: TROJAN_GOLD, height: isTablet ? 48 : 40, marginBottom: isTablet ? 20 : 16 }}
             onPress={handleEmailSignUp}
             disabled={isLoading}
           >
-            <Text style={{ color: TROJAN_NAVY }} className="font-semibold">
+            <Text style={{ color: TROJAN_NAVY, fontSize: isTablet ? 16 : 14 }} className="font-semibold">
               {isLoading ? "Creating account..." : "Create Account"}
             </Text>
           </Button>
 
           {/* Sign In Link */}
           <View className="flex-row justify-center">
-            <Text className="text-sm text-muted-foreground">
+            <Text className="text-muted-foreground" style={{ fontSize: isTablet ? 15 : 14 }}>
               Already have an account?{" "}
             </Text>
             <Pressable onPress={onSwitchToSignIn}>
-              <Text className="text-sm font-semibold" style={{ color: TROJAN_NAVY }}>
+              <Text className="font-semibold" style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14 }}>
                 Sign in
               </Text>
             </Pressable>
