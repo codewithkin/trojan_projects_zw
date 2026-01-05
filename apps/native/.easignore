@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+**/.turbo
+pnpm-lock.yaml
+bun.lock
+
+# Build artifacts
+dist/
+build/
+.turbo/
+android/
+ios/
+*.tsbuildinfo
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+tmp/
+temp/
+
+# Environment (keep .env files locally, not in archive)
+.env
+.env*.local
+
+# Misc
+*.tgz
+.alchemy/
