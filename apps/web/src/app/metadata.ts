@@ -1,15 +1,4 @@
-import type { Metadata } from "next";
-
-import { Inter } from "next/font/google";
-
-import "../index.css";
-import Header from "@/components/header";
-import Providers from "@/components/providers";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Trojan Projects Zimbabwe - Solar, CCTV, Electrical & Water Solutions",
@@ -47,21 +36,3 @@ export const metadata: Metadata = {
     follow: true,
   },
 };
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
-        <Providers>
-          <div className="h-svh">
-            {children}
-          </div>
-        </Providers>
-      </body>
-    </html>
-  );
-}
