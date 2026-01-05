@@ -36,7 +36,14 @@ export const projects: Project[] = [
             "Electric gate"
         ],
         brands: ["MUST", "GROWART", "SUMRY", "SAKO"],
-        images: []
+        images: [
+            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/one.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/two.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/three.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/four.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/five.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/10-kva-solar-system/six.jpg"
+        ]
     },
     {
         id: "1.5kva-solar-system",
@@ -61,7 +68,10 @@ export const projects: Project[] = [
             "Small printer"
         ],
         brands: ["Must", "Sumry"],
-        images: []
+        images: [
+            "https://trojan-projects.s3.amazonaws.com/in-house/1.5-kva-solar-system/one.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/1.5-kva-solar-system/two.jpg"
+        ]
     },
     {
         id: "3.5kva-solar-system",
@@ -86,7 +96,11 @@ export const projects: Project[] = [
             "Other appliances"
         ],
         brands: ["Must", "Growart", "Sumry", "Code"],
-        images: []
+        images: [
+            "https://trojan-projects.s3.amazonaws.com/in-house/3.5-kva-solar-system/one.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/3.5-kva-solar-system/two.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/3.5-kva-solar-system/three.jpg"
+        ]
     },
     {
         id: "cctv-installation",
@@ -102,7 +116,13 @@ export const projects: Project[] = [
             "HD cameras",
             "DVR/NVR setup",
             "Night vision",
-            "Remote phone viewing",
+            "Remo
+            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/one.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/two.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/three.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/four.jpg",
+            "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/five.jpg"
+        te phone viewing",
             "WiFi cams"
         ],
         brands: [],
