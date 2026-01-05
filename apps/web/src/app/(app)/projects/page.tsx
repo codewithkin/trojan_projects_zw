@@ -105,25 +105,6 @@ export default function ProjectsPage() {
                     })}
                 </div>
 
-                {/* Total Investment Banner */}
-                <div
-                    className="rounded-xl p-6 mb-8 flex items-center justify-between"
-                    style={{ backgroundColor: TROJAN_NAVY }}
-                >
-                    <div>
-                        <p className="text-white/70 text-sm mb-1">Total Investment</p>
-                        <p className="text-3xl font-bold text-white">
-                            US${totalInvestment.toLocaleString()}
-                        </p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-white/70 text-sm mb-1">Total Projects</p>
-                        <p className="text-3xl font-bold" style={{ color: TROJAN_GOLD }}>
-                            {userProjects.length}
-                        </p>
-                    </div>
-                </div>
-
                 {/* Tab Pills */}
                 <div className="bg-white rounded-xl border border-gray-100 p-1.5 mb-6 inline-flex flex-wrap gap-1">
                     {tabs.map((tab) => {

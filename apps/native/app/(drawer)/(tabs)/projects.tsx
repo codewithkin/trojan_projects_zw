@@ -207,40 +207,6 @@ export default function Projects() {
                     </ScrollView>
                 )}
 
-                {/* Total Investment Banner */}
-                <View
-                    style={{
-                        marginHorizontal: contentPadding,
-                        marginBottom: 16,
-                        backgroundColor: TROJAN_NAVY,
-                        borderRadius: isTablet ? 20 : 16,
-                        padding: isTablet ? 24 : 16,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        maxWidth: isLargeTablet ? 1200 - contentPadding * 2 : undefined,
-                        alignSelf: "center",
-                        width: isLargeTablet ? "100%" : undefined,
-                    }}
-                >
-                    <View>
-                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 14 : 12, marginBottom: 2 }}>
-                            Total Investment
-                        </Text>
-                        <Text style={{ color: "white", fontSize: isTablet ? 32 : 24, fontWeight: "700" }}>
-                            US${totalInvestment.toLocaleString()}
-                        </Text>
-                    </View>
-                    <View style={{ alignItems: "flex-end" }}>
-                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 14 : 12, marginBottom: 2 }}>
-                            Total Projects
-                        </Text>
-                        <Text style={{ color: TROJAN_GOLD, fontSize: isTablet ? 32 : 24, fontWeight: "700" }}>
-                            {userProjects.length}
-                        </Text>
-                    </View>
-                </View>
-
                 {/* Tab Pills */}
                 <ScrollView
                     horizontal
