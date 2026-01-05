@@ -110,7 +110,11 @@ export default function SignUpScreen() {
                                 >
                                     <Button
                                         variant="outline"
-                                        className="w-full h-12 flex-row items-center justify-center gap-2"
+                                        className="w-full h-12 flex-row items-center justify-center gap-2 active:bg-gray-300"
+                                        style={{
+                                            backgroundColor: "transparent",
+                                        }}
+                                        android_ripple={{ color: "#AAAAAA" }}
                                         onPress={handleGoogleSignUp}
                                         disabled={googleLoading}
                                     >
