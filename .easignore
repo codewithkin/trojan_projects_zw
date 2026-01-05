@@ -1,0 +1,62 @@
+# Dependencies - these get reinstalled on EAS servers
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+.turbo/
+
+# Native build artifacts (rebuilt on EAS)
+apps/native/android/
+apps/native/ios/
+apps/native/.expo/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Git
+.git/
+.gitignore
+
+# Environment files (keep only template, exclude secrets)
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+.cache/
+
+# Build cache
+.next/
+*.tsbuildinfo
+dist/
+
+# Misc
+.eas/
+eas.json.local
