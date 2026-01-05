@@ -5,24 +5,28 @@ A modern full-stack service management platform for Trojan Projects, offering so
 ## 🌟 Features
 
 - **Multi-Platform**: Web and mobile applications with 1:1 component parity
-- **Service Catalog**: Browse and request professional installation services
+- **Service Catalog**: Browse and request professional installation services with detailed specifications
 - **Project Tracking**: Real-time status updates for all service requests (pending, confirmed, in-progress, completed, cancelled)
-- **User Dashboard**: Comprehensive profile management with project statistics
-- **E-commerce UX**: Modern, user-friendly interface with category filtering and search
+- **User Dashboard**: Comprehensive profile management with project statistics and investment tracking
+- **E-commerce UX**: Modern, user-friendly interface with category filtering, search, and image galleries
+- **Social Proof**: Customer testimonials, company statistics, and reviews
+- **SEO Optimized**: Comprehensive metadata for better search engine visibility
 - **Authentication**: Secure user authentication with Better-Auth
 - **Type-Safe**: Full TypeScript support across the entire stack
+- **Performance**: React.memo, useMemo hooks, and optimized rendering
 
 ## 📱 Platforms
 
 ### Web Application (Next.js)
-- **Home Page**: Service catalog with category filters and search
-- **Projects Page**: Project management with status-based tabs
-- **Profile Page**: User account management and statistics
+- **Home Page**: Service catalog with hero section, category filters, search, stats section, testimonials, and FAQ
+- **Projects Page**: Project management with status-based tabs and investment summary
+- **Profile Page**: User account management with dynamic statistics and settings
+- **Service Detail Modal**: Comprehensive service information with image galleries and specifications
 
 ### Mobile Application (React Native + Expo)
-- **Home Tab**: Services grid with category filtering (matches web)
-- **Projects Tab**: Project tracking with status tabs (matches web)
-- **Profile Tab**: User profile and settings (matches web)
+- **Home Tab**: Services grid with category filtering and stats section (matches web)
+- **Projects Tab**: Project tracking with status tabs and investment tracking (matches web)
+- **Profile Tab**: User profile with statistics and settings (matches web)
 
 ## 🏗️ Architecture
 
@@ -147,17 +151,26 @@ trojan_projects_zw/
 │   │   ├── src/
 │   │   │   ├── app/           # Next.js app router pages
 │   │   │   │   ├── page.tsx           # Home (services catalog)
+│   │   │   │   ├── layout.tsx         # Root layout with metadata
 │   │   │   │   ├── (app)/
 │   │   │   │   │   ├── projects/page.tsx    # Projects page
 │   │   │   │   │   └── profile/page.tsx     # Profile page
 │   │   │   ├── components/    # React components
 │   │   │   │   ├── service-card.tsx         # Service display card
 │   │   │   │   ├── project-card.tsx         # Project status card
+│   │   │   │   ├── service-detail-modal.tsx # Service details modal
+│   │   │   │   ├── stats-section.tsx        # Company statistics
+│   │   │   │   ├── testimonial-section.tsx  # Customer reviews
+│   │   │   │   ├── faq-section.tsx          # FAQ accordion
+│   │   │   │   ├── error-boundary.tsx       # Error handling
 │   │   │   │   ├── site-header.tsx          # Navigation header
-│   │   │   │   └── site-footer.tsx          # Site footer
+│   │   │   │   ├── site-footer.tsx          # Site footer
+│   │   │   │   └── ui/                      # shadcn/ui components
 │   │   │   ├── data/          # Mock data and types
 │   │   │   │   └── services.ts              # Service/Project types & data
 │   │   │   └── lib/           # Utilities
+│   │   │       ├── utils.ts                 # General utilities
+│   │   │       └── format.ts                # Formatting functions
 │   │
 │   ├── native/                 # React Native mobile app
 │   │   ├── app/
@@ -167,7 +180,8 @@ trojan_projects_zw/
 │   │   │   │   └── profile.tsx        # Profile tab
 │   │   ├── components/
 │   │   │   ├── service-card.tsx       # Native ServiceCard (1:1 with web)
-│   │   │   └── project-card.tsx       # Native ProjectCard (1:1 with web)
+│   │   │   ├── project-card.tsx       # Native ProjectCard (1:1 with web)
+│   │   │   └── stats-section.tsx      # Native StatsSection (1:1 with web)
 │   │   └── data/
 │   │       └── services.ts            # Shared data structure (mirrors web)
 │   │
@@ -185,6 +199,51 @@ trojan_projects_zw/
 │
 └── README.md
 ```
+
+## 🎯 Key Features Implementation
+
+### Web Application Components
+
+#### Home Page Sections:
+1. **Hero Section** - Service introduction with feature highlights
+2. **Category Filters** - Filter services by type (Solar, CCTV, etc.)
+3. **Search Functionality** - Search services by name or description
+4. **Services Grid** - Animated service cards with ratings and pricing
+5. **Stats Section** - Company credibility metrics (500+ customers, 1,200+ projects, etc.)
+6. **Testimonials** - Customer reviews with ratings
+7. **FAQ Section** - Accordion-style frequently asked questions
+8. **CTA Section** - Call-to-action for custom quotes
+
+#### Projects Page Features:
+- Status-based filtering (All, Pending, Confirmed, In Progress, Completed, Cancelled)
+- Statistics summary cards
+- Total investment tracking
+- Project cards with technician information
+- ETA tracking for active projects
+
+#### Profile Page Sections:
+- User information with avatar/initials
+- Dynamic project statistics
+- Personal information management
+- Notification preferences
+- Security settings
+- Account management
+
+### Performance Optimizations
+
+- **React.memo** on ServiceCard and ProjectCard components
+- **useMemo** for filtered data calculations
+- **Lazy loading** for images
+- **Optimized re-renders** with proper dependency arrays
+- **Error boundaries** for graceful error handling
+
+### SEO & Accessibility
+
+- Comprehensive metadata for all pages
+- OpenGraph and Twitter card support
+- Semantic HTML structure
+- Keyboard navigation support
+- ARIA labels on interactive elements
 
 ## 📋 Available Scripts
 
