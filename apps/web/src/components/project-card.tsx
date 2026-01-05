@@ -142,7 +142,7 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
                     {/* Notes */}
                     {project.notes && (
                         <p className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3 mb-4">
-                            📝 {project.notes}
+                            {project.notes}
                         </p>
                     )}
 
