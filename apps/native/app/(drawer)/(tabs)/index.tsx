@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ScrollView, View, TextInput, Pressable, SafeAreaView, StatusBar, Platform } from "react-native";
+import { useState, useMemo } from "react";
+import { ScrollView, View, TextInput, Pressable, SafeAreaView, StatusBar, Platform, Dimensions, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
@@ -14,18 +14,31 @@ const categories: (ServiceCategory | "all")[] = ["all", "solar", "cctv", "electr
 
 export default function Home() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredServices = services.filter((service) => {
-    const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
-    const matchesSearch =
-      service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Responsive breakpoints
+  const isTablet = width >= 768;
+  const isLargeTablet = width >= 1024;
+  const contentPadding = isTablet ? 24 : 16;
+  const gridColumns = isLargeTablet ? 3 : isTablet ? 2 : 1;
 
-  const featuredServices = services.filter((s) => s.featured);
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
+      const matchesSearch =
+        service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
+
+  const featuredServices = useMemo(() => services.filter((s) => s.featured), []);
+
+  const handleServicePress = (serviceId: string) => {
+    router.push(`/service/${serviceId}`);
+  };
 
   return (
     <SafeAreaView
@@ -37,28 +50,35 @@ export default function Home() {
     >
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={{ padding: 16, backgroundColor: TROJAN_NAVY }}>
-          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
+        <View style={{ padding: contentPadding, backgroundColor: TROJAN_NAVY }}>
+          <View style={{ 
+            flexDirection: "row", 
+            alignItems: "center", 
+            marginBottom: 16,
+            maxWidth: isLargeTablet ? 1200 : undefined,
+            alignSelf: "center",
+            width: "100%",
+          }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: "white", fontSize: 22, fontWeight: "700" }}>
+              <Text style={{ color: "white", fontSize: isTablet ? 28 : 22, fontWeight: "700" }}>
                 Trojan Projects
               </Text>
-              <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, marginTop: 2 }}>
+              <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 16 : 14, marginTop: 2 }}>
                 Quality installations you can trust
               </Text>
             </View>
             <Pressable
               onPress={() => router.push("/profile")}
               style={{
-                width: 44,
-                height: 44,
-                borderRadius: 22,
+                width: isTablet ? 52 : 44,
+                height: isTablet ? 52 : 44,
+                borderRadius: isTablet ? 26 : 22,
                 backgroundColor: TROJAN_GOLD,
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <Ionicons name="person" size={22} color={TROJAN_NAVY} />
+              <Ionicons name="person" size={isTablet ? 26 : 22} color={TROJAN_NAVY} />
             </Pressable>
           </View>
 
@@ -68,12 +88,15 @@ export default function Home() {
               flexDirection: "row",
               alignItems: "center",
               backgroundColor: "white",
-              borderRadius: 12,
-              paddingHorizontal: 14,
-              height: 48,
+              borderRadius: isTablet ? 16 : 12,
+              paddingHorizontal: isTablet ? 18 : 14,
+              height: isTablet ? 56 : 48,
+              maxWidth: isLargeTablet ? 1200 : undefined,
+              alignSelf: "center",
+              width: "100%",
             }}
           >
-            <Ionicons name="search" size={20} color="#9CA3AF" />
+            <Ionicons name="search" size={isTablet ? 24 : 20} color="#9CA3AF" />
             <TextInput
               placeholder="Search services..."
               placeholderTextColor="#9CA3AF"
@@ -82,19 +105,24 @@ export default function Home() {
               style={{
                 flex: 1,
                 marginLeft: 10,
-                fontSize: 15,
+                fontSize: isTablet ? 17 : 15,
                 color: TROJAN_NAVY,
               }}
             />
             {searchQuery.length > 0 && (
               <Pressable onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+                <Ionicons name="close-circle" size={isTablet ? 24 : 20} color="#9CA3AF" />
               </Pressable>
             )}
           </View>
         </View>
 
-        <View style={{ padding: 16 }}>
+        <View style={{ 
+          padding: contentPadding,
+          maxWidth: isLargeTablet ? 1200 : undefined,
+          alignSelf: "center",
+          width: "100%",
+        }}>
           {/* Category Pills */}
           <ScrollView
             horizontal
@@ -149,23 +177,32 @@ export default function Home() {
                 <View
                   style={{
                     width: 6,
-                    height: 20,
+                    height: isTablet ? 24 : 20,
                     backgroundColor: TROJAN_GOLD,
                     borderRadius: 3,
                     marginRight: 8,
                   }}
                 />
-                <Text style={{ fontSize: 18, fontWeight: "700", color: TROJAN_NAVY }}>
+                <Text style={{ fontSize: isTablet ? 22 : 18, fontWeight: "700", color: TROJAN_NAVY }}>
                   Featured Services
                 </Text>
               </View>
-              {featuredServices.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  onPress={() => console.log("Navigate to service:", service.id)}
-                />
-              ))}
+              <View style={{ 
+                flexDirection: isTablet ? "row" : "column", 
+                flexWrap: "wrap",
+                gap: isTablet ? 16 : 12,
+              }}>
+                {featuredServices.map((service) => (
+                  <View key={service.id} style={{ 
+                    width: isTablet ? `${100 / gridColumns - 2}%` : "100%",
+                  }}>
+                    <ServiceCard
+                      service={service}
+                      onPress={() => handleServicePress(service.id)}
+                    />
+                  </View>
+                ))}
+              </View>
             </View>
           )}
 
@@ -175,38 +212,52 @@ export default function Home() {
               <View
                 style={{
                   width: 6,
-                  height: 20,
+                  height: isTablet ? 24 : 20,
                   backgroundColor: TROJAN_GOLD,
                   borderRadius: 3,
                   marginRight: 8,
                 }}
               />
-              <Text style={{ fontSize: 18, fontWeight: "700", color: TROJAN_NAVY }}>
+              <Text style={{ fontSize: isTablet ? 22 : 18, fontWeight: "700", color: TROJAN_NAVY }}>
                 {selectedCategory === "all"
                   ? (searchQuery ? "Search Results" : "All Services")
                   : categoryConfig[selectedCategory].label
                 }
               </Text>
-              <Text style={{ marginLeft: 8, color: "#9CA3AF", fontSize: 14 }}>
+              <Text style={{ marginLeft: 8, color: "#9CA3AF", fontSize: isTablet ? 16 : 14 }}>
                 ({filteredServices.length})
               </Text>
             </View>
 
             {filteredServices.length > 0 ? (
-              filteredServices.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  onPress={() => console.log("Navigate to service:", service.id)}
-                />
-              ))
+              <View style={{ 
+                flexDirection: isTablet ? "row" : "column", 
+                flexWrap: "wrap",
+                gap: isTablet ? 16 : 12,
+              }}>
+                {filteredServices.map((service) => (
+                  <View key={service.id} style={{ 
+                    width: isTablet ? `${100 / gridColumns - 2}%` : "100%",
+                  }}>
+                    <ServiceCard
+                      service={service}
+                      onPress={() => handleServicePress(service.id)}
+                    />
+                  </View>
+                ))}
+              </View>
             ) : (
-              <View style={{ alignItems: "center", paddingVertical: 40, backgroundColor: "white", borderRadius: 16 }}>
-                <Ionicons name="search-outline" size={48} color="#D1D5DB" />
-                <Text style={{ fontSize: 16, fontWeight: "600", color: TROJAN_NAVY, marginTop: 12 }}>
+              <View style={{ 
+                alignItems: "center", 
+                paddingVertical: isTablet ? 60 : 40, 
+                backgroundColor: "white", 
+                borderRadius: 16 
+              }}>
+                <Ionicons name="search-outline" size={isTablet ? 64 : 48} color="#D1D5DB" />
+                <Text style={{ fontSize: isTablet ? 20 : 16, fontWeight: "600", color: TROJAN_NAVY, marginTop: 12 }}>
                   No services found
                 </Text>
-                <Text style={{ fontSize: 14, color: "#9CA3AF", marginTop: 4, textAlign: "center" }}>
+                <Text style={{ fontSize: isTablet ? 16 : 14, color: "#9CA3AF", marginTop: 4, textAlign: "center" }}>
                   Try adjusting your search or category filter
                 </Text>
                 <Pressable
@@ -214,12 +265,12 @@ export default function Home() {
                   style={{
                     marginTop: 16,
                     backgroundColor: TROJAN_GOLD,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
+                    paddingHorizontal: isTablet ? 28 : 20,
+                    paddingVertical: isTablet ? 14 : 10,
                     borderRadius: 20,
                   }}
                 >
-                  <Text style={{ color: TROJAN_NAVY, fontWeight: "600" }}>
+                  <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: isTablet ? 16 : 14 }}>
                     Clear Filters
                   </Text>
                 </Pressable>
@@ -232,26 +283,33 @@ export default function Home() {
             style={{
               marginTop: 24,
               marginBottom: 32,
-              padding: 20,
+              padding: isTablet ? 28 : 20,
               backgroundColor: TROJAN_NAVY,
-              borderRadius: 20,
+              borderRadius: isTablet ? 24 : 20,
+              flexDirection: isLargeTablet ? "row" : "column",
+              alignItems: isLargeTablet ? "center" : "stretch",
+              justifyContent: isLargeTablet ? "space-between" : "flex-start",
             }}
           >
-            <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>
-              Need a Custom Quote?
-            </Text>
-            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, marginTop: 4, marginBottom: 16 }}>
-              Contact us for personalized solutions tailored to your needs.
-            </Text>
+            <View style={{ flex: isLargeTablet ? 1 : undefined, marginBottom: isLargeTablet ? 0 : 16 }}>
+              <Text style={{ color: "white", fontSize: isTablet ? 22 : 18, fontWeight: "700" }}>
+                Need a Custom Quote?
+              </Text>
+              <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 16 : 14, marginTop: 4 }}>
+                Contact us for personalized solutions tailored to your needs.
+              </Text>
+            </View>
             <Pressable
+              onPress={() => router.push("/quotes")}
               style={{
                 backgroundColor: TROJAN_GOLD,
-                paddingVertical: 12,
+                paddingVertical: isTablet ? 16 : 12,
+                paddingHorizontal: isLargeTablet ? 32 : undefined,
                 borderRadius: 20,
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: 15 }}>
+              <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: isTablet ? 17 : 15 }}>
                 Request Quote
               </Text>
             </Pressable>
