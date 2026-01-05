@@ -24,6 +24,7 @@ export default function SignUpScreen() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleEmailSignUp = async () => {
@@ -81,7 +82,7 @@ export default function SignUpScreen() {
                         animate={{ opacity: 1, translateY: 0 }}
                         transition={{ type: "timing", duration: 500 }}
                     >
-                        <Card className="shadow-2xl">
+                        <Card>
                             <CardHeader className="items-center pb-2">
                                 <MotiView
                                     from={{ scale: 0.8 }}
@@ -111,8 +112,9 @@ export default function SignUpScreen() {
                                         variant="outline"
                                         className="w-full h-12 flex-row items-center justify-center gap-2"
                                         onPress={handleGoogleSignUp}
+                                        disabled={googleLoading}
                                     >
-                                        <Text className="font-medium">Continue with Google</Text>
+                                        <Text className="font-medium">{googleLoading ? "Connecting..." : "Continue with Google"}</Text>
                                     </Button>
                                 </MotiView>
 

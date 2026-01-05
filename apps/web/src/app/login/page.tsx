@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +43,17 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: "/dashboard",
-    });
+    setGoogleLoading(true);
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard",
+      });
+    } catch (err) {
+      toast.error("Google sign in failed");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -56,7 +64,7 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="border-0 shadow-2xl">
+        <Card className="border-0">
           <CardHeader className="text-center pb-2">
             <motion.div
               initial={{ scale: 0.8 }}
@@ -83,6 +91,7 @@ export default function LoginPage() {
                 variant="outline"
                 className="w-full h-10 gap-2"
                 onClick={handleGoogleSignIn}
+                disabled={googleLoading}
               >
                 <svg className="size-4" viewBox="0 0 24 24">
                   <path
@@ -102,7 +111,7 @@ export default function LoginPage() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continue with Google
+                {googleLoading ? "Connecting..." : "Continue with Google"}
               </Button>
             </motion.div>
 
