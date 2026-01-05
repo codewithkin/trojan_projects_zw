@@ -4,6 +4,12 @@
 
 **Trojan Projects ZW** is a multi-service engineering provider specializing in comprehensive solutions for residential, commercial, and agricultural clients.
 
+### Location
+📍 **Mutare, Zimbabwe**
+
+### Contact
+📱 **+263 77 341 2648**
+
 ### Mission
 > Your project is our mission.
 
