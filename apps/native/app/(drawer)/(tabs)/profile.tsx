@@ -91,9 +91,9 @@ export default function Profile() {
     const userInitials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
     return (
-        <SafeAreaView 
-            style={{ 
-                flex: 1, 
+        <SafeAreaView
+            style={{
+                flex: 1,
                 backgroundColor: "#F9FAFB",
                 paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
             }}
@@ -106,9 +106,9 @@ export default function Profile() {
                             <Text style={{ color: "white", fontSize: 24, fontWeight: "700" }}>
                                 My Profile
                             </Text>
-                            <Pressable 
+                            <Pressable
                                 onPress={handleSignOut}
-                                style={{ 
+                                style={{
                                     flexDirection: "row",
                                     alignItems: "center",
                                     gap: 6,
@@ -178,10 +178,10 @@ export default function Profile() {
 
                 {/* Stats Card */}
                 <View style={{ paddingHorizontal: 16, marginTop: -40, marginBottom: 20 }}>
-                    <View 
-                        style={{ 
-                            backgroundColor: "white", 
-                            borderRadius: 20, 
+                    <View
+                        style={{
+                            backgroundColor: "white",
+                            borderRadius: 20,
                             padding: 20,
                             shadowColor: "#000",
                             shadowOffset: { width: 0, height: 2 },
@@ -192,11 +192,11 @@ export default function Profile() {
                     >
                         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
                             <View style={{ alignItems: "center" }}>
-                                <View 
-                                    style={{ 
-                                        width: 44, 
-                                        height: 44, 
-                                        borderRadius: 22, 
+                                <View
+                                    style={{
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: 22,
                                         backgroundColor: `${TROJAN_GOLD}20`,
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -212,11 +212,11 @@ export default function Profile() {
                             </View>
                             <View style={{ width: 1, backgroundColor: "#E5E7EB" }} />
                             <View style={{ alignItems: "center" }}>
-                                <View 
-                                    style={{ 
-                                        width: 44, 
-                                        height: 44, 
-                                        borderRadius: 22, 
+                                <View
+                                    style={{
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: 22,
                                         backgroundColor: "#DBEAFE",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -232,11 +232,11 @@ export default function Profile() {
                             </View>
                             <View style={{ width: 1, backgroundColor: "#E5E7EB" }} />
                             <View style={{ alignItems: "center" }}>
-                                <View 
-                                    style={{ 
-                                        width: 44, 
-                                        height: 44, 
-                                        borderRadius: 22, 
+                                <View
+                                    style={{
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: 22,
                                         backgroundColor: "#DCFCE7",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -253,8 +253,8 @@ export default function Profile() {
                         </View>
 
                         {/* Total Spent */}
-                        <View 
-                            style={{ 
+                        <View
+                            style={{
                                 marginTop: 16,
                                 paddingTop: 16,
                                 borderTopWidth: 1,
@@ -270,12 +270,12 @@ export default function Profile() {
                         </View>
 
                         {/* View Projects Button */}
-                        <Pressable 
+                        <Pressable
                             onPress={() => router.push("/projects")}
-                            style={{ 
-                                marginTop: 16, 
-                                backgroundColor: TROJAN_GOLD, 
-                                paddingVertical: 12, 
+                            style={{
+                                marginTop: 16,
+                                backgroundColor: TROJAN_GOLD,
+                                paddingVertical: 12,
                                 borderRadius: 24,
                                 alignItems: "center",
                             }}

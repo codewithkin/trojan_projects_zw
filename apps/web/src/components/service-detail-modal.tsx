@@ -37,7 +37,7 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
                                     {service.name}
                                 </DialogTitle>
                                 <div className="flex items-center gap-2">
-                                    <Badge 
+                                    <Badge
                                         style={{ backgroundColor: category.color }}
                                         className="text-white"
                                     >
@@ -76,9 +76,8 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
                                     <button
                                         key={idx}
                                         onClick={() => setSelectedImage(idx)}
-                                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                                            selectedImage === idx ? "border-current" : "border-gray-200"
-                                        }`}
+                                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${selectedImage === idx ? "border-current" : "border-gray-200"
+                                            }`}
                                         style={selectedImage === idx ? { borderColor: TROJAN_GOLD } : {}}
                                     >
                                         <Image
@@ -206,8 +205,8 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
                                 className="rounded-full"
                                 onClick={() => setIsWishlisted(!isWishlisted)}
                             >
-                                <Heart 
-                                    size={20} 
+                                <Heart
+                                    size={20}
                                     fill={isWishlisted ? "#DC2626" : "none"}
                                     color={isWishlisted ? "#DC2626" : "currentColor"}
                                 />

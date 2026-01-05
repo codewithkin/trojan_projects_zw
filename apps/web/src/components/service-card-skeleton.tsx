@@ -5,7 +5,7 @@ export function ServiceCardSkeleton() {
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
             {/* Image Skeleton */}
             <Skeleton className="h-64 w-full rounded-none" />
-            
+
             {/* Content */}
             <div className="p-6">
                 {/* Rating */}
