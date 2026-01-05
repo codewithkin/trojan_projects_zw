@@ -1,5 +1,7 @@
 # 🚀 Trojan Projects ZW - ULTIMATE Project Guide
 
+![Trojan Projects logo](/trojan-logo.svg)
+
 ## Project Vision
 
 Build an integrated digital ecosystem for Trojan Projects ZW comprising:
