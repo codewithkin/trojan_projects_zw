@@ -56,8 +56,8 @@ We provide high-quality, affordable, and reliable installations across diverse e
 ## Brand Color Palette
 
 **Primary Colors:**
-- **Trojan Orange**: `#FF6B35` - Represents energy, electrical work, and reliability
-- **Aqua Teal**: `#00A8A8` - Represents water systems, sustainability, and trust
+- **Trojan Navy**: `#0F1B4D` - Deep, professional navy representing stability and trust
+- **Trojan Gold**: `#FFC107` - Bold, energetic gold representing engineering excellence and lightning/electrical work
 
 **Secondary Colors:**
 - **Neutral Gray**: `#4A4A4A` - Professional and industrial
@@ -118,8 +118,8 @@ The Trojan Projects ZW logo should be displayed:
 ## Application Guidelines
 
 ### Web (shadcn/ui)
-Use Trojan Orange as primary button color and Aqua Teal for accents and links.
+Use Trojan Navy as primary background with Trojan Gold accents for buttons, links, and highlights.
 
 ### Mobile (React Native Reusables)
-Primary: `#FF6B35` | Secondary: `#00A8A8` | Neutral: `#4A4A4A`
+Primary: `#FFC107` | Secondary: `#0F1B4D` | Background: `#FFFFFF` | Neutral: `#4A4A4A`
 

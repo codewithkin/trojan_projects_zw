@@ -332,8 +332,8 @@ Payment {
 ## 🎨 Design System
 
 ### Color Scheme
-**Primary**: Trojan Orange (`#FF6B35`)  
-**Secondary**: Aqua Teal (`#00A8A8`)  
+**Primary**: Trojan Navy (`#0F1B4D`)  
+**Secondary**: Trojan Gold (`#FFC107`)  
 **Neutral**: Gray (`#4A4A4A`)  
 **Background**: White (`#FFFFFF`)  
 **Dark**: Charcoal (`#2C2C2C`)
