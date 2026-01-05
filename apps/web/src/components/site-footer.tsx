@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -13,19 +14,8 @@ export function SiteFooter() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Brand */}
                     <div className="md:col-span-1">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div
-                                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                                style={{ backgroundColor: TROJAN_GOLD }}
-                            >
-                                <span className="text-xl">⚡</span>
-                            </div>
-                            <span
-                                className="text-xl font-bold"
-                                style={{ color: TROJAN_NAVY }}
-                            >
-                                Trojan Projects
-                            </span>
+                        <div className="mb-4">
+                            <Image src="/trojan-logo.svg" alt="Trojan Projects" width={160} height={48} />
                         </div>
                         <p className="text-gray-600 text-sm mb-4">
                             Professional solar, electrical, and security solutions for homes and businesses in Zimbabwe.
