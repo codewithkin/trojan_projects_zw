@@ -58,7 +58,7 @@ export default function LoginScreen() {
     };
 
     return (
-        <View className="flex-1" style={{ backgroundColor: TROJAN_NAVY }}>
+        <View className="flex-1" style={{ backgroundColor: "#ffffff" }}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 className="flex-1"
