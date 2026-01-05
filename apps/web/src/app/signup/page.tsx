@@ -28,7 +28,7 @@ export default function SignUpPage() {
             {
                 onSuccess: () => {
                     toast.success("Account created! Please check your email to verify.");
-                    router.push("/login");
+                    router.push("/user-onboarding");
                 },
                 onError: (error) => {
                     toast.error(error.error.message || "Sign up failed");
@@ -41,7 +41,7 @@ export default function SignUpPage() {
     const handleGoogleSignUp = async () => {
         await authClient.signIn.social({
             provider: "google",
-            callbackURL: "/dashboard",
+            callbackURL: "/user-onboarding",
         });
     };
 
