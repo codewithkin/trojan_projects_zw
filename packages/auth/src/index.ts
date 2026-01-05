@@ -3,6 +3,7 @@ import prisma from "@trojan_projects_zw/db";
 import { env } from "@trojan_projects_zw/env/server";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { sendVerificationEmail } from "./email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -13,6 +14,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      void sendVerificationEmail({
+        to: user.email,
+        url,
+        token,
+      });
+    },
+  },
   advanced: {
     defaultCookieAttributes: {
       sameSite: "none",
@@ -22,3 +32,4 @@ export const auth = betterAuth({
   },
   plugins: [expo(), expo()],
 });
+
