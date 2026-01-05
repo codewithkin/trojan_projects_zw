@@ -13,7 +13,7 @@ const TROJAN_GOLD = "#FFC107";
 
 const navItems = [
     { name: "Home", href: "/", icon: Package },
-    { name: "My Projects", href: "/projects", icon: FolderKanban },
+    { name: "Services", href: "/projects", icon: Package },
     { name: "Profile", href: "/profile", icon: User },
 ];
 
@@ -21,6 +21,15 @@ export function SiteHeader() {
     const pathname = usePathname();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { data: session, isPending } = authClient.useSession();
+
+    // Conditionally add "My Projects" for authenticated users
+    const displayNavItems = session?.user
+        ? [
+            ...navItems.slice(0, 2),
+            { name: "My Projects", href: "/my-projects", icon: FolderKanban },
+            ...navItems.slice(2),
+        ]
+        : navItems;
 
     const isActive = (href: string) => {
         if (href === "/") return pathname === "/";
@@ -53,7 +62,7 @@ export function SiteHeader() {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-6">
-                        {navItems.map((item) => {
+                        {displayNavItems.map((item) => {
                             const active = isActive(item.href);
                             return (
                                 <Link
@@ -134,7 +143,7 @@ export function SiteHeader() {
             {mobileMenuOpen && (
                 <div className="md:hidden border-t border-gray-100 bg-white">
                     <div className="px-4 py-4 space-y-2">
-                        {navItems.map((item) => {
+                        {displayNavItems.map((item) => {
                             const Icon = item.icon;
                             const active = isActive(item.href);
                             return (

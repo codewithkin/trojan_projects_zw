@@ -1,200 +1,119 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
-import { Package, Clock, CheckCircle2, AlertCircle, Truck, XCircle, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProjectCard } from "@/components/project-card";
-import { userProjects, type ProjectStatus } from "@/data/services";
+import { Sun, Camera, Zap, Droplets, Wrench, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ServiceCard } from "@/components/service-card";
+import { services } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-const tabs: { id: ProjectStatus | "all"; label: string; icon: typeof Clock; color: string }[] = [
-    { id: "all", label: "All", icon: Package, color: "#6B7280" },
-    { id: "pending", label: "Pending", icon: Clock, color: "#CA8A04" },
-    { id: "confirmed", label: "Confirmed", icon: AlertCircle, color: "#2563EB" },
-    { id: "in-progress", label: "In Progress", icon: Truck, color: "#7C3AED" },
-    { id: "completed", label: "Completed", icon: CheckCircle2, color: "#16A34A" },
-    { id: "cancelled", label: "Cancelled", icon: XCircle, color: "#DC2626" },
+const categories = [
+  { id: "all", name: "All Services", icon: null },
+  { id: "solar", name: "Solar", icon: Sun, color: "#FFC107" },
+  { id: "cctv", name: "CCTV", icon: Camera, color: "#3B82F6" },
+  { id: "electrical", name: "Electrical", icon: Zap, color: "#8B5CF6" },
+  { id: "water", name: "Water", icon: Droplets, color: "#06B6D4" },
+  { id: "welding", name: "Welding", icon: Wrench, color: "#F97316" },
 ];
 
-export default function ProjectsPage() {
-    const [activeTab, setActiveTab] = useState<ProjectStatus | "all">("all");
+export default function ServicesPage() {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredProjects = useMemo(() => {
-        return userProjects.filter((project) => {
-            if (activeTab === "all") return true;
-            return project.status === activeTab;
-        });
-    }, [activeTab]);
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
+      const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
 
-    const getTabCount = (tabId: ProjectStatus | "all") => {
-        if (tabId === "all") return userProjects.length;
-        return userProjects.filter((p) => p.status === tabId).length;
-    };
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="py-12" style={{ backgroundColor: TROJAN_NAVY }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            Our Services
+          </h1>
+          <p className="text-gray-300 mb-6">
+            Professional engineering solutions for every need
+          </p>
 
-    const totalInvestment = useMemo(() => {
-        return userProjects
-            .filter(p => p.status !== "cancelled")
-            .reduce((sum, p) => sum + p.price, 0);
-    }, []);
-
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1
-                            className="text-3xl font-bold mb-1"
-                            style={{ color: TROJAN_NAVY }}
-                        >
-                            My Projects
-                        </h1>
-                        <p className="text-gray-600">
-                            Track and manage your service requests
-                        </p>
-                    </div>
-                    <Link href="/">
-                        <Button
-                            size="lg"
-                            className="rounded-full font-semibold"
-                            style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-                        >
-                            Request New Service
-                            <ArrowRight size={18} className="ml-2" />
-                        </Button>
-                    </Link>
-                </div>
-
-                {/* Stats Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-                    {tabs.slice(1).map((tab) => {
-                        const Icon = tab.icon;
-                        const count = getTabCount(tab.id);
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`
-                                    bg-white rounded-xl p-4 border-2 transition-all hover:shadow-md text-left
-                                    ${activeTab === tab.id ? "shadow-md" : "border-transparent"}
-                                `}
-                                style={activeTab === tab.id ? { borderColor: tab.color } : {}}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div
-                                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                                        style={{ backgroundColor: `${tab.color}20` }}
-                                    >
-                                        <Icon size={20} style={{ color: tab.color }} />
-                                    </div>
-                                    <div>
-                                        <p
-                                            className="text-2xl font-bold"
-                                            style={{ color: TROJAN_NAVY }}
-                                        >
-                                            {count}
-                                        </p>
-                                        <p className="text-xs text-gray-500">{tab.label}</p>
-                                    </div>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-
-                {/* Tab Pills */}
-                <div className="bg-white rounded-xl border border-gray-100 p-1.5 mb-6 inline-flex flex-wrap gap-1">
-                    {tabs.map((tab) => {
-                        const Icon = tab.icon;
-                        const isActive = activeTab === tab.id;
-                        const count = getTabCount(tab.id);
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`
-                                    flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
-                                    ${isActive
-                                        ? "text-white shadow-sm"
-                                        : "text-gray-600 hover:bg-gray-100"
-                                    }
-                                `}
-                                style={isActive ? { backgroundColor: TROJAN_NAVY } : {}}
-                            >
-                                <Icon size={16} />
-                                <span className="hidden sm:inline">{tab.label}</span>
-                                <span
-                                    className={`
-                                        px-2 py-0.5 rounded-full text-xs font-semibold
-                                        ${isActive ? "bg-white/20" : "bg-gray-100"}
-                                    `}
-                                >
-                                    {count}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </div>
-
-                {/* Projects List */}
-                <div className="space-y-4">
-                    {filteredProjects.map((project) => (
-                        <ProjectCard
-                            key={project.id}
-                            project={project}
-                            onViewDetails={() => console.log("View details:", project.id)}
-                        />
-                    ))}
-                </div>
-
-                {/* Empty State */}
-                {filteredProjects.length === 0 && (
-                    <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-                        <div
-                            className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-                            style={{ backgroundColor: `${TROJAN_GOLD}20` }}
-                        >
-                            <Package size={32} style={{ color: TROJAN_GOLD }} />
-                        </div>
-                        <h3
-                            className="text-xl font-semibold mb-2"
-                            style={{ color: TROJAN_NAVY }}
-                        >
-                            No projects found
-                        </h3>
-                        <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                            {activeTab === "all"
-                                ? "You haven't requested any services yet. Browse our services and get started!"
-                                : `You don't have any ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()} projects.`
-                            }
-                        </p>
-                        {activeTab === "all" && (
-                            <Link href="/">
-                                <Button
-                                    size="lg"
-                                    className="rounded-full font-semibold"
-                                    style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-                                >
-                                    Browse Services
-                                    <ArrowRight size={18} className="ml-2" />
-                                </Button>
-                            </Link>
-                        )}
-                        {activeTab !== "all" && (
-                            <Button
-                                variant="outline"
-                                className="rounded-full"
-                                onClick={() => setActiveTab("all")}
-                            >
-                                View All Projects
-                            </Button>
-                        )}
-                    </div>
-                )}
-            </div>
+          {/* Search Bar */}
+          <div className="relative max-w-2xl">
+            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              placeholder="Search services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 pr-4 py-6 text-lg rounded-full bg-white border-0 placeholder:text-gray-400"
+            />
+          </div>
         </div>
-    );
+      </section>
+
+      {/* Services Section */}
+      <section className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Category Filters */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {categories.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`
+                    flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                    ${isActive
+                      ? "text-white"
+                      : "text-gray-600 bg-white border border-gray-200 hover:border-gray-300"
+                    }
+                  `}
+                  style={isActive ? { backgroundColor: TROJAN_NAVY } : {}}
+                >
+                  {Icon && <Icon size={16} />}
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Results Count */}
+          <p className="text-sm text-gray-500 mb-6">
+            Showing {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
+          </p>
+
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredServices.map((service) => (
+              <div key={service.id}>
+                <ServiceCard service={service} />
+              </div>
+            ))}
+          </div>
+
+          {/* Empty State */}
+          {filteredServices.length === 0 && (
+            <div className="text-center py-16">
+              <h3
+                className="text-xl font-semibold mb-2"
+                style={{ color: TROJAN_NAVY }}
+              >
+                No services found
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Try adjusting your search or filter criteria
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
 }
