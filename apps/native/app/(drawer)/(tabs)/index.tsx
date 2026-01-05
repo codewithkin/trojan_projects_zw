@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
 import { ServiceCard } from "@/components/service-card";
+import { StatsSection } from "@/components/stats-section";
 import { services, categoryConfig, type ServiceCategory } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -255,6 +256,9 @@ export default function Home() {
               </Text>
             </Pressable>
           </View>
+
+          {/* Stats Section */}
+          <StatsSection />
         </View>
       </ScrollView>
     </SafeAreaView>
