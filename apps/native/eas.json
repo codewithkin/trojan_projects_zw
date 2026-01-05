@@ -13,7 +13,8 @@
       },
       "cache": {
         "disabled": true
-      }
+      },
+      "prebuild": "bash eas-hooks/prebuild.sh"
     },
     "preview": {
       "distribution": "internal",
