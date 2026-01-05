@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Package, FolderKanban, User, MessageCircle, LogOut, Menu, X } from "lucide-react";
+import { Package, FolderKanban, MessageCircle, Users, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -14,7 +14,8 @@ const TROJAN_GOLD = "#FFC107";
 const navItems = [
     { name: "Home", href: "/", icon: Package },
     { name: "Services", href: "/projects", icon: Package },
-    { name: "Profile", href: "/profile", icon: User },
+    { name: "About Us", href: "/about", icon: Users },
+    { name: "Chat", href: "/chat", icon: MessageCircle },
 ];
 
 export function SiteHeader() {
