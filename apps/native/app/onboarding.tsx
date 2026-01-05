@@ -84,11 +84,12 @@ export default function OnboardingScreen() {
             { width: width * 0.22, height: width * 0.22 },
         ];
 
+        // Tone down animations: halve translate distances and slow slightly
         const bubbleAnimations = [
-            { translateY: [0, -15, 0], duration: 2000 },
-            { translateY: [0, -20, 0], duration: 2500 },
-            { translateY: [0, -12, 0], duration: 1800 },
-            { translateY: [0, -18, 0], duration: 2200 },
+            { translateY: [0, -8, 0], duration: 3600 },
+            { translateY: [0, -10, 0], duration: 4000 },
+            { translateY: [0, -6, 0], duration: 3200 },
+            { translateY: [0, -9, 0], duration: 3800 },
         ];
 
         return (
@@ -112,12 +113,12 @@ export default function OnboardingScreen() {
                             transition={{
                                 type: "spring",
                                 delay: 300 + idx * 100,
-                                damping: 10,
+                                damping: 14,
                                 translateY: {
                                     type: "timing",
                                     duration: bubbleAnimations[idx].duration,
                                     loop: true,
-                                    delay: 800 + idx * 200,
+                                    delay: 1000 + idx * 250,
                                 },
                             }}
                         >
