@@ -1,0 +1,3 @@
+{
+  "extends": "@trojan_projects_zw/config/tsconfig.base.json"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@trojan_projects_zw/db",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.1.0",
+    "@prisma/client": "catalog:",
+    "@trojan_projects_zw/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@trojan_projects_zw/config": "workspace:*",
+    "prisma": "^7.1.0",
+    "typescript": "catalog:"
+  }
+}
