@@ -116,16 +116,16 @@ export const projects: Project[] = [
             "HD cameras",
             "DVR/NVR setup",
             "Night vision",
-            "Remo
+            "Remote phone viewing",
+            "WiFi cams"
+        ],
+        brands: [],
+        images: [
             "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/one.jpg",
             "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/two.jpg",
             "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/three.jpg",
             "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/four.jpg",
             "https://trojan-projects.s3.amazonaws.com/in-house/cctv-installation/five.jpg"
-        te phone viewing",
-            "WiFi cams"
-        ],
-        brands: [],
-        images: []
+        ]
     }
 ];
