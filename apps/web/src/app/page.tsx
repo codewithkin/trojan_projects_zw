@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ServiceCard } from "@/components/service-card";
 import { StatsSection } from "@/components/stats-section";
 import { TestimonialSection } from "@/components/testimonial-section";
+import { FAQSection } from "@/components/faq-section";
 import { services } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -239,6 +240,9 @@ export default function HomePage() {
 
       {/* Testimonials Section */}
       <TestimonialSection />
+
+      {/* FAQ Section */}
+      <FAQSection />
 
       <SiteFooter />
     </div>
