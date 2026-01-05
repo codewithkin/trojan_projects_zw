@@ -21,6 +21,7 @@
     "@react-navigation/elements": "^2.8.1",
     "@rn-primitives/slot": "^1.2.0",
     "@trojan_projects_zw/env": "workspace:*",
+    "axios": "^1.13.2",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "expo": "^54.0.23",
