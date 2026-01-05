@@ -64,7 +64,7 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="border-0">
+        <Card className="border-0 ring-0">
           <CardHeader className="text-center pb-2">
             <motion.div
               initial={{ scale: 0.8 }}
