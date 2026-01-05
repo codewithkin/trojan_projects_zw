@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ErrorMessage } from "@/components/error-message";
 import { authClient } from "@/lib/auth-client";
 
 export default function SignUpPage() {
@@ -19,10 +20,12 @@ export default function SignUpPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleEmailSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError(null);
 
         await authClient.signUp.email(
             { name, email, password },
@@ -32,6 +35,7 @@ export default function SignUpPage() {
                     router.push("/user-onboarding");
                 },
                 onError: (error) => {
+                    setError(error.error.message || "Sign up failed");
                     toast.error(error.error.message || "Sign up failed");
                 },
             }
@@ -41,12 +45,14 @@ export default function SignUpPage() {
 
     const handleGoogleSignUp = async () => {
         setGoogleLoading(true);
+        setError(null);
         try {
             await authClient.signIn.social({
                 provider: "google",
                 callbackURL: "/user-onboarding",
             });
         } catch (err) {
+            setError("Google sign up failed");
             toast.error("Google sign up failed");
         } finally {
             setGoogleLoading(false);
@@ -120,6 +126,8 @@ export default function SignUpPage() {
                                 <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                             </div>
                         </div>
+
+                        <ErrorMessage message={error} />
 
                         <motion.form
                             initial={{ opacity: 0, x: -20 }}

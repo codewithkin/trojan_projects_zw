@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { ErrorMessage } from "@/components/error-message";
 import { authClient } from "@/lib/auth-client";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -129,9 +130,7 @@ export default function LoginScreen() {
                                 </View>
 
                                 {/* Error Message */}
-                                {error && (
-                                    <Text className="text-red-500 text-sm text-center">{error}</Text>
-                                )}
+                                <ErrorMessage message={error} />
 
                                 {/* Email Form */}
                                 <MotiView

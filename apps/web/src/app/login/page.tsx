@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ErrorMessage } from "@/components/error-message";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
@@ -18,10 +19,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     await authClient.signIn.email(
       { email, password },
@@ -32,8 +35,10 @@ export default function LoginPage() {
         },
         onError: (error) => {
           if (error.error.status === 403) {
+            setError("Please verify your email address first");
             toast.error("Please verify your email address first");
           } else {
+            setError(error.error.message || "Sign in failed");
             toast.error(error.error.message || "Sign in failed");
           }
         },
@@ -44,12 +49,14 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
+    setError(null);
     try {
       await authClient.signIn.social({
         provider: "google",
         callbackURL: "/dashboard",
       });
     } catch (err) {
+      setError("Google sign in failed");
       toast.error("Google sign in failed");
     } finally {
       setGoogleLoading(false);
@@ -123,6 +130,8 @@ export default function LoginPage() {
                 <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
               </div>
             </div>
+
+            <ErrorMessage message={error} />
 
             <motion.form
               initial={{ opacity: 0, x: -20 }}
