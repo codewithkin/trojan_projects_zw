@@ -10,7 +10,16 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: [env.CORS_ORIGIN, "mybettertapp://", "exp://", "trojan_projects_zw://"],
+  trustedOrigins: [
+    env.CORS_ORIGIN, 
+    "http://localhost:3001", // Web dev
+    "http://10.255.235.15:3001", // Web on network
+    "mybettertapp://", 
+    "exp://", 
+    "trojan_projects_zw://",
+    "http://localhost:8081", // Expo dev server
+    "http://10.255.235.15:8081" // Expo on network
+  ],
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID as string,

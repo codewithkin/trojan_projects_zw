@@ -12,7 +12,15 @@ app.use(logger());
 app.use(
   "/*",
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: [
+      env.CORS_ORIGIN,
+      "http://localhost:3001", // Web dev
+      "http://10.255.235.15:3001", // Web on network 
+      "trojan_projects_zw://", // Native app
+      "exp://", // Expo development
+      "http://localhost:8081", // Expo dev server
+      "http://10.255.235.15:8081" // Expo on network
+    ],
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
