@@ -15,6 +15,8 @@ export const env = createEnv({
     SMTP_PASSWORD: z.string().optional(),
     SMTP_FROM: z.string().optional(),
     SMTP_SECURE: z.string().optional(),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
