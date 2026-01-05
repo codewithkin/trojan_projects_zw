@@ -1,239 +1,213 @@
 "use client";
 
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
-import { Package, Clock, CheckCircle2, AlertCircle, Calendar, MapPin, ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Package, Clock, CheckCircle2, AlertCircle, Truck, XCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { projects } from "@/data/projects";
+import { ProjectCard } from "@/components/project-card";
+import { userProjects, type ProjectStatus } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-const mockProjects = [
-    {
-        id: 1,
-        name: "10 KVA Solar Installation",
-        location: "Greendale, Harare",
-        status: "in-progress",
-        progress: 65,
-        startDate: "Jan 1, 2026",
-        estimatedCompletion: "Jan 15, 2026",
-        image: projects[0].images[0],
-        stages: [
-            { name: "Site Survey", completed: true },
-            { name: "Equipment Delivery", completed: true },
-            { name: "Installation", completed: false },
-            { name: "Testing", completed: false },
-        ],
-    },
-    {
-        id: 2,
-        name: "CCTV System - 4 Cameras",
-        location: "Borrowdale, Harare",
-        status: "completed",
-        progress: 100,
-        startDate: "Dec 15, 2025",
-        estimatedCompletion: "Dec 20, 2025",
-        image: projects[3].images[0],
-        stages: [
-            { name: "Site Survey", completed: true },
-            { name: "Equipment Delivery", completed: true },
-            { name: "Installation", completed: true },
-            { name: "Testing", completed: true },
-        ],
-    },
+const tabs: { id: ProjectStatus | "all"; label: string; icon: typeof Clock; color: string }[] = [
+    { id: "all", label: "All", icon: Package, color: "#6B7280" },
+    { id: "pending", label: "Pending", icon: Clock, color: "#CA8A04" },
+    { id: "confirmed", label: "Confirmed", icon: AlertCircle, color: "#2563EB" },
+    { id: "in-progress", label: "In Progress", icon: Truck, color: "#7C3AED" },
+    { id: "completed", label: "Completed", icon: CheckCircle2, color: "#16A34A" },
+    { id: "cancelled", label: "Cancelled", icon: XCircle, color: "#DC2626" },
 ];
 
-const statusConfig = {
-    "in-progress": { icon: Clock, color: "text-blue-600", bg: "bg-blue-50", label: "In Progress" },
-    completed: { icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50", label: "Completed" },
-    pending: { icon: AlertCircle, color: "text-yellow-600", bg: "bg-yellow-50", label: "Pending" },
-};
-
 export default function ProjectsPage() {
+    const [activeTab, setActiveTab] = useState<ProjectStatus | "all">("all");
+
+    const filteredProjects = userProjects.filter((project) => {
+        if (activeTab === "all") return true;
+        return project.status === activeTab;
+    });
+
+    const getTabCount = (tabId: ProjectStatus | "all") => {
+        if (tabId === "all") return userProjects.length;
+        return userProjects.filter((p) => p.status === tabId).length;
+    };
+
+    const totalInvestment = userProjects
+        .filter(p => p.status !== "cancelled")
+        .reduce((sum, p) => sum + p.price, 0);
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold" style={{ color: TROJAN_NAVY }}>
+                        <h1 
+                            className="text-3xl font-bold mb-1"
+                            style={{ color: TROJAN_NAVY }}
+                        >
                             My Projects
                         </h1>
-                        <p className="text-gray-500 mt-1">Track your ongoing and completed installations</p>
+                        <p className="text-gray-600">
+                            Track and manage your service requests
+                        </p>
                     </div>
-                    <Link href="/services">
+                    <Link href="/">
                         <Button
                             size="lg"
-                            className="rounded-full"
+                            className="rounded-full font-semibold"
                             style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                         >
-                            Start New Project
+                            Request New Service
                             <ArrowRight size={18} className="ml-2" />
                         </Button>
                     </Link>
                 </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-500">Active Projects</p>
-                                    <p className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>1</p>
-                                </div>
-                                <Package size={32} className="text-blue-200" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-500">Completed</p>
-                                    <p className="text-2xl font-bold text-green-600">1</p>
-                                </div>
-                                <CheckCircle2 size={32} className="text-green-200" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-500">Total Investment</p>
-                                    <p className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>US$4,050</p>
-                                </div>
-                                <Calendar size={32} className="text-gray-300" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Projects List */}
-                <div className="space-y-6">
-                    {mockProjects.map((project) => {
-                        const status = statusConfig[project.status as keyof typeof statusConfig];
-                        const StatusIcon = status.icon;
-
+                {/* Stats Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                    {tabs.slice(1).map((tab) => {
+                        const Icon = tab.icon;
+                        const count = getTabCount(tab.id);
                         return (
-                            <Card key={project.id} className="hover:shadow-md transition-shadow">
-                                <CardContent className="p-6">
-                                    <div className="flex flex-col lg:flex-row gap-6">
-                                        {/* Image */}
-                                        <div className="relative w-full lg:w-48 h-48 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                            <Image
-                                                src={project.image}
-                                                alt={project.name}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        </div>
-
-                                        {/* Details */}
-                                        <div className="flex-1">
-                                            <div className="flex items-start justify-between mb-4">
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                                        {project.name}
-                                                    </h3>
-                                                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                                                        <span className="flex items-center gap-1">
-                                                            <MapPin size={14} />
-                                                            {project.location}
-                                                        </span>
-                                                        <span className="flex items-center gap-1">
-                                                            <Calendar size={14} />
-                                                            {project.startDate}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${status.bg}`}>
-                                                    <StatusIcon size={14} className={status.color} />
-                                                    <span className={`text-xs font-medium ${status.color}`}>
-                                                        {status.label}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Progress Bar */}
-                                            <div className="mb-4">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-sm font-medium text-gray-700">Progress</span>
-                                                    <span className="text-sm font-bold" style={{ color: TROJAN_NAVY }}>
-                                                        {project.progress}%
-                                                    </span>
-                                                </div>
-                                                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full rounded-full transition-all"
-                                                        style={{
-                                                            width: `${project.progress}%`,
-                                                            backgroundColor: TROJAN_GOLD,
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Stages */}
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                                                {project.stages.map((stage, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className={`flex items-center gap-2 px-3 py-2 rounded-lg ${stage.completed ? "bg-green-50" : "bg-gray-50"
-                                                            }`}
-                                                    >
-                                                        <CheckCircle2
-                                                            size={16}
-                                                            className={stage.completed ? "text-green-600" : "text-gray-300"}
-                                                        />
-                                                        <span
-                                                            className={`text-xs font-medium ${stage.completed ? "text-green-700" : "text-gray-500"
-                                                                }`}
-                                                        >
-                                                            {stage.name}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            {/* Actions */}
-                                            <div className="flex items-center gap-3">
-                                                <Button size="sm" variant="outline" className="rounded-full">
-                                                    View Details
-                                                </Button>
-                                                <p className="text-sm text-gray-500">
-                                                    Est. completion: {project.estimatedCompletion}
-                                                </p>
-                                            </div>
-                                        </div>
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`
+                                    bg-white rounded-xl p-4 border-2 transition-all hover:shadow-md text-left
+                                    ${activeTab === tab.id ? "shadow-md" : "border-transparent"}
+                                `}
+                                style={activeTab === tab.id ? { borderColor: tab.color } : {}}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div 
+                                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                                        style={{ backgroundColor: `${tab.color}20` }}
+                                    >
+                                        <Icon size={20} style={{ color: tab.color }} />
                                     </div>
-                                </CardContent>
-                            </Card>
+                                    <div>
+                                        <p 
+                                            className="text-2xl font-bold"
+                                            style={{ color: TROJAN_NAVY }}
+                                        >
+                                            {count}
+                                        </p>
+                                        <p className="text-xs text-gray-500">{tab.label}</p>
+                                    </div>
+                                </div>
+                            </button>
                         );
                     })}
                 </div>
 
+                {/* Total Investment Banner */}
+                <div 
+                    className="rounded-xl p-6 mb-8 flex items-center justify-between"
+                    style={{ backgroundColor: TROJAN_NAVY }}
+                >
+                    <div>
+                        <p className="text-white/70 text-sm mb-1">Total Investment</p>
+                        <p className="text-3xl font-bold text-white">
+                            US${totalInvestment.toLocaleString()}
+                        </p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-white/70 text-sm mb-1">Total Projects</p>
+                        <p className="text-3xl font-bold" style={{ color: TROJAN_GOLD }}>
+                            {userProjects.length}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Tab Pills */}
+                <div className="bg-white rounded-xl border border-gray-100 p-1.5 mb-6 inline-flex flex-wrap gap-1">
+                    {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        const count = getTabCount(tab.id);
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`
+                                    flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
+                                    ${isActive 
+                                        ? "text-white shadow-sm" 
+                                        : "text-gray-600 hover:bg-gray-100"
+                                    }
+                                `}
+                                style={isActive ? { backgroundColor: TROJAN_NAVY } : {}}
+                            >
+                                <Icon size={16} />
+                                <span className="hidden sm:inline">{tab.label}</span>
+                                <span 
+                                    className={`
+                                        px-2 py-0.5 rounded-full text-xs font-semibold
+                                        ${isActive ? "bg-white/20" : "bg-gray-100"}
+                                    `}
+                                >
+                                    {count}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* Projects List */}
+                <div className="space-y-4">
+                    {filteredProjects.map((project) => (
+                        <ProjectCard 
+                            key={project.id}
+                            project={project} 
+                            onViewDetails={() => console.log("View details:", project.id)}
+                        />
+                    ))}
+                </div>
+
                 {/* Empty State */}
-                {mockProjects.length === 0 && (
-                    <Card>
-                        <CardContent className="py-16 text-center">
-                            <Package size={48} className="text-gray-300 mx-auto mb-4" />
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects yet</h3>
-                            <p className="text-gray-500 mb-6">Start your first installation project today</p>
-                            <Link href="/services">
+                {filteredProjects.length === 0 && (
+                    <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
+                        <div 
+                            className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
+                            style={{ backgroundColor: `${TROJAN_GOLD}20` }}
+                        >
+                            <Package size={32} style={{ color: TROJAN_GOLD }} />
+                        </div>
+                        <h3 
+                            className="text-xl font-semibold mb-2"
+                            style={{ color: TROJAN_NAVY }}
+                        >
+                            No projects found
+                        </h3>
+                        <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                            {activeTab === "all" 
+                                ? "You haven't requested any services yet. Browse our services and get started!"
+                                : `You don't have any ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()} projects.`
+                            }
+                        </p>
+                        {activeTab === "all" && (
+                            <Link href="/">
                                 <Button
                                     size="lg"
-                                    className="rounded-full"
+                                    className="rounded-full font-semibold"
                                     style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                                 >
                                     Browse Services
+                                    <ArrowRight size={18} className="ml-2" />
                                 </Button>
                             </Link>
-                        </CardContent>
-                    </Card>
+                        )}
+                        {activeTab !== "all" && (
+                            <Button
+                                variant="outline"
+                                className="rounded-full"
+                                onClick={() => setActiveTab("all")}
+                            >
+                                View All Projects
+                            </Button>
+                        )}
+                    </div>
                 )}
             </div>
         </div>
