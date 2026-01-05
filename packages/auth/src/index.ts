@@ -36,6 +36,6 @@ export const auth = betterAuth({
       httpOnly: true,
     },
   },
-  plugins: [expo(), expo()],
+  plugins: [expo()],
 });
 
