@@ -12,15 +12,25 @@ app.use(logger());
 app.use(
   "/*",
   cors({
-    origin: [
-      env.CORS_ORIGIN,
-      "http://localhost:3001", // Web dev
-      "http://10.255.235.15:3001", // Web on network 
-      "trojan_projects_zw://", // Native app
-      "exp://", // Expo development
-      "http://localhost:8081", // Expo dev server
-      "http://10.255.235.15:8081" // Expo on network
-    ],
+    origin: (origin) => {
+      // Allow configured web origins
+      const allowedOrigins = [
+        env.CORS_ORIGIN,
+        "http://localhost:3001",
+        "http://10.255.235.15:3001",
+        "http://localhost:8081",
+        "http://10.255.235.15:8081"
+      ];
+      
+      if (allowedOrigins.includes(origin)) return origin;
+      
+      // Allow custom app schemes
+      if (origin.startsWith("trojan_projects_zw://")) return origin;
+      if (origin.startsWith("exp://")) return origin;
+      if (origin.startsWith("mybettertapp://")) return origin;
+      
+      return false;
+    },
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,

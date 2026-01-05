@@ -17,8 +17,20 @@ export const auth = betterAuth({
     "mybettertapp://", 
     "exp://", 
     "trojan_projects_zw://",
+    "trojan_projects_zw://*", // Native app with any path
     "http://localhost:8081", // Expo dev server
-    "http://10.255.235.15:8081" // Expo on network
+    "http://10.255.235.15:8081", // Expo on network
+    (origin) => {
+      // Allow any origin starting with trojan_projects_zw://
+      if (typeof origin === "string" && origin.startsWith("trojan_projects_zw://")) {
+        return true;
+      }
+      // Allow any expo origin
+      if (typeof origin === "string" && origin.startsWith("exp://")) {
+        return true;
+      }
+      return false;
+    }
   ],
   socialProviders: {
     google: {
