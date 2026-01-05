@@ -11,7 +11,7 @@ const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
 const navItems = [
-    { name: "Services", href: "/", icon: Package },
+    { name: "Home", href: "/", icon: Package },
     { name: "My Projects", href: "/projects", icon: FolderKanban },
     { name: "Profile", href: "/profile", icon: User },
 ];
