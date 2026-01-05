@@ -40,11 +40,10 @@ export function FilterBar({
                     <Pressable
                         key={category.value}
                         onPress={() => onCategoryChange?.(category.value)}
-                        className={`px-4 py-2 rounded-full ${
-                            selectedCategory === category.value
+                        className={`px-4 py-2 rounded-full ${selectedCategory === category.value
                                 ? ""
                                 : "bg-gray-100"
-                        }`}
+                            }`}
                         style={
                             selectedCategory === category.value
                                 ? { backgroundColor: TROJAN_NAVY }
@@ -52,11 +51,10 @@ export function FilterBar({
                         }
                     >
                         <Text
-                            className={`text-sm font-medium ${
-                                selectedCategory === category.value
+                            className={`text-sm font-medium ${selectedCategory === category.value
                                     ? "text-white"
                                     : "text-gray-700"
-                            }`}
+                                }`}
                         >
                             {category.label}
                         </Text>
