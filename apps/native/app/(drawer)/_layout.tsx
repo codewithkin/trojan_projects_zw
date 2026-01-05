@@ -31,6 +31,15 @@ function CustomDrawerContent(props: any) {
           paddingHorizontal: isTablet ? 28 : 20,
         }}
       >
+        {/* Logo */}
+        <View style={{ marginBottom: isTablet ? 20 : 16, alignItems: "center" }}>
+          <Image
+            source={require("@/assets/images/trojan-logo.svg")}
+            style={{ width: isTablet ? 200 : 160, height: isTablet ? 60 : 48 }}
+            contentFit="contain"
+          />
+        </View>
+
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View
             style={{
