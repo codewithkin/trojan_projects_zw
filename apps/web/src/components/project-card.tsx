@@ -70,12 +70,12 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
                         className="object-cover"
                     />
                     {/* Status Badge on Image (Mobile) */}
-                    <div 
+                    <div
                         className="sm:hidden absolute top-3 left-3 px-3 py-1.5 rounded-full flex items-center gap-1.5"
                         style={{ backgroundColor: status.bgColor }}
                     >
                         <StatusIcon size={14} style={{ color: status.color }} />
-                        <span 
+                        <span
                             className="text-xs font-semibold"
                             style={{ color: status.color }}
                         >
@@ -89,7 +89,7 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
                     {/* Header */}
                     <div className="flex items-start justify-between gap-4 mb-3">
                         <div>
-                            <h3 
+                            <h3
                                 className="font-semibold text-lg mb-1"
                                 style={{ color: TROJAN_NAVY }}
                             >
@@ -100,12 +100,12 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
                             </p>
                         </div>
                         {/* Status Badge (Desktop) */}
-                        <div 
+                        <div
                             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full"
                             style={{ backgroundColor: status.bgColor }}
                         >
                             <StatusIcon size={14} style={{ color: status.color }} />
-                            <span 
+                            <span
                                 className="text-sm font-semibold"
                                 style={{ color: status.color }}
                             >
@@ -147,7 +147,7 @@ export function ProjectCard({ project, onViewDetails }: ProjectCardProps) {
 
                     {/* Footer */}
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                        <p 
+                        <p
                             className="text-lg font-bold"
                             style={{ color: TROJAN_NAVY }}
                         >

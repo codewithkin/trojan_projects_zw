@@ -43,7 +43,7 @@ export function ServiceCard({ service, onPress, onWishlist }: ServiceCardProps) 
                     style={styles.image}
                     resizeMode="cover"
                 />
-                
+
                 {/* Wishlist Button */}
                 <TouchableOpacity
                     style={styles.wishlistButton}

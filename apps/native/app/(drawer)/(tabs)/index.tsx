@@ -18,7 +18,7 @@ export default function Home() {
 
   const filteredServices = services.filter((service) => {
     const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
-    const matchesSearch = 
+    const matchesSearch =
       service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       service.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -27,9 +27,9 @@ export default function Home() {
   const featuredServices = services.filter((s) => s.featured);
 
   return (
-    <SafeAreaView 
-      style={{ 
-        flex: 1, 
+    <SafeAreaView
+      style={{
+        flex: 1,
         backgroundColor: "#F9FAFB",
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
       }}
@@ -46,12 +46,12 @@ export default function Home() {
                 Quality installations you can trust
               </Text>
             </View>
-            <Pressable 
+            <Pressable
               onPress={() => router.push("/profile")}
-              style={{ 
-                width: 44, 
-                height: 44, 
-                borderRadius: 22, 
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 22,
                 backgroundColor: TROJAN_GOLD,
                 alignItems: "center",
                 justifyContent: "center",
@@ -62,11 +62,11 @@ export default function Home() {
           </View>
 
           {/* Search Bar */}
-          <View 
-            style={{ 
-              flexDirection: "row", 
-              alignItems: "center", 
-              backgroundColor: "white", 
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              backgroundColor: "white",
               borderRadius: 12,
               paddingHorizontal: 14,
               height: 48,
@@ -78,9 +78,9 @@ export default function Home() {
               placeholderTextColor="#9CA3AF"
               value={searchQuery}
               onChangeText={setSearchQuery}
-              style={{ 
-                flex: 1, 
-                marginLeft: 10, 
+              style={{
+                flex: 1,
+                marginLeft: 10,
                 fontSize: 15,
                 color: TROJAN_NAVY,
               }}
@@ -95,8 +95,8 @@ export default function Home() {
 
         <View style={{ padding: 16 }}>
           {/* Category Pills */}
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={{ marginBottom: 20, marginHorizontal: -16, paddingHorizontal: 16 }}
           >
@@ -120,15 +120,15 @@ export default function Home() {
                   }}
                 >
                   {config && (
-                    <Ionicons 
-                      name={config.icon as any} 
-                      size={16} 
+                    <Ionicons
+                      name={config.icon as any}
+                      size={16}
                       color={isActive ? "white" : config.color}
                       style={{ marginRight: 6 }}
                     />
                   )}
-                  <Text 
-                    style={{ 
+                  <Text
+                    style={{
                       color: isActive ? "white" : "#374151",
                       fontWeight: "600",
                       fontSize: 13,
@@ -145,14 +145,14 @@ export default function Home() {
           {selectedCategory === "all" && searchQuery === "" && featuredServices.length > 0 && (
             <View style={{ marginBottom: 20 }}>
               <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
-                <View 
-                  style={{ 
-                    width: 6, 
-                    height: 20, 
-                    backgroundColor: TROJAN_GOLD, 
+                <View
+                  style={{
+                    width: 6,
+                    height: 20,
+                    backgroundColor: TROJAN_GOLD,
                     borderRadius: 3,
                     marginRight: 8,
-                  }} 
+                  }}
                 />
                 <Text style={{ fontSize: 18, fontWeight: "700", color: TROJAN_NAVY }}>
                   Featured Services
@@ -171,18 +171,18 @@ export default function Home() {
           {/* All Services Section */}
           <View>
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
-              <View 
-                style={{ 
-                  width: 6, 
-                  height: 20, 
-                  backgroundColor: TROJAN_GOLD, 
+              <View
+                style={{
+                  width: 6,
+                  height: 20,
+                  backgroundColor: TROJAN_GOLD,
                   borderRadius: 3,
                   marginRight: 8,
-                }} 
+                }}
               />
               <Text style={{ fontSize: 18, fontWeight: "700", color: TROJAN_NAVY }}>
-                {selectedCategory === "all" 
-                  ? (searchQuery ? "Search Results" : "All Services") 
+                {selectedCategory === "all"
+                  ? (searchQuery ? "Search Results" : "All Services")
                   : categoryConfig[selectedCategory].label
                 }
               </Text>
@@ -208,13 +208,13 @@ export default function Home() {
                 <Text style={{ fontSize: 14, color: "#9CA3AF", marginTop: 4, textAlign: "center" }}>
                   Try adjusting your search or category filter
                 </Text>
-                <Pressable 
+                <Pressable
                   onPress={() => { setSearchQuery(""); setSelectedCategory("all"); }}
-                  style={{ 
-                    marginTop: 16, 
-                    backgroundColor: TROJAN_GOLD, 
-                    paddingHorizontal: 20, 
-                    paddingVertical: 10, 
+                  style={{
+                    marginTop: 16,
+                    backgroundColor: TROJAN_GOLD,
+                    paddingHorizontal: 20,
+                    paddingVertical: 10,
                     borderRadius: 20,
                   }}
                 >
@@ -227,12 +227,12 @@ export default function Home() {
           </View>
 
           {/* CTA Section */}
-          <View 
-            style={{ 
+          <View
+            style={{
               marginTop: 24,
               marginBottom: 32,
-              padding: 20, 
-              backgroundColor: TROJAN_NAVY, 
+              padding: 20,
+              backgroundColor: TROJAN_NAVY,
               borderRadius: 20,
             }}
           >
@@ -242,10 +242,10 @@ export default function Home() {
             <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, marginTop: 4, marginBottom: 16 }}>
               Contact us for personalized solutions tailored to your needs.
             </Text>
-            <Pressable 
-              style={{ 
-                backgroundColor: TROJAN_GOLD, 
-                paddingVertical: 12, 
+            <Pressable
+              style={{
+                backgroundColor: TROJAN_GOLD,
+                paddingVertical: 12,
                 borderRadius: 20,
                 alignItems: "center",
               }}

@@ -39,9 +39,9 @@ export default function Projects() {
         .reduce((sum, p) => sum + p.price, 0);
 
     return (
-        <SafeAreaView 
-            style={{ 
-                flex: 1, 
+        <SafeAreaView
+            style={{
+                flex: 1,
                 backgroundColor: "#F9FAFB",
                 paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
             }}
@@ -53,12 +53,12 @@ export default function Projects() {
                         <Text style={{ fontSize: 24, fontWeight: "700", color: TROJAN_NAVY }}>
                             My Projects
                         </Text>
-                        <Pressable 
+                        <Pressable
                             onPress={() => router.push("/")}
-                            style={{ 
-                                backgroundColor: TROJAN_GOLD, 
-                                paddingHorizontal: 16, 
-                                paddingVertical: 10, 
+                            style={{
+                                backgroundColor: TROJAN_GOLD,
+                                paddingHorizontal: 16,
+                                paddingVertical: 10,
                                 borderRadius: 20,
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -77,8 +77,8 @@ export default function Projects() {
                 </View>
 
                 {/* Stats Cards */}
-                <ScrollView 
-                    horizontal 
+                <ScrollView
+                    horizontal
                     showsHorizontalScrollIndicator={false}
                     style={{ paddingLeft: 16, marginBottom: 16 }}
                     contentContainerStyle={{ paddingRight: 16 }}
@@ -106,11 +106,11 @@ export default function Projects() {
                                 }}
                             >
                                 <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                                    <View 
-                                        style={{ 
-                                            width: 36, 
-                                            height: 36, 
-                                            borderRadius: 18, 
+                                    <View
+                                        style={{
+                                            width: 36,
+                                            height: 36,
+                                            borderRadius: 18,
                                             backgroundColor: `${tab.color}20`,
                                             alignItems: "center",
                                             justifyContent: "center",
@@ -133,12 +133,12 @@ export default function Projects() {
                 </ScrollView>
 
                 {/* Total Investment Banner */}
-                <View 
-                    style={{ 
-                        marginHorizontal: 16, 
-                        marginBottom: 16, 
-                        backgroundColor: TROJAN_NAVY, 
-                        borderRadius: 16, 
+                <View
+                    style={{
+                        marginHorizontal: 16,
+                        marginBottom: 16,
+                        backgroundColor: TROJAN_NAVY,
+                        borderRadius: 16,
                         padding: 16,
                         flexDirection: "row",
                         alignItems: "center",
@@ -164,8 +164,8 @@ export default function Projects() {
                 </View>
 
                 {/* Tab Pills */}
-                <ScrollView 
-                    horizontal 
+                <ScrollView
+                    horizontal
                     showsHorizontalScrollIndicator={false}
                     style={{ paddingLeft: 16, marginBottom: 16 }}
                     contentContainerStyle={{ paddingRight: 16 }}
@@ -188,13 +188,13 @@ export default function Projects() {
                                     gap: 6,
                                 }}
                             >
-                                <Ionicons 
-                                    name={tab.icon as any} 
-                                    size={16} 
-                                    color={isActive ? "white" : "#6B7280"} 
+                                <Ionicons
+                                    name={tab.icon as any}
+                                    size={16}
+                                    color={isActive ? "white" : "#6B7280"}
                                 />
-                                <Text 
-                                    style={{ 
+                                <Text
+                                    style={{
                                         color: isActive ? "white" : "#6B7280",
                                         fontWeight: "600",
                                         fontSize: 13,
@@ -202,17 +202,17 @@ export default function Projects() {
                                 >
                                     {tab.label}
                                 </Text>
-                                <View 
-                                    style={{ 
+                                <View
+                                    style={{
                                         backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "#F3F4F6",
                                         paddingHorizontal: 8,
                                         paddingVertical: 2,
                                         borderRadius: 10,
                                     }}
                                 >
-                                    <Text 
-                                        style={{ 
-                                            fontSize: 11, 
+                                    <Text
+                                        style={{
+                                            fontSize: 11,
                                             fontWeight: "600",
                                             color: isActive ? "white" : "#6B7280",
                                         }}
@@ -236,19 +236,19 @@ export default function Projects() {
                             />
                         ))
                     ) : (
-                        <View 
-                            style={{ 
-                                alignItems: "center", 
-                                paddingVertical: 48, 
-                                backgroundColor: "white", 
+                        <View
+                            style={{
+                                alignItems: "center",
+                                paddingVertical: 48,
+                                backgroundColor: "white",
                                 borderRadius: 20,
                             }}
                         >
-                            <View 
-                                style={{ 
-                                    width: 64, 
-                                    height: 64, 
-                                    borderRadius: 32, 
+                            <View
+                                style={{
+                                    width: 64,
+                                    height: 64,
+                                    borderRadius: 32,
                                     backgroundColor: `${TROJAN_GOLD}20`,
                                     alignItems: "center",
                                     justifyContent: "center",
@@ -261,19 +261,19 @@ export default function Projects() {
                                 No projects found
                             </Text>
                             <Text style={{ fontSize: 14, color: "#9CA3AF", textAlign: "center", paddingHorizontal: 32 }}>
-                                {activeTab === "all" 
+                                {activeTab === "all"
                                     ? "You haven't requested any services yet. Browse our services to get started!"
                                     : `You don't have any ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()} projects.`
                                 }
                             </Text>
                             {activeTab === "all" && (
-                                <Pressable 
+                                <Pressable
                                     onPress={() => router.push("/")}
-                                    style={{ 
-                                        marginTop: 20, 
-                                        backgroundColor: TROJAN_GOLD, 
-                                        paddingHorizontal: 24, 
-                                        paddingVertical: 12, 
+                                    style={{
+                                        marginTop: 20,
+                                        backgroundColor: TROJAN_GOLD,
+                                        paddingHorizontal: 24,
+                                        paddingVertical: 12,
                                         borderRadius: 24,
                                         flexDirection: "row",
                                         alignItems: "center",
@@ -287,14 +287,14 @@ export default function Projects() {
                                 </Pressable>
                             )}
                             {activeTab !== "all" && (
-                                <Pressable 
+                                <Pressable
                                     onPress={() => setActiveTab("all")}
-                                    style={{ 
-                                        marginTop: 20, 
+                                    style={{
+                                        marginTop: 20,
                                         borderWidth: 1,
                                         borderColor: "#E5E7EB",
-                                        paddingHorizontal: 24, 
-                                        paddingVertical: 12, 
+                                        paddingHorizontal: 24,
+                                        paddingVertical: 12,
                                         borderRadius: 24,
                                     }}
                                 >

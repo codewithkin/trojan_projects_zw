@@ -34,7 +34,7 @@ export function SiteHeader() {
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
             {/* Announcement Bar */}
-            <div 
+            <div
                 className="text-white text-center py-2 text-sm"
                 style={{ backgroundColor: TROJAN_NAVY }}
             >
@@ -48,13 +48,13 @@ export function SiteHeader() {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div 
+                        <div
                             className="w-10 h-10 rounded-lg flex items-center justify-center"
                             style={{ backgroundColor: TROJAN_GOLD }}
                         >
                             <span className="text-xl">⚡</span>
                         </div>
-                        <span 
+                        <span
                             className="text-xl font-bold hidden sm:block"
                             style={{ color: TROJAN_NAVY }}
                         >
@@ -73,8 +73,8 @@ export function SiteHeader() {
                                     href={item.href}
                                     className={`
                                         flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
-                                        ${active 
-                                            ? "text-white" 
+                                        ${active
+                                            ? "text-white"
                                             : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                                         }
                                     `}
@@ -118,7 +118,7 @@ export function SiteHeader() {
                                             </Button>
                                         </Link>
                                         <Link href="/signup">
-                                            <Button 
+                                            <Button
                                                 className="rounded-full"
                                                 style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                                             >
@@ -157,8 +157,8 @@ export function SiteHeader() {
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={`
                                         flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all
-                                        ${active 
-                                            ? "text-white" 
+                                        ${active
+                                            ? "text-white"
                                             : "text-gray-600 hover:bg-gray-100"
                                         }
                                     `}
@@ -169,7 +169,7 @@ export function SiteHeader() {
                                 </Link>
                             );
                         })}
-                        
+
                         <div className="border-t border-gray-100 pt-4 mt-4">
                             {session?.user ? (
                                 <div className="space-y-3">
@@ -194,7 +194,7 @@ export function SiteHeader() {
                                         </Button>
                                     </Link>
                                     <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                                        <Button 
+                                        <Button
                                             className="w-full"
                                             style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                                         >

@@ -42,7 +42,7 @@ export default function ProjectsPage() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h1 
+                        <h1
                             className="text-3xl font-bold mb-1"
                             style={{ color: TROJAN_NAVY }}
                         >
@@ -80,14 +80,14 @@ export default function ProjectsPage() {
                                 style={activeTab === tab.id ? { borderColor: tab.color } : {}}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div 
+                                    <div
                                         className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                                         style={{ backgroundColor: `${tab.color}20` }}
                                     >
                                         <Icon size={20} style={{ color: tab.color }} />
                                     </div>
                                     <div>
-                                        <p 
+                                        <p
                                             className="text-2xl font-bold"
                                             style={{ color: TROJAN_NAVY }}
                                         >
@@ -102,7 +102,7 @@ export default function ProjectsPage() {
                 </div>
 
                 {/* Total Investment Banner */}
-                <div 
+                <div
                     className="rounded-xl p-6 mb-8 flex items-center justify-between"
                     style={{ backgroundColor: TROJAN_NAVY }}
                 >
@@ -132,8 +132,8 @@ export default function ProjectsPage() {
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`
                                     flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
-                                    ${isActive 
-                                        ? "text-white shadow-sm" 
+                                    ${isActive
+                                        ? "text-white shadow-sm"
                                         : "text-gray-600 hover:bg-gray-100"
                                     }
                                 `}
@@ -141,7 +141,7 @@ export default function ProjectsPage() {
                             >
                                 <Icon size={16} />
                                 <span className="hidden sm:inline">{tab.label}</span>
-                                <span 
+                                <span
                                     className={`
                                         px-2 py-0.5 rounded-full text-xs font-semibold
                                         ${isActive ? "bg-white/20" : "bg-gray-100"}
@@ -157,9 +157,9 @@ export default function ProjectsPage() {
                 {/* Projects List */}
                 <div className="space-y-4">
                     {filteredProjects.map((project) => (
-                        <ProjectCard 
+                        <ProjectCard
                             key={project.id}
-                            project={project} 
+                            project={project}
                             onViewDetails={() => console.log("View details:", project.id)}
                         />
                     ))}
@@ -168,20 +168,20 @@ export default function ProjectsPage() {
                 {/* Empty State */}
                 {filteredProjects.length === 0 && (
                     <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-                        <div 
+                        <div
                             className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
                             style={{ backgroundColor: `${TROJAN_GOLD}20` }}
                         >
                             <Package size={32} style={{ color: TROJAN_GOLD }} />
                         </div>
-                        <h3 
+                        <h3
                             className="text-xl font-semibold mb-2"
                             style={{ color: TROJAN_NAVY }}
                         >
                             No projects found
                         </h3>
                         <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                            {activeTab === "all" 
+                            {activeTab === "all"
                                 ? "You haven't requested any services yet. Browse our services and get started!"
                                 : `You don't have any ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()} projects.`
                             }

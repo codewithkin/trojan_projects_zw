@@ -57,7 +57,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
                 {/* Featured Badge */}
                 {service.featured && (
-                    <div 
+                    <div
                         className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold"
                         style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                     >
@@ -66,7 +66,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
                 )}
 
                 {/* Category Badge */}
-                <div 
+                <div
                     className="absolute bottom-3 left-3 px-2 py-1 rounded-full text-xs font-medium text-white"
                     style={{ backgroundColor: categoryColors[service.category] || "#6B7280" }}
                 >
@@ -86,7 +86,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
                 )}
 
                 {/* Title */}
-                <h3 
+                <h3
                     className="font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:underline"
                     style={{ color: TROJAN_NAVY }}
                 >
@@ -120,7 +120,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
                 {/* Price */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <p 
+                        <p
                             className="text-lg font-bold"
                             style={{ color: TROJAN_NAVY }}
                         >

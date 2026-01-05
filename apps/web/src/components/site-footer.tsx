@@ -14,13 +14,13 @@ export function SiteFooter() {
                     {/* Brand */}
                     <div className="md:col-span-1">
                         <div className="flex items-center gap-2 mb-4">
-                            <div 
+                            <div
                                 className="w-10 h-10 rounded-lg flex items-center justify-center"
                                 style={{ backgroundColor: TROJAN_GOLD }}
                             >
                                 <span className="text-xl">⚡</span>
                             </div>
-                            <span 
+                            <span
                                 className="text-xl font-bold"
                                 style={{ color: TROJAN_NAVY }}
                             >

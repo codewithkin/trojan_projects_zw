@@ -69,7 +69,7 @@ export default function ProfilePage() {
                     <div className="lg:col-span-1">
                         <Card className="overflow-hidden">
                             {/* Header Banner */}
-                            <div 
+                            <div
                                 className="h-24"
                                 style={{ backgroundColor: TROJAN_NAVY }}
                             />
@@ -83,7 +83,7 @@ export default function ProfilePage() {
                                         >
                                             {userInitials}
                                         </div>
-                                        <button 
+                                        <button
                                             className="absolute bottom-0 right-0 p-2 rounded-full bg-white shadow-md border border-gray-200 hover:bg-gray-50"
                                         >
                                             <Camera size={14} className="text-gray-600" />
@@ -96,7 +96,7 @@ export default function ProfilePage() {
                                 {/* Quick Stats */}
                                 <div className="grid grid-cols-3 gap-2 py-4 border-t border-gray-100">
                                     <div className="text-center">
-                                        <div 
+                                        <div
                                             className="w-10 h-10 rounded-full mx-auto mb-1 flex items-center justify-center"
                                             style={{ backgroundColor: `${TROJAN_GOLD}20` }}
                                         >
@@ -122,7 +122,7 @@ export default function ProfilePage() {
                                 </div>
 
                                 {/* Total Spent */}
-                                <div 
+                                <div
                                     className="rounded-xl p-4 mt-2"
                                     style={{ backgroundColor: `${TROJAN_NAVY}08` }}
                                 >
@@ -134,7 +134,7 @@ export default function ProfilePage() {
 
                                 {/* Quick Link */}
                                 <Link href="/projects">
-                                    <Button 
+                                    <Button
                                         className="w-full mt-4 rounded-full"
                                         style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                                     >
@@ -154,8 +154,8 @@ export default function ProfilePage() {
                                     <User size={20} />
                                     Personal Information
                                 </CardTitle>
-                                <Button 
-                                    variant="ghost" 
+                                <Button
+                                    variant="ghost"
                                     size="sm"
                                     onClick={() => setIsEditing(!isEditing)}
                                     className="text-gray-500"
@@ -168,19 +168,19 @@ export default function ProfilePage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <Label htmlFor="firstName">First Name</Label>
-                                        <Input 
-                                            id="firstName" 
-                                            defaultValue={userName.split(" ")[0]} 
-                                            className="mt-1" 
+                                        <Input
+                                            id="firstName"
+                                            defaultValue={userName.split(" ")[0]}
+                                            className="mt-1"
                                             disabled={!isEditing}
                                         />
                                     </div>
                                     <div>
                                         <Label htmlFor="lastName">Last Name</Label>
-                                        <Input 
-                                            id="lastName" 
-                                            defaultValue={userName.split(" ")[1] || ""} 
-                                            className="mt-1" 
+                                        <Input
+                                            id="lastName"
+                                            defaultValue={userName.split(" ")[1] || ""}
+                                            className="mt-1"
                                             disabled={!isEditing}
                                         />
                                     </div>
@@ -190,11 +190,11 @@ export default function ProfilePage() {
                                         <Mail size={14} />
                                         Email Address
                                     </Label>
-                                    <Input 
-                                        id="email" 
-                                        type="email" 
-                                        defaultValue={userEmail} 
-                                        className="mt-1" 
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        defaultValue={userEmail}
+                                        className="mt-1"
                                         disabled={!isEditing}
                                     />
                                 </div>
@@ -203,10 +203,10 @@ export default function ProfilePage() {
                                         <Phone size={14} />
                                         Phone Number
                                     </Label>
-                                    <Input 
-                                        id="phone" 
-                                        defaultValue="+263 77 123 4567" 
-                                        className="mt-1" 
+                                    <Input
+                                        id="phone"
+                                        defaultValue="+263 77 123 4567"
+                                        className="mt-1"
                                         disabled={!isEditing}
                                     />
                                 </div>
@@ -215,10 +215,10 @@ export default function ProfilePage() {
                                         <MapPin size={14} />
                                         Address
                                     </Label>
-                                    <Input 
-                                        id="address" 
-                                        defaultValue="Harare, Zimbabwe" 
-                                        className="mt-1" 
+                                    <Input
+                                        id="address"
+                                        defaultValue="Harare, Zimbabwe"
+                                        className="mt-1"
                                         disabled={!isEditing}
                                     />
                                 </div>
