@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ScrollView, View, Pressable, Image, Switch, SafeAreaView, StatusBar, Platform } from "react-native";
+import { useState, useMemo } from "react";
+import { ScrollView, View, Pressable, Image, Switch, SafeAreaView, StatusBar, Platform, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
@@ -59,10 +59,16 @@ const SettingItem = ({ icon, title, subtitle, onPress, rightElement, danger }: S
 
 export default function Profile() {
     const router = useRouter();
+    const { width } = useWindowDimensions();
     const [projectNotifications, setProjectNotifications] = useState(true);
     const [technicianNotifications, setTechnicianNotifications] = useState(true);
     const [promotionalEmails, setPromotionalEmails] = useState(false);
     const [smsNotifications, setSmsNotifications] = useState(true);
+
+    // Responsive breakpoints
+    const isTablet = width >= 768;
+    const isLargeTablet = width >= 1024;
+    const contentPadding = isTablet ? 24 : 16;
 
     const { data: session, isPending } = authClient.useSession();
 
@@ -72,11 +78,13 @@ export default function Profile() {
     };
 
     // Calculate user stats from projects
-    const completedProjects = userProjects.filter(p => p.status === "completed").length;
-    const activeProjects = userProjects.filter(p => ["pending", "confirmed", "in-progress"].includes(p.status)).length;
-    const totalSpent = userProjects
-        .filter(p => p.status === "completed")
-        .reduce((sum, p) => sum + p.price, 0);
+    const { completedProjects, activeProjects, totalSpent } = useMemo(() => ({
+        completedProjects: userProjects.filter(p => p.status === "completed").length,
+        activeProjects: userProjects.filter(p => ["pending", "confirmed", "in-progress"].includes(p.status)).length,
+        totalSpent: userProjects
+            .filter(p => p.status === "completed")
+            .reduce((sum, p) => sum + p.price, 0),
+    }), []);
 
     if (isPending) {
         return (
@@ -101,9 +109,16 @@ export default function Profile() {
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
                 {/* Header Banner with Avatar */}
                 <View style={{ backgroundColor: TROJAN_NAVY, paddingBottom: 60 }}>
-                    <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}>
+                    <View style={{ 
+                        paddingHorizontal: contentPadding, 
+                        paddingTop: contentPadding, 
+                        paddingBottom: 20,
+                        maxWidth: isLargeTablet ? 1200 : undefined,
+                        alignSelf: "center",
+                        width: "100%",
+                    }}>
                         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                            <Text style={{ color: "white", fontSize: 24, fontWeight: "700" }}>
+                            <Text style={{ color: "white", fontSize: isTablet ? 30 : 24, fontWeight: "700" }}>
                                 My Profile
                             </Text>
                             <Pressable
@@ -112,16 +127,16 @@ export default function Profile() {
                                     flexDirection: "row",
                                     alignItems: "center",
                                     gap: 6,
-                                    paddingHorizontal: 14,
-                                    paddingVertical: 8,
+                                    paddingHorizontal: isTablet ? 18 : 14,
+                                    paddingVertical: isTablet ? 10 : 8,
                                     borderRadius: 20,
                                     backgroundColor: "rgba(220,38,38,0.2)",
                                     borderWidth: 1,
                                     borderColor: "rgba(220,38,38,0.3)",
                                 }}
                             >
-                                <Ionicons name="log-out-outline" size={16} color="#FCA5A5" />
-                                <Text style={{ color: "#FCA5A5", fontWeight: "600", fontSize: 13 }}>
+                                <Ionicons name="log-out-outline" size={isTablet ? 18 : 16} color="#FCA5A5" />
+                                <Text style={{ color: "#FCA5A5", fontWeight: "600", fontSize: isTablet ? 15 : 13 }}>
                                     Sign Out
                                 </Text>
                             </Pressable>
@@ -131,9 +146,9 @@ export default function Profile() {
                             <View style={{ position: "relative" }}>
                                 <View
                                     style={{
-                                        width: 96,
-                                        height: 96,
-                                        borderRadius: 48,
+                                        width: isTablet ? 120 : 96,
+                                        height: isTablet ? 120 : 96,
+                                        borderRadius: isTablet ? 60 : 48,
                                         backgroundColor: TROJAN_GOLD,
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -141,7 +156,7 @@ export default function Profile() {
                                         borderColor: "rgba(255,255,255,0.2)",
                                     }}
                                 >
-                                    <Text style={{ fontSize: 32, fontWeight: "700", color: TROJAN_NAVY }}>
+                                    <Text style={{ fontSize: isTablet ? 40 : 32, fontWeight: "700", color: TROJAN_NAVY }}>
                                         {userInitials}
                                     </Text>
                                 </View>
@@ -150,9 +165,9 @@ export default function Profile() {
                                         position: "absolute",
                                         bottom: 0,
                                         right: 0,
-                                        width: 32,
-                                        height: 32,
-                                        borderRadius: 16,
+                                        width: isTablet ? 40 : 32,
+                                        height: isTablet ? 40 : 32,
+                                        borderRadius: isTablet ? 20 : 16,
                                         backgroundColor: "white",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -163,108 +178,125 @@ export default function Profile() {
                                         elevation: 3,
                                     }}
                                 >
-                                    <Ionicons name="camera" size={16} color={TROJAN_NAVY} />
+                                    <Ionicons name="camera" size={isTablet ? 20 : 16} color={TROJAN_NAVY} />
                                 </Pressable>
                             </View>
-                            <Text style={{ color: "white", fontSize: 20, fontWeight: "700", marginTop: 12 }}>
+                            <Text style={{ color: "white", fontSize: isTablet ? 24 : 20, fontWeight: "700", marginTop: 12 }}>
                                 {userName}
                             </Text>
-                            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, marginTop: 2 }}>
+                            <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 16 : 14, marginTop: 2 }}>
                                 {userEmail}
                             </Text>
                         </View>
                     </View>
                 </View>
 
-                {/* Stats Card */}
-                <View style={{ paddingHorizontal: 16, marginTop: -40, marginBottom: 20 }}>
-                    <View
-                        style={{
-                            backgroundColor: "white",
-                            borderRadius: 20,
-                            padding: 20,
-                            shadowColor: "#000",
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 8,
-                            elevation: 4,
-                        }}
-                    >
-                        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-                            <View style={{ alignItems: "center" }}>
-                                <View
-                                    style={{
-                                        width: 44,
-                                        height: 44,
-                                        borderRadius: 22,
-                                        backgroundColor: `${TROJAN_GOLD}20`,
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        marginBottom: 6,
-                                    }}
-                                >
-                                    <Ionicons name="layers" size={22} color={TROJAN_GOLD} />
+                {/* Content Container for tablet layout */}
+                <View style={{
+                    maxWidth: isLargeTablet ? 1200 : undefined,
+                    alignSelf: "center",
+                    width: "100%",
+                    flexDirection: isLargeTablet ? "row" : "column",
+                    flexWrap: isLargeTablet ? "wrap" : "nowrap",
+                    paddingHorizontal: isLargeTablet ? contentPadding : 0,
+                }}>
+                    {/* Stats Card */}
+                    <View style={{ 
+                        paddingHorizontal: isLargeTablet ? 0 : contentPadding, 
+                        marginTop: -40, 
+                        marginBottom: 20,
+                        width: isLargeTablet ? "100%" : undefined,
+                    }}>
+                        <View
+                            style={{
+                                backgroundColor: "white",
+                                borderRadius: isTablet ? 24 : 20,
+                                padding: isTablet ? 28 : 20,
+                                shadowColor: "#000",
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 8,
+                                elevation: 4,
+                            }}
+                        >
+                            <View style={{ 
+                                flexDirection: "row", 
+                                justifyContent: isTablet ? "space-evenly" : "space-around" 
+                            }}>
+                                <View style={{ alignItems: "center" }}>
+                                    <View
+                                        style={{
+                                            width: isTablet ? 56 : 44,
+                                            height: isTablet ? 56 : 44,
+                                            borderRadius: isTablet ? 28 : 22,
+                                            backgroundColor: `${TROJAN_GOLD}20`,
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginBottom: 6,
+                                        }}
+                                    >
+                                        <Ionicons name="layers" size={isTablet ? 26 : 22} color={TROJAN_GOLD} />
+                                    </View>
+                                    <Text style={{ fontSize: isTablet ? 24 : 20, fontWeight: "700", color: TROJAN_NAVY }}>
+                                        {userProjects.length}
+                                    </Text>
+                                    <Text style={{ fontSize: isTablet ? 14 : 12, color: "#9CA3AF" }}>Total</Text>
                                 </View>
-                                <Text style={{ fontSize: 20, fontWeight: "700", color: TROJAN_NAVY }}>
-                                    {userProjects.length}
-                                </Text>
-                                <Text style={{ fontSize: 12, color: "#9CA3AF" }}>Total</Text>
-                            </View>
-                            <View style={{ width: 1, backgroundColor: "#E5E7EB" }} />
-                            <View style={{ alignItems: "center" }}>
-                                <View
-                                    style={{
-                                        width: 44,
-                                        height: 44,
-                                        borderRadius: 22,
-                                        backgroundColor: "#DBEAFE",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        marginBottom: 6,
-                                    }}
-                                >
-                                    <Ionicons name="time-outline" size={22} color="#2563EB" />
+                                {!isTablet && <View style={{ width: 1, backgroundColor: "#E5E7EB" }} />}
+                                <View style={{ alignItems: "center" }}>
+                                    <View
+                                        style={{
+                                            width: isTablet ? 56 : 44,
+                                            height: isTablet ? 56 : 44,
+                                            borderRadius: isTablet ? 28 : 22,
+                                            backgroundColor: "#DBEAFE",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginBottom: 6,
+                                        }}
+                                    >
+                                        <Ionicons name="time-outline" size={isTablet ? 26 : 22} color="#2563EB" />
+                                    </View>
+                                    <Text style={{ fontSize: isTablet ? 24 : 20, fontWeight: "700", color: TROJAN_NAVY }}>
+                                        {activeProjects}
+                                    </Text>
+                                    <Text style={{ fontSize: isTablet ? 14 : 12, color: "#9CA3AF" }}>Active</Text>
                                 </View>
-                                <Text style={{ fontSize: 20, fontWeight: "700", color: TROJAN_NAVY }}>
-                                    {activeProjects}
-                                </Text>
-                                <Text style={{ fontSize: 12, color: "#9CA3AF" }}>Active</Text>
-                            </View>
-                            <View style={{ width: 1, backgroundColor: "#E5E7EB" }} />
-                            <View style={{ alignItems: "center" }}>
-                                <View
-                                    style={{
-                                        width: 44,
-                                        height: 44,
-                                        borderRadius: 22,
-                                        backgroundColor: "#DCFCE7",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        marginBottom: 6,
-                                    }}
-                                >
-                                    <Ionicons name="checkmark-done" size={22} color="#16A34A" />
+                                {!isTablet && <View style={{ width: 1, backgroundColor: "#E5E7EB" }} />}
+                                <View style={{ alignItems: "center" }}>
+                                    <View
+                                        style={{
+                                            width: isTablet ? 56 : 44,
+                                            height: isTablet ? 56 : 44,
+                                            borderRadius: isTablet ? 28 : 22,
+                                            backgroundColor: "#DCFCE7",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginBottom: 6,
+                                        }}
+                                    >
+                                        <Ionicons name="checkmark-done" size={isTablet ? 26 : 22} color="#16A34A" />
+                                    </View>
+                                    <Text style={{ fontSize: isTablet ? 24 : 20, fontWeight: "700", color: TROJAN_NAVY }}>
+                                        {completedProjects}
+                                    </Text>
+                                    <Text style={{ fontSize: isTablet ? 14 : 12, color: "#9CA3AF" }}>Done</Text>
                                 </View>
-                                <Text style={{ fontSize: 20, fontWeight: "700", color: TROJAN_NAVY }}>
-                                    {completedProjects}
-                                </Text>
-                                <Text style={{ fontSize: 12, color: "#9CA3AF" }}>Done</Text>
                             </View>
-                        </View>
 
                         {/* Total Spent */}
                         <View
                             style={{
-                                marginTop: 16,
-                                paddingTop: 16,
+                                marginTop: isTablet ? 20 : 16,
+                                paddingTop: isTablet ? 20 : 16,
                                 borderTopWidth: 1,
                                 borderTopColor: "#F3F4F6",
                             }}
                         >
-                            <Text style={{ fontSize: 12, color: "#9CA3AF", textAlign: "center", marginBottom: 4 }}>
+                            <Text style={{ fontSize: isTablet ? 14 : 12, color: "#9CA3AF", textAlign: "center", marginBottom: 4 }}>
                                 Total Invested
                             </Text>
-                            <Text style={{ fontSize: 24, fontWeight: "700", color: TROJAN_NAVY, textAlign: "center" }}>
+                            <Text style={{ fontSize: isTablet ? 28 : 24, fontWeight: "700", color: TROJAN_NAVY, textAlign: "center" }}>
                                 US${totalSpent.toLocaleString()}
                             </Text>
                         </View>
@@ -273,27 +305,41 @@ export default function Profile() {
                         <Pressable
                             onPress={() => router.push("/projects")}
                             style={{
-                                marginTop: 16,
+                                marginTop: isTablet ? 20 : 16,
                                 backgroundColor: TROJAN_GOLD,
-                                paddingVertical: 12,
+                                paddingVertical: isTablet ? 14 : 12,
                                 borderRadius: 24,
                                 alignItems: "center",
                             }}
                         >
-                            <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: 15 }}>
+                            <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: isTablet ? 17 : 15 }}>
                                 View My Projects
                             </Text>
                         </Pressable>
                     </View>
                 </View>
 
+                {/* Settings Sections Container - 2 columns on tablet */}
+                <View style={{
+                    flexDirection: isLargeTablet ? "row" : "column",
+                    flexWrap: isLargeTablet ? "wrap" : "nowrap",
+                    paddingHorizontal: contentPadding,
+                    gap: isLargeTablet ? 16 : 0,
+                    maxWidth: isLargeTablet ? 1200 : undefined,
+                    alignSelf: "center",
+                    width: "100%",
+                }}>
+
                 {/* Account Section */}
-                <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
-                    <Text style={{ fontSize: 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                <View style={{ 
+                    marginBottom: 20,
+                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                }}>
+                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
                         ACCOUNT
                     </Text>
                     <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: 16 }}>
+                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
                             <SettingItem
                                 icon="person-outline"
                                 title="Personal Information"
@@ -311,19 +357,22 @@ export default function Profile() {
                                 title="Default Location"
                                 subtitle="Harare, Zimbabwe"
                                 onPress={() => console.log("Location")}
-                                rightElement={<Ionicons name="chevron-forward" size={20} color="#9CA3AF" />}
+                                rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
                             />
                         </CardContent>
                     </Card>
                 </View>
 
                 {/* Notifications Section */}
-                <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
-                    <Text style={{ fontSize: 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                <View style={{ 
+                    marginBottom: 20,
+                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                }}>
+                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
                         NOTIFICATIONS
                     </Text>
                     <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: 16 }}>
+                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
                             <SettingItem
                                 icon="notifications-outline"
                                 title="Project Updates"
@@ -381,12 +430,15 @@ export default function Profile() {
                 </View>
 
                 {/* Security Section */}
-                <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
-                    <Text style={{ fontSize: 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                <View style={{ 
+                    marginBottom: 20,
+                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                }}>
+                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
                         SECURITY
                     </Text>
                     <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: 16 }}>
+                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
                             <SettingItem
                                 icon="shield-checkmark-outline"
                                 title="Privacy & Security"
@@ -398,19 +450,22 @@ export default function Profile() {
                                 title="Change Password"
                                 subtitle="Update your password"
                                 onPress={() => console.log("Change password")}
-                                rightElement={<Ionicons name="chevron-forward" size={20} color="#9CA3AF" />}
+                                rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
                             />
                         </CardContent>
                     </Card>
                 </View>
 
                 {/* Support Section */}
-                <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
-                    <Text style={{ fontSize: 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                <View style={{ 
+                    marginBottom: 20,
+                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                }}>
+                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
                         SUPPORT
                     </Text>
                     <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: 16 }}>
+                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
                             <SettingItem
                                 icon="help-circle-outline"
                                 title="Help & Support"
@@ -422,19 +477,22 @@ export default function Profile() {
                                 title="About"
                                 subtitle="Version 1.0.0"
                                 onPress={() => console.log("About")}
-                                rightElement={<Ionicons name="chevron-forward" size={20} color="#9CA3AF" />}
+                                rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
                             />
                         </CardContent>
                     </Card>
                 </View>
 
                 {/* Danger Zone */}
-                <View style={{ paddingHorizontal: 16, marginBottom: 32 }}>
-                    <Text style={{ fontSize: 12, fontWeight: "700", color: "#DC2626", marginBottom: 10, marginLeft: 4 }}>
+                <View style={{ 
+                    marginBottom: 32,
+                    width: "100%",
+                }}>
+                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#DC2626", marginBottom: 10, marginLeft: 4 }}>
                         DANGER ZONE
                     </Text>
                     <Card style={{ backgroundColor: "white", borderWidth: 1, borderColor: "#FEE2E2" }}>
-                        <CardContent style={{ padding: 16 }}>
+                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
                             <SettingItem
                                 icon="trash-outline"
                                 title="Delete Account"
@@ -445,6 +503,8 @@ export default function Profile() {
                             />
                         </CardContent>
                     </Card>
+                </View>
+
                 </View>
             </ScrollView>
         </SafeAreaView>

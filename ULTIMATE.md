@@ -496,4 +496,38 @@ chore: maintenance tasks
 5. **Admin Dashboard**: Build admin interface for business operations
 
 
-On the home page at the top, delete the text that says "trojan proje
+On the home page at the top, delete the text that says "trojan projects", the section below it and the "User" icon to the right, then remove the blue bg in that section and just leave the search bar, give it bg-gray-300...do this for both web and native (if it's there on web, didn't check), then instead of a "quote" buton at the top-right, have a FAB at the bottom right that allows the user to requerst a new project, this is the first way of doing so...the second way is that on the individual service page
+
+Next, I want you to pay special attention to this one, the current app we have is now the app for the user-facing app, I need you to create sdetailed flow for how projects will work from requests to completion, becayuse between the user and the trojan tea, they each hav eot press a button to update the statys, e.g "Strat project" for the team to update the sttas from pending to under way and the user now has to update it (maybethere are stepos in-betwene I skipped) to "Complete" to mark it as completed, oergect this flow, thos is a bscif blueprint for now
+
+Then in the drawer, tet the user's session using better-auth and the auth-client:
+Session
+Once a user is signed in, you'll want to access the user session. Better Auth allows you to easily access the session data from both the server and client sides.
+
+Client Side
+Use Session
+Better Auth provides a useSession hook to easily access session data on the client side. This hook is implemented using nanostore and has support for each supported framework and vanilla client, ensuring that any changes to the session (such as signing out) are immediately reflected in your UI.
+
+React
+Vue
+Svelte
+Solid
+Vanilla
+user.tsx
+
+import { authClient } from "@/lib/auth-client" // import the auth client
+export function User(){
+    const { 
+        data: session, 
+        isPending, //loading state
+        error, //error object
+        refetch //refetch the session
+    } = authClient.useSession() 
+    return (
+        //...
+    )
+}
+
+Do the same on wbe wherever user data is needed
+
+Afterwards, create a reusable authenticatedRequest function and use it where needed to fetch user data (not for now, will be used in future for fetching stuff like user quotations):
