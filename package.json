@@ -27,12 +27,17 @@
     "db:push": "turbo -F @trojan_projects_zw/db db:push",
     "db:studio": "turbo -F @trojan_projects_zw/db db:studio",
     "db:generate": "turbo -F @trojan_projects_zw/db db:generate",
-    "db:migrate": "turbo -F @trojan_projects_zw/db db:migrate"
+    "db:migrate": "turbo -F @trojan_projects_zw/db db:migrate",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@trojan_projects_zw/env": "workspace:*",
     "dotenv": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "expo": "~54.0.30",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
   },
   "devDependencies": {
     "@trojan_projects_zw/config": "workspace:*",
@@ -40,5 +45,6 @@
     "turbo": "^2.6.3",
     "typescript": "catalog:"
   },
-  "packageManager": "bun@1.2.18"
+  "packageManager": "bun@1.2.18",
+  "version": "1.0.0"
 }
