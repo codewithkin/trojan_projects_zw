@@ -34,7 +34,7 @@ export default function SignUpScreen() {
     const { width: screenWidth } = useWindowDimensions();
     const isTablet = screenWidth >= 768;
     const isLargeTablet = screenWidth >= 1024;
-    
+
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

@@ -172,7 +172,7 @@ export default function OnboardingScreen() {
                         >
                             <View
                                 className="mb-3 rounded-full self-start"
-                                style={{ 
+                                style={{
                                     backgroundColor: TROJAN_GOLD,
                                     paddingHorizontal: isTablet ? 20 : 16,
                                     paddingVertical: isTablet ? 10 : 8,
@@ -353,7 +353,7 @@ export default function OnboardingScreen() {
                         animate={{ translateY: 0, opacity: 1 }}
                         transition={{ type: "timing", delay: 400 }}
                         className="mb-4 rounded-full"
-                        style={{ 
+                        style={{
                             backgroundColor: TROJAN_GOLD,
                             paddingHorizontal: isTablet ? 20 : 16,
                             paddingVertical: isTablet ? 10 : 8,

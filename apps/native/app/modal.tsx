@@ -17,8 +17,8 @@ function Modal() {
   return (
     <Container>
       <View className="flex-1 justify-center items-center p-4">
-        <Surface 
-          variant="secondary" 
+        <Surface
+          variant="secondary"
           className="p-5 w-full rounded-lg"
           style={{
             maxWidth: isTablet ? 480 : 400,
@@ -26,7 +26,7 @@ function Modal() {
           }}
         >
           <View className="items-center">
-            <View 
+            <View
               className="bg-accent rounded-lg items-center justify-center mb-3"
               style={{
                 width: isTablet ? 64 : 48,
@@ -37,22 +37,22 @@ function Modal() {
             >
               <Ionicons name="checkmark" size={isTablet ? 32 : 24} color={accentForegroundColor} />
             </View>
-            <Text 
+            <Text
               className="text-foreground font-medium mb-1"
               style={{ fontSize: isTablet ? 22 : 18 }}
             >
               Modal Screen
             </Text>
-            <Text 
+            <Text
               className="text-muted text-center mb-4"
               style={{ fontSize: isTablet ? 16 : 14, marginBottom: isTablet ? 24 : 16 }}
             >
               This is an example modal screen for dialogs and confirmations.
             </Text>
           </View>
-          <Button 
-            onPress={handleClose} 
-            className="w-full" 
+          <Button
+            onPress={handleClose}
+            className="w-full"
             size={isTablet ? "md" : "sm"}
           >
             <Button.Label>Close</Button.Label>

@@ -35,7 +35,7 @@ export default function LoginScreen() {
     const { width: screenWidth } = useWindowDimensions();
     const isTablet = screenWidth >= 768;
     const isLargeTablet = screenWidth >= 1024;
-    
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);

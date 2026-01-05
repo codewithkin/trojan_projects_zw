@@ -8,7 +8,7 @@ const TROJAN_GOLD = "#FFC107";
 export default function TabLayout() {
   const { width: screenWidth } = useWindowDimensions();
   const isTablet = screenWidth >= 768;
-  
+
   return (
     <Tabs
       screenOptions={{

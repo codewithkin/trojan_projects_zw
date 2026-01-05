@@ -14,7 +14,7 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
   const router = useRouter();
   const { width: screenWidth } = useWindowDimensions();
   const isTablet = screenWidth >= 768;
-  
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -80,7 +80,7 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
           >
             Create Account
           </Text>
-          <Text 
+          <Text
             className="text-center text-muted-foreground"
             style={{ fontSize: isTablet ? 16 : 14, marginBottom: isTablet ? 32 : 24 }}
           >
@@ -108,7 +108,7 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
 
           {/* Error Message */}
           {error && (
-            <Text 
+            <Text
               className="text-red-500 text-center"
               style={{ fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 20 : 16 }}
             >
@@ -118,8 +118,8 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
 
           {/* Name Input */}
           <View style={{ marginBottom: isTablet ? 20 : 16 }}>
-            <Text 
-              className="font-medium" 
+            <Text
+              className="font-medium"
               style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 10 : 8 }}
             >
               Full Name
@@ -136,8 +136,8 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
 
           {/* Email Input */}
           <View style={{ marginBottom: isTablet ? 20 : 16 }}>
-            <Text 
-              className="font-medium" 
+            <Text
+              className="font-medium"
               style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 10 : 8 }}
             >
               Email
@@ -156,8 +156,8 @@ function SignUp({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
 
           {/* Password Input */}
           <View style={{ marginBottom: isTablet ? 28 : 24 }}>
-            <Text 
-              className="font-medium" 
+            <Text
+              className="font-medium"
               style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14, marginBottom: isTablet ? 10 : 8 }}
             >
               Password

@@ -59,7 +59,7 @@ export default function Projects() {
         >
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
                 {/* Header */}
-                <View style={{ 
+                <View style={{
                     padding: contentPadding,
                     maxWidth: isLargeTablet ? 1200 : undefined,
                     alignSelf: "center",
@@ -94,9 +94,9 @@ export default function Projects() {
 
                 {/* Stats Cards */}
                 {isTablet ? (
-                    <View style={{ 
-                        flexDirection: "row", 
-                        paddingHorizontal: contentPadding, 
+                    <View style={{
+                        flexDirection: "row",
+                        paddingHorizontal: contentPadding,
                         marginBottom: 16,
                         gap: 12,
                         maxWidth: isLargeTablet ? 1200 : undefined,
@@ -304,8 +304,8 @@ export default function Projects() {
                 </ScrollView>
 
                 {/* Projects List */}
-                <View style={{ 
-                    paddingHorizontal: contentPadding, 
+                <View style={{
+                    paddingHorizontal: contentPadding,
                     paddingBottom: 32,
                     maxWidth: isLargeTablet ? 1200 : undefined,
                     alignSelf: "center",

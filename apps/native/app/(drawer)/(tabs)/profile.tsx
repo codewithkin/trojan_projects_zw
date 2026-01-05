@@ -109,9 +109,9 @@ export default function Profile() {
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
                 {/* Header Banner with Avatar */}
                 <View style={{ backgroundColor: TROJAN_NAVY, paddingBottom: 60 }}>
-                    <View style={{ 
-                        paddingHorizontal: contentPadding, 
-                        paddingTop: contentPadding, 
+                    <View style={{
+                        paddingHorizontal: contentPadding,
+                        paddingTop: contentPadding,
                         paddingBottom: 20,
                         maxWidth: isLargeTablet ? 1200 : undefined,
                         alignSelf: "center",
@@ -201,9 +201,9 @@ export default function Profile() {
                     paddingHorizontal: isLargeTablet ? contentPadding : 0,
                 }}>
                     {/* Stats Card */}
-                    <View style={{ 
-                        paddingHorizontal: isLargeTablet ? 0 : contentPadding, 
-                        marginTop: -40, 
+                    <View style={{
+                        paddingHorizontal: isLargeTablet ? 0 : contentPadding,
+                        marginTop: -40,
                         marginBottom: 20,
                         width: isLargeTablet ? "100%" : undefined,
                     }}>
@@ -219,9 +219,9 @@ export default function Profile() {
                                 elevation: 4,
                             }}
                         >
-                            <View style={{ 
-                                flexDirection: "row", 
-                                justifyContent: isTablet ? "space-evenly" : "space-around" 
+                            <View style={{
+                                flexDirection: "row",
+                                justifyContent: isTablet ? "space-evenly" : "space-around"
                             }}>
                                 <View style={{ alignItems: "center" }}>
                                     <View
@@ -284,228 +284,228 @@ export default function Profile() {
                                 </View>
                             </View>
 
-                        {/* Total Spent */}
-                        <View
-                            style={{
-                                marginTop: isTablet ? 20 : 16,
-                                paddingTop: isTablet ? 20 : 16,
-                                borderTopWidth: 1,
-                                borderTopColor: "#F3F4F6",
-                            }}
-                        >
-                            <Text style={{ fontSize: isTablet ? 14 : 12, color: "#9CA3AF", textAlign: "center", marginBottom: 4 }}>
-                                Total Invested
+                            {/* Total Spent */}
+                            <View
+                                style={{
+                                    marginTop: isTablet ? 20 : 16,
+                                    paddingTop: isTablet ? 20 : 16,
+                                    borderTopWidth: 1,
+                                    borderTopColor: "#F3F4F6",
+                                }}
+                            >
+                                <Text style={{ fontSize: isTablet ? 14 : 12, color: "#9CA3AF", textAlign: "center", marginBottom: 4 }}>
+                                    Total Invested
+                                </Text>
+                                <Text style={{ fontSize: isTablet ? 28 : 24, fontWeight: "700", color: TROJAN_NAVY, textAlign: "center" }}>
+                                    US${totalSpent.toLocaleString()}
+                                </Text>
+                            </View>
+
+                            {/* View Projects Button */}
+                            <Pressable
+                                onPress={() => router.push("/projects")}
+                                style={{
+                                    marginTop: isTablet ? 20 : 16,
+                                    backgroundColor: TROJAN_GOLD,
+                                    paddingVertical: isTablet ? 14 : 12,
+                                    borderRadius: 24,
+                                    alignItems: "center",
+                                }}
+                            >
+                                <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: isTablet ? 17 : 15 }}>
+                                    View My Projects
+                                </Text>
+                            </Pressable>
+                        </View>
+                    </View>
+
+                    {/* Settings Sections Container - 2 columns on tablet */}
+                    <View style={{
+                        flexDirection: isLargeTablet ? "row" : "column",
+                        flexWrap: isLargeTablet ? "wrap" : "nowrap",
+                        paddingHorizontal: contentPadding,
+                        gap: isLargeTablet ? 16 : 0,
+                        maxWidth: isLargeTablet ? 1200 : undefined,
+                        alignSelf: "center",
+                        width: "100%",
+                    }}>
+
+                        {/* Account Section */}
+                        <View style={{
+                            marginBottom: 20,
+                            width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                        }}>
+                            <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                                ACCOUNT
                             </Text>
-                            <Text style={{ fontSize: isTablet ? 28 : 24, fontWeight: "700", color: TROJAN_NAVY, textAlign: "center" }}>
-                                US${totalSpent.toLocaleString()}
-                            </Text>
+                            <Card style={{ backgroundColor: "white" }}>
+                                <CardContent style={{ padding: isTablet ? 20 : 16 }}>
+                                    <SettingItem
+                                        icon="person-outline"
+                                        title="Personal Information"
+                                        subtitle="Name, phone, address"
+                                        onPress={() => console.log("Personal info")}
+                                    />
+                                    <SettingItem
+                                        icon="mail-outline"
+                                        title="Email"
+                                        subtitle={userEmail}
+                                        onPress={() => console.log("Email settings")}
+                                    />
+                                    <SettingItem
+                                        icon="location-outline"
+                                        title="Default Location"
+                                        subtitle="Harare, Zimbabwe"
+                                        onPress={() => console.log("Location")}
+                                        rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
+                                    />
+                                </CardContent>
+                            </Card>
                         </View>
 
-                        {/* View Projects Button */}
-                        <Pressable
-                            onPress={() => router.push("/projects")}
-                            style={{
-                                marginTop: isTablet ? 20 : 16,
-                                backgroundColor: TROJAN_GOLD,
-                                paddingVertical: isTablet ? 14 : 12,
-                                borderRadius: 24,
-                                alignItems: "center",
-                            }}
-                        >
-                            <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: isTablet ? 17 : 15 }}>
-                                View My Projects
+                        {/* Notifications Section */}
+                        <View style={{
+                            marginBottom: 20,
+                            width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                        }}>
+                            <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                                NOTIFICATIONS
                             </Text>
-                        </Pressable>
+                            <Card style={{ backgroundColor: "white" }}>
+                                <CardContent style={{ padding: isTablet ? 20 : 16 }}>
+                                    <SettingItem
+                                        icon="notifications-outline"
+                                        title="Project Updates"
+                                        subtitle="Get notified when your project status changes"
+                                        rightElement={
+                                            <Switch
+                                                value={projectNotifications}
+                                                onValueChange={setProjectNotifications}
+                                                trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
+                                                thumbColor={projectNotifications ? TROJAN_GOLD : "#9CA3AF"}
+                                            />
+                                        }
+                                    />
+                                    <SettingItem
+                                        icon="person-outline"
+                                        title="Technician Assignments"
+                                        subtitle="Know when a technician is assigned"
+                                        rightElement={
+                                            <Switch
+                                                value={technicianNotifications}
+                                                onValueChange={setTechnicianNotifications}
+                                                trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
+                                                thumbColor={technicianNotifications ? TROJAN_GOLD : "#9CA3AF"}
+                                            />
+                                        }
+                                    />
+                                    <SettingItem
+                                        icon="pricetag-outline"
+                                        title="Promotional Emails"
+                                        subtitle="Receive special offers and promotions"
+                                        rightElement={
+                                            <Switch
+                                                value={promotionalEmails}
+                                                onValueChange={setPromotionalEmails}
+                                                trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
+                                                thumbColor={promotionalEmails ? TROJAN_GOLD : "#9CA3AF"}
+                                            />
+                                        }
+                                    />
+                                    <SettingItem
+                                        icon="chatbubble-outline"
+                                        title="SMS Notifications"
+                                        subtitle="Receive text messages for important updates"
+                                        rightElement={
+                                            <Switch
+                                                value={smsNotifications}
+                                                onValueChange={setSmsNotifications}
+                                                trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
+                                                thumbColor={smsNotifications ? TROJAN_GOLD : "#9CA3AF"}
+                                            />
+                                        }
+                                    />
+                                </CardContent>
+                            </Card>
+                        </View>
+
+                        {/* Security Section */}
+                        <View style={{
+                            marginBottom: 20,
+                            width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                        }}>
+                            <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                                SECURITY
+                            </Text>
+                            <Card style={{ backgroundColor: "white" }}>
+                                <CardContent style={{ padding: isTablet ? 20 : 16 }}>
+                                    <SettingItem
+                                        icon="shield-checkmark-outline"
+                                        title="Privacy & Security"
+                                        subtitle="Password, authentication"
+                                        onPress={() => console.log("Privacy")}
+                                    />
+                                    <SettingItem
+                                        icon="lock-closed-outline"
+                                        title="Change Password"
+                                        subtitle="Update your password"
+                                        onPress={() => console.log("Change password")}
+                                        rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
+                                    />
+                                </CardContent>
+                            </Card>
+                        </View>
+
+                        {/* Support Section */}
+                        <View style={{
+                            marginBottom: 20,
+                            width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
+                        }}>
+                            <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
+                                SUPPORT
+                            </Text>
+                            <Card style={{ backgroundColor: "white" }}>
+                                <CardContent style={{ padding: isTablet ? 20 : 16 }}>
+                                    <SettingItem
+                                        icon="help-circle-outline"
+                                        title="Help & Support"
+                                        subtitle="FAQs, contact us"
+                                        onPress={() => console.log("Help")}
+                                    />
+                                    <SettingItem
+                                        icon="information-circle-outline"
+                                        title="About"
+                                        subtitle="Version 1.0.0"
+                                        onPress={() => console.log("About")}
+                                        rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
+                                    />
+                                </CardContent>
+                            </Card>
+                        </View>
+
+                        {/* Danger Zone */}
+                        <View style={{
+                            marginBottom: 32,
+                            width: "100%",
+                        }}>
+                            <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#DC2626", marginBottom: 10, marginLeft: 4 }}>
+                                DANGER ZONE
+                            </Text>
+                            <Card style={{ backgroundColor: "white", borderWidth: 1, borderColor: "#FEE2E2" }}>
+                                <CardContent style={{ padding: isTablet ? 20 : 16 }}>
+                                    <SettingItem
+                                        icon="trash-outline"
+                                        title="Delete Account"
+                                        subtitle="Permanently delete your account and all data"
+                                        danger
+                                        onPress={() => console.log("Delete account")}
+                                        rightElement={null}
+                                    />
+                                </CardContent>
+                            </Card>
+                        </View>
+
                     </View>
-                </View>
-
-                {/* Settings Sections Container - 2 columns on tablet */}
-                <View style={{
-                    flexDirection: isLargeTablet ? "row" : "column",
-                    flexWrap: isLargeTablet ? "wrap" : "nowrap",
-                    paddingHorizontal: contentPadding,
-                    gap: isLargeTablet ? 16 : 0,
-                    maxWidth: isLargeTablet ? 1200 : undefined,
-                    alignSelf: "center",
-                    width: "100%",
-                }}>
-
-                {/* Account Section */}
-                <View style={{ 
-                    marginBottom: 20,
-                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
-                }}>
-                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
-                        ACCOUNT
-                    </Text>
-                    <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
-                            <SettingItem
-                                icon="person-outline"
-                                title="Personal Information"
-                                subtitle="Name, phone, address"
-                                onPress={() => console.log("Personal info")}
-                            />
-                            <SettingItem
-                                icon="mail-outline"
-                                title="Email"
-                                subtitle={userEmail}
-                                onPress={() => console.log("Email settings")}
-                            />
-                            <SettingItem
-                                icon="location-outline"
-                                title="Default Location"
-                                subtitle="Harare, Zimbabwe"
-                                onPress={() => console.log("Location")}
-                                rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
-                            />
-                        </CardContent>
-                    </Card>
-                </View>
-
-                {/* Notifications Section */}
-                <View style={{ 
-                    marginBottom: 20,
-                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
-                }}>
-                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
-                        NOTIFICATIONS
-                    </Text>
-                    <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
-                            <SettingItem
-                                icon="notifications-outline"
-                                title="Project Updates"
-                                subtitle="Get notified when your project status changes"
-                                rightElement={
-                                    <Switch
-                                        value={projectNotifications}
-                                        onValueChange={setProjectNotifications}
-                                        trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
-                                        thumbColor={projectNotifications ? TROJAN_GOLD : "#9CA3AF"}
-                                    />
-                                }
-                            />
-                            <SettingItem
-                                icon="person-outline"
-                                title="Technician Assignments"
-                                subtitle="Know when a technician is assigned"
-                                rightElement={
-                                    <Switch
-                                        value={technicianNotifications}
-                                        onValueChange={setTechnicianNotifications}
-                                        trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
-                                        thumbColor={technicianNotifications ? TROJAN_GOLD : "#9CA3AF"}
-                                    />
-                                }
-                            />
-                            <SettingItem
-                                icon="pricetag-outline"
-                                title="Promotional Emails"
-                                subtitle="Receive special offers and promotions"
-                                rightElement={
-                                    <Switch
-                                        value={promotionalEmails}
-                                        onValueChange={setPromotionalEmails}
-                                        trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
-                                        thumbColor={promotionalEmails ? TROJAN_GOLD : "#9CA3AF"}
-                                    />
-                                }
-                            />
-                            <SettingItem
-                                icon="chatbubble-outline"
-                                title="SMS Notifications"
-                                subtitle="Receive text messages for important updates"
-                                rightElement={
-                                    <Switch
-                                        value={smsNotifications}
-                                        onValueChange={setSmsNotifications}
-                                        trackColor={{ false: "#D1D5DB", true: `${TROJAN_GOLD}60` }}
-                                        thumbColor={smsNotifications ? TROJAN_GOLD : "#9CA3AF"}
-                                    />
-                                }
-                            />
-                        </CardContent>
-                    </Card>
-                </View>
-
-                {/* Security Section */}
-                <View style={{ 
-                    marginBottom: 20,
-                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
-                }}>
-                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
-                        SECURITY
-                    </Text>
-                    <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
-                            <SettingItem
-                                icon="shield-checkmark-outline"
-                                title="Privacy & Security"
-                                subtitle="Password, authentication"
-                                onPress={() => console.log("Privacy")}
-                            />
-                            <SettingItem
-                                icon="lock-closed-outline"
-                                title="Change Password"
-                                subtitle="Update your password"
-                                onPress={() => console.log("Change password")}
-                                rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
-                            />
-                        </CardContent>
-                    </Card>
-                </View>
-
-                {/* Support Section */}
-                <View style={{ 
-                    marginBottom: 20,
-                    width: isLargeTablet ? `${(100 - 2) / 2}%` : "100%",
-                }}>
-                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#9CA3AF", marginBottom: 10, marginLeft: 4 }}>
-                        SUPPORT
-                    </Text>
-                    <Card style={{ backgroundColor: "white" }}>
-                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
-                            <SettingItem
-                                icon="help-circle-outline"
-                                title="Help & Support"
-                                subtitle="FAQs, contact us"
-                                onPress={() => console.log("Help")}
-                            />
-                            <SettingItem
-                                icon="information-circle-outline"
-                                title="About"
-                                subtitle="Version 1.0.0"
-                                onPress={() => console.log("About")}
-                                rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
-                            />
-                        </CardContent>
-                    </Card>
-                </View>
-
-                {/* Danger Zone */}
-                <View style={{ 
-                    marginBottom: 32,
-                    width: "100%",
-                }}>
-                    <Text style={{ fontSize: isTablet ? 13 : 12, fontWeight: "700", color: "#DC2626", marginBottom: 10, marginLeft: 4 }}>
-                        DANGER ZONE
-                    </Text>
-                    <Card style={{ backgroundColor: "white", borderWidth: 1, borderColor: "#FEE2E2" }}>
-                        <CardContent style={{ padding: isTablet ? 20 : 16 }}>
-                            <SettingItem
-                                icon="trash-outline"
-                                title="Delete Account"
-                                subtitle="Permanently delete your account and all data"
-                                danger
-                                onPress={() => console.log("Delete account")}
-                                rightElement={null}
-                            />
-                        </CardContent>
-                    </Card>
-                </View>
-
-                </View>
             </ScrollView>
         </SafeAreaView>
     );
