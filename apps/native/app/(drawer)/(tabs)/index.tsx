@@ -49,57 +49,26 @@ export default function Home() {
       }}
     >
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={{ padding: contentPadding, backgroundColor: TROJAN_NAVY }}>
-          <View style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 16,
-            maxWidth: isLargeTablet ? 1200 : undefined,
-            alignSelf: "center",
-            width: "100%",
-          }}>
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: "white", fontSize: isTablet ? 28 : 22, fontWeight: "700" }}>
-                Trojan Projects
-              </Text>
-              <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 16 : 14, marginTop: 2 }}>
-                Quality installations you can trust
-              </Text>
-            </View>
-            <Pressable
-              onPress={() => router.push("/profile")}
-              style={{
-                width: isTablet ? 52 : 44,
-                height: isTablet ? 52 : 44,
-                borderRadius: isTablet ? 26 : 22,
-                backgroundColor: TROJAN_GOLD,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Ionicons name="person" size={isTablet ? 26 : 22} color={TROJAN_NAVY} />
-            </Pressable>
-          </View>
-
+        {/* Search Header */}
+        <View style={{ padding: contentPadding, backgroundColor: "#F9FAFB" }}>
           {/* Search Bar */}
           <View
             style={{
               flexDirection: "row",
               alignItems: "center",
-              backgroundColor: "white",
-              borderRadius: isTablet ? 16 : 12,
+              backgroundColor: "#D1D5DB", // gray-300
+              borderRadius: isTablet ? 24 : 20,
               paddingHorizontal: isTablet ? 18 : 14,
               height: isTablet ? 56 : 48,
-              maxWidth: isLargeTablet ? 1200 : undefined,
+              maxWidth: isLargeTablet ? 800 : undefined,
               alignSelf: "center",
               width: "100%",
             }}
           >
-            <Ionicons name="search" size={isTablet ? 24 : 20} color="#9CA3AF" />
+            <Ionicons name="search" size={isTablet ? 24 : 20} color="#6B7280" />
             <TextInput
               placeholder="Search services..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#6B7280"
               value={searchQuery}
               onChangeText={setSearchQuery}
               style={{
@@ -111,7 +80,7 @@ export default function Home() {
             />
             {searchQuery.length > 0 && (
               <Pressable onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={isTablet ? 24 : 20} color="#9CA3AF" />
+                <Ionicons name="close-circle" size={isTablet ? 24 : 20} color="#6B7280" />
               </Pressable>
             )}
           </View>
@@ -319,6 +288,34 @@ export default function Home() {
           <StatsSection />
         </View>
       </ScrollView>
+
+      {/* Floating Action Button for New Project Request */}
+      <Pressable
+        onPress={() => router.push("/projects/new")}
+        style={{
+          position: "absolute",
+          bottom: isTablet ? 32 : 24,
+          right: isTablet ? 32 : 24,
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: TROJAN_GOLD,
+          paddingVertical: isTablet ? 16 : 14,
+          paddingHorizontal: isTablet ? 24 : 18,
+          borderRadius: isTablet ? 32 : 28,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+      >
+        <Ionicons name="add" size={isTablet ? 26 : 22} color={TROJAN_NAVY} />
+        {isTablet && (
+          <Text style={{ marginLeft: 8, color: TROJAN_NAVY, fontWeight: "700", fontSize: 16 }}>
+            New Project
+          </Text>
+        )}
+      </Pressable>
     </SafeAreaView>
   );
 }
