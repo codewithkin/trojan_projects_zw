@@ -1,11 +1,14 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Platform, View } from "react-native";
+import { Platform, View, useWindowDimensions } from "react-native";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
 export default function TabLayout() {
+  const { width: screenWidth } = useWindowDimensions();
+  const isTablet = screenWidth >= 768;
+  
   return (
     <Tabs
       screenOptions={{
@@ -13,24 +16,33 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "#ffffff",
           borderTopWidth: 0,
-          height: Platform.OS === "ios" ? 88 : 68,
-          paddingBottom: Platform.OS === "ios" ? 28 : 12,
-          paddingTop: 12,
+          height: Platform.OS === "ios" ? (isTablet ? 100 : 88) : (isTablet ? 76 : 68),
+          paddingBottom: Platform.OS === "ios" ? (isTablet ? 32 : 28) : (isTablet ? 16 : 12),
+          paddingTop: isTablet ? 16 : 12,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.05,
           shadowRadius: 8,
           elevation: 8,
+          // Center tab bar on large tablets
+          ...(screenWidth >= 1024 ? {
+            marginHorizontal: "auto",
+            maxWidth: 600,
+            borderRadius: 24,
+            marginBottom: 20,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+          } : {}),
         },
         tabBarActiveTintColor: TROJAN_NAVY,
         tabBarInactiveTintColor: "#9CA3AF",
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: isTablet ? 13 : 11,
           fontWeight: "600",
-          marginTop: 4,
+          marginTop: isTablet ? 6 : 4,
         },
         tabBarIconStyle: {
-          marginTop: 4,
+          marginTop: isTablet ? 6 : 4,
         },
       }}
     >
@@ -42,12 +54,12 @@ export default function TabLayout() {
             <View
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                paddingVertical: 8,
+                borderRadius: isTablet ? 16 : 12,
+                paddingHorizontal: isTablet ? 24 : 16,
+                paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
+              <Ionicons name={focused ? "home" : "home-outline"} size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
@@ -60,12 +72,12 @@ export default function TabLayout() {
             <View
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                paddingVertical: 8,
+                borderRadius: isTablet ? 16 : 12,
+                paddingHorizontal: isTablet ? 24 : 16,
+                paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <MaterialIcons name={focused ? "work" : "work-outline"} size={24} color={color} />
+              <MaterialIcons name={focused ? "work" : "work-outline"} size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
@@ -78,12 +90,12 @@ export default function TabLayout() {
             <View
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: 12,
-                paddingHorizontal: 16,
-                paddingVertical: 8,
+                borderRadius: isTablet ? 16 : 12,
+                paddingHorizontal: isTablet ? 24 : 16,
+                paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} />
+              <Ionicons name={focused ? "person" : "person-outline"} size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
