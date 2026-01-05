@@ -1,230 +1,312 @@
 import { useState } from "react";
-import { ScrollView, View, Pressable, Image } from "react-native";
-import { Clock, CheckCircle2, Wrench, Calendar, MapPin } from "lucide-react-native";
+import { ScrollView, View, Pressable, SafeAreaView, StatusBar, Platform } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ProjectCard } from "@/components/project-card";
+import { userProjects, statusConfig, type ProjectStatus } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-type ProjectStatus = "pending" | "in-progress" | "completed";
+type TabId = ProjectStatus | "all";
 
-interface Project {
-    id: string;
-    name: string;
-    category: string;
-    status: ProjectStatus;
-    progress: number;
-    startDate: string;
-    location: string;
-    image: string;
-}
-
-const userProjects: Project[] = [
-    {
-        id: "1",
-        name: "10 KVA Solar Installation",
-        category: "Solar",
-        status: "in-progress",
-        progress: 65,
-        startDate: "Dec 15, 2024",
-        location: "Borrowdale, Harare",
-        image: "https://trojan-bucket-434.s3.eu-north-1.amazonaws.com/images/solar.jpeg",
-    },
-    {
-        id: "2",
-        name: "CCTV 8-Camera System",
-        category: "CCTV",
-        status: "completed",
-        progress: 100,
-        startDate: "Nov 20, 2024",
-        location: "Avondale, Harare",
-        image: "https://trojan-bucket-434.s3.eu-north-1.amazonaws.com/images/cctv.jpeg",
-    },
+const tabs: { id: TabId; label: string; icon: string; color: string }[] = [
+    { id: "all", label: "All", icon: "layers-outline", color: "#6B7280" },
+    { id: "pending", label: "Pending", icon: "time-outline", color: "#CA8A04" },
+    { id: "confirmed", label: "Confirmed", icon: "checkmark-circle-outline", color: "#2563EB" },
+    { id: "in-progress", label: "In Progress", icon: "car-outline", color: "#7C3AED" },
+    { id: "completed", label: "Completed", icon: "checkmark-done-outline", color: "#16A34A" },
+    { id: "cancelled", label: "Cancelled", icon: "close-circle-outline", color: "#DC2626" },
 ];
-
-const statusFilters: { label: string; value: ProjectStatus | "all" }[] = [
-    { label: "All", value: "all" },
-    { label: "In Progress", value: "in-progress" },
-    { label: "Completed", value: "completed" },
-    { label: "Pending", value: "pending" },
-];
-
-const getStatusConfig = (status: ProjectStatus) => {
-    switch (status) {
-        case "completed":
-            return { icon: CheckCircle2, color: "#16A34A", bg: "#DCFCE7", label: "Completed" };
-        case "in-progress":
-            return { icon: Wrench, color: "#2563EB", bg: "#DBEAFE", label: "In Progress" };
-        case "pending":
-            return { icon: Clock, color: "#CA8A04", bg: "#FEF9C3", label: "Pending" };
-    }
-};
 
 export default function Projects() {
-    const [selectedFilter, setSelectedFilter] = useState<ProjectStatus | "all">("all");
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState<TabId>("all");
 
     const filteredProjects = userProjects.filter((project) => {
-        if (selectedFilter === "all") return true;
-        return project.status === selectedFilter;
+        if (activeTab === "all") return true;
+        return project.status === activeTab;
     });
 
+    const getTabCount = (tabId: TabId) => {
+        if (tabId === "all") return userProjects.length;
+        return userProjects.filter((p) => p.status === tabId).length;
+    };
+
+    const totalInvestment = userProjects
+        .filter(p => p.status !== "cancelled")
+        .reduce((sum, p) => sum + p.price, 0);
+
     return (
-        <ScrollView className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
-            {/* Header */}
-            <View className="p-4">
-                <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                    My Projects
-                </Text>
-                <Text className="text-gray-500 mt-1">
-                    Track your installations and progress
-                </Text>
-            </View>
-
-            {/* Filter Pills */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                className="px-4 mb-4"
-            >
-                {statusFilters.map((filter) => (
-                    <Pressable
-                        key={filter.value}
-                        onPress={() => setSelectedFilter(filter.value)}
-                        className={`mr-2 px-4 py-2 rounded-full border ${selectedFilter === filter.value
-                                ? "border-transparent"
-                                : "border-gray-200 bg-white"
-                            }`}
-                        style={
-                            selectedFilter === filter.value
-                                ? { backgroundColor: TROJAN_NAVY }
-                                : {}
-                        }
-                    >
-                        <Text
-                            className={`text-sm font-medium ${selectedFilter === filter.value ? "text-white" : "text-gray-600"
-                                }`}
-                        >
-                            {filter.label}
+        <SafeAreaView 
+            style={{ 
+                flex: 1, 
+                backgroundColor: "#F9FAFB",
+                paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+            }}
+        >
+            <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                {/* Header */}
+                <View style={{ padding: 16 }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                        <Text style={{ fontSize: 24, fontWeight: "700", color: TROJAN_NAVY }}>
+                            My Projects
                         </Text>
-                    </Pressable>
-                ))}
-            </ScrollView>
+                        <Pressable 
+                            onPress={() => router.push("/")}
+                            style={{ 
+                                backgroundColor: TROJAN_GOLD, 
+                                paddingHorizontal: 16, 
+                                paddingVertical: 10, 
+                                borderRadius: 20,
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 6,
+                            }}
+                        >
+                            <Ionicons name="add" size={18} color={TROJAN_NAVY} />
+                            <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: 14 }}>
+                                New
+                            </Text>
+                        </Pressable>
+                    </View>
+                    <Text style={{ color: "#6B7280", fontSize: 14 }}>
+                        Track and manage your service requests
+                    </Text>
+                </View>
 
-            {/* Projects List */}
-            <View className="px-4 pb-8">
-                {filteredProjects.map((project) => {
-                    const statusConfig = getStatusConfig(project.status);
-                    const StatusIcon = statusConfig.icon;
-
-                    return (
-                        <Card key={project.id} className="bg-white mb-4">
-                            <CardContent className="p-0">
-                                {/* Image */}
-                                <Image
-                                    source={{ uri: project.image }}
-                                    className="w-full h-40 rounded-t-lg"
-                                    resizeMode="cover"
-                                />
-
-                                {/* Content */}
-                                <View className="p-4">
-                                    {/* Status Badge */}
-                                    <View className="flex-row items-center justify-between mb-2">
-                                        <View
-                                            className="flex-row items-center px-2 py-1 rounded-full"
-                                            style={{ backgroundColor: statusConfig.bg }}
-                                        >
-                                            <StatusIcon size={14} color={statusConfig.color} />
-                                            <Text
-                                                className="text-xs font-medium ml-1"
-                                                style={{ color: statusConfig.color }}
-                                            >
-                                                {statusConfig.label}
-                                            </Text>
-                                        </View>
-                                        <View
-                                            className="px-2 py-1 rounded-full"
-                                            style={{ backgroundColor: `${TROJAN_GOLD}30` }}
-                                        >
-                                            <Text
-                                                className="text-xs font-medium"
-                                                style={{ color: TROJAN_NAVY }}
-                                            >
-                                                {project.category}
-                                            </Text>
-                                        </View>
-                                    </View>
-
-                                    {/* Title */}
-                                    <Text className="text-lg font-semibold text-gray-900 mb-2">
-                                        {project.name}
-                                    </Text>
-
-                                    {/* Meta */}
-                                    <View className="flex-row items-center mb-1">
-                                        <Calendar size={14} color="#9CA3AF" />
-                                        <Text className="text-sm text-gray-500 ml-2">
-                                            Started: {project.startDate}
-                                        </Text>
-                                    </View>
-                                    <View className="flex-row items-center mb-3">
-                                        <MapPin size={14} color="#9CA3AF" />
-                                        <Text className="text-sm text-gray-500 ml-2">
-                                            {project.location}
-                                        </Text>
-                                    </View>
-
-                                    {/* Progress Bar */}
-                                    <View className="mb-2">
-                                        <View className="flex-row items-center justify-between mb-1">
-                                            <Text className="text-sm font-medium text-gray-700">
-                                                Progress
-                                            </Text>
-                                            <Text className="text-sm font-semibold" style={{ color: TROJAN_NAVY }}>
-                                                {project.progress}%
-                                            </Text>
-                                        </View>
-                                        <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                            <View
-                                                className="h-full rounded-full"
-                                                style={{
-                                                    width: `${project.progress}%`,
-                                                    backgroundColor: project.progress === 100 ? "#16A34A" : TROJAN_GOLD,
-                                                }}
-                                            />
-                                        </View>
-                                    </View>
-
-                                    {/* Action Button */}
-                                    <Button
-                                        className="w-full mt-2"
-                                        variant="outline"
+                {/* Stats Cards */}
+                <ScrollView 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false}
+                    style={{ paddingLeft: 16, marginBottom: 16 }}
+                    contentContainerStyle={{ paddingRight: 16 }}
+                >
+                    {tabs.slice(1).map((tab) => {
+                        const count = getTabCount(tab.id);
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <Pressable
+                                key={tab.id}
+                                onPress={() => setActiveTab(tab.id)}
+                                style={{
+                                    backgroundColor: "white",
+                                    borderRadius: 16,
+                                    padding: 14,
+                                    marginRight: 10,
+                                    minWidth: 110,
+                                    borderWidth: 2,
+                                    borderColor: isActive ? tab.color : "transparent",
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: isActive ? 0.1 : 0.03,
+                                    shadowRadius: 4,
+                                    elevation: isActive ? 4 : 2,
+                                }}
+                            >
+                                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                                    <View 
+                                        style={{ 
+                                            width: 36, 
+                                            height: 36, 
+                                            borderRadius: 18, 
+                                            backgroundColor: `${tab.color}20`,
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                        }}
                                     >
-                                        <Text className="font-medium" style={{ color: TROJAN_NAVY }}>
-                                            View Details
+                                        <Ionicons name={tab.icon as any} size={18} color={tab.color} />
+                                    </View>
+                                    <View>
+                                        <Text style={{ fontSize: 20, fontWeight: "700", color: TROJAN_NAVY }}>
+                                            {count}
                                         </Text>
-                                    </Button>
+                                        <Text style={{ fontSize: 11, color: "#9CA3AF" }}>
+                                            {tab.label}
+                                        </Text>
+                                    </View>
                                 </View>
-                            </CardContent>
-                        </Card>
-                    );
-                })}
+                            </Pressable>
+                        );
+                    })}
+                </ScrollView>
 
-                {/* Empty State */}
-                {filteredProjects.length === 0 && (
-                    <View className="items-center justify-center py-16">
-                        <Text className="text-5xl mb-3">📋</Text>
-                        <Text className="text-lg font-medium text-gray-900">No projects found</Text>
-                        <Text className="text-gray-500 mt-1 text-center">
-                            {selectedFilter === "all"
-                                ? "Request a quote to start a new project"
-                                : "No projects with this status"}
+                {/* Total Investment Banner */}
+                <View 
+                    style={{ 
+                        marginHorizontal: 16, 
+                        marginBottom: 16, 
+                        backgroundColor: TROJAN_NAVY, 
+                        borderRadius: 16, 
+                        padding: 16,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <View>
+                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, marginBottom: 2 }}>
+                            Total Investment
+                        </Text>
+                        <Text style={{ color: "white", fontSize: 24, fontWeight: "700" }}>
+                            US${totalInvestment.toLocaleString()}
                         </Text>
                     </View>
-                )}
-            </View>
-        </ScrollView>
+                    <View style={{ alignItems: "flex-end" }}>
+                        <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, marginBottom: 2 }}>
+                            Total Projects
+                        </Text>
+                        <Text style={{ color: TROJAN_GOLD, fontSize: 24, fontWeight: "700" }}>
+                            {userProjects.length}
+                        </Text>
+                    </View>
+                </View>
+
+                {/* Tab Pills */}
+                <ScrollView 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false}
+                    style={{ paddingLeft: 16, marginBottom: 16 }}
+                    contentContainerStyle={{ paddingRight: 16 }}
+                >
+                    {tabs.map((tab) => {
+                        const isActive = activeTab === tab.id;
+                        const count = getTabCount(tab.id);
+                        return (
+                            <Pressable
+                                key={tab.id}
+                                onPress={() => setActiveTab(tab.id)}
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 10,
+                                    borderRadius: 20,
+                                    marginRight: 8,
+                                    backgroundColor: isActive ? TROJAN_NAVY : "white",
+                                    gap: 6,
+                                }}
+                            >
+                                <Ionicons 
+                                    name={tab.icon as any} 
+                                    size={16} 
+                                    color={isActive ? "white" : "#6B7280"} 
+                                />
+                                <Text 
+                                    style={{ 
+                                        color: isActive ? "white" : "#6B7280",
+                                        fontWeight: "600",
+                                        fontSize: 13,
+                                    }}
+                                >
+                                    {tab.label}
+                                </Text>
+                                <View 
+                                    style={{ 
+                                        backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "#F3F4F6",
+                                        paddingHorizontal: 8,
+                                        paddingVertical: 2,
+                                        borderRadius: 10,
+                                    }}
+                                >
+                                    <Text 
+                                        style={{ 
+                                            fontSize: 11, 
+                                            fontWeight: "600",
+                                            color: isActive ? "white" : "#6B7280",
+                                        }}
+                                    >
+                                        {count}
+                                    </Text>
+                                </View>
+                            </Pressable>
+                        );
+                    })}
+                </ScrollView>
+
+                {/* Projects List */}
+                <View style={{ paddingHorizontal: 16, paddingBottom: 32 }}>
+                    {filteredProjects.length > 0 ? (
+                        filteredProjects.map((project) => (
+                            <ProjectCard
+                                key={project.id}
+                                project={project}
+                                onPress={() => console.log("View project:", project.id)}
+                            />
+                        ))
+                    ) : (
+                        <View 
+                            style={{ 
+                                alignItems: "center", 
+                                paddingVertical: 48, 
+                                backgroundColor: "white", 
+                                borderRadius: 20,
+                            }}
+                        >
+                            <View 
+                                style={{ 
+                                    width: 64, 
+                                    height: 64, 
+                                    borderRadius: 32, 
+                                    backgroundColor: `${TROJAN_GOLD}20`,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginBottom: 16,
+                                }}
+                            >
+                                <Ionicons name="layers-outline" size={32} color={TROJAN_GOLD} />
+                            </View>
+                            <Text style={{ fontSize: 18, fontWeight: "600", color: TROJAN_NAVY, marginBottom: 4 }}>
+                                No projects found
+                            </Text>
+                            <Text style={{ fontSize: 14, color: "#9CA3AF", textAlign: "center", paddingHorizontal: 32 }}>
+                                {activeTab === "all" 
+                                    ? "You haven't requested any services yet. Browse our services to get started!"
+                                    : `You don't have any ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()} projects.`
+                                }
+                            </Text>
+                            {activeTab === "all" && (
+                                <Pressable 
+                                    onPress={() => router.push("/")}
+                                    style={{ 
+                                        marginTop: 20, 
+                                        backgroundColor: TROJAN_GOLD, 
+                                        paddingHorizontal: 24, 
+                                        paddingVertical: 12, 
+                                        borderRadius: 24,
+                                        flexDirection: "row",
+                                        alignItems: "center",
+                                        gap: 8,
+                                    }}
+                                >
+                                    <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: 15 }}>
+                                        Browse Services
+                                    </Text>
+                                    <Ionicons name="arrow-forward" size={18} color={TROJAN_NAVY} />
+                                </Pressable>
+                            )}
+                            {activeTab !== "all" && (
+                                <Pressable 
+                                    onPress={() => setActiveTab("all")}
+                                    style={{ 
+                                        marginTop: 20, 
+                                        borderWidth: 1,
+                                        borderColor: "#E5E7EB",
+                                        paddingHorizontal: 24, 
+                                        paddingVertical: 12, 
+                                        borderRadius: 24,
+                                    }}
+                                >
+                                    <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: 14 }}>
+                                        View All Projects
+                                    </Text>
+                                </Pressable>
+                            )}
+                        </View>
+                    )}
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 }
