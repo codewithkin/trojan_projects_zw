@@ -10,9 +10,11 @@
   "dependencies": {
     "@base-ui/react": "^1.0.0",
     "@prisma/client": "catalog:",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@tanstack/react-form": "^1.27.3",
     "@trojan_projects_zw/auth": "workspace:*",
     "@trojan_projects_zw/env": "workspace:*",
+    "axios": "^1.13.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "better-auth": "catalog:",
     "class-variance-authority": "^0.7.1",
