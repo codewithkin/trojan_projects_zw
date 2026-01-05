@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Package, FolderKanban, User, MessageCircle, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -32,13 +33,12 @@ export function SiteHeader() {
     };
 
     return (
-        <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <header className="sticky top-0 z-50 bg-white">
             {/* Announcement Bar */}
             <div
                 className="text-white text-center py-2 text-sm"
                 style={{ backgroundColor: TROJAN_NAVY }}
             >
-                <span className="mr-2">⚡</span>
                 Professional Solar & Electrical Services in Zimbabwe
                 <span className="ml-2 hidden sm:inline">• Free Quotes Available</span>
             </div>
@@ -48,39 +48,26 @@ export function SiteHeader() {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div
-                            className="w-10 h-10 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: TROJAN_GOLD }}
-                        >
-                            <span className="text-xl">⚡</span>
-                        </div>
-                        <span
-                            className="text-xl font-bold hidden sm:block"
-                            style={{ color: TROJAN_NAVY }}
-                        >
-                            Trojan Projects
-                        </span>
+                        <Image src="/trojan-logo.svg" alt="Trojan Projects" width={160} height={40} priority />
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-1">
+                    <nav className="hidden md:flex items-center gap-6">
                         {navItems.map((item) => {
-                            const Icon = item.icon;
                             const active = isActive(item.href);
                             return (
                                 <Link
                                     key={item.name}
                                     href={item.href}
                                     className={`
-                                        flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all
+                                        text-sm font-medium transition-colors
                                         ${active
-                                            ? "text-white"
-                                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                            ? ""
+                                            : "text-gray-600 hover:text-gray-900"
                                         }
                                     `}
-                                    style={active ? { backgroundColor: TROJAN_NAVY } : {}}
+                                    style={active ? { color: TROJAN_NAVY, fontWeight: '600' } : {}}
                                 >
-                                    <Icon size={18} />
                                     {item.name}
                                 </Link>
                             );
