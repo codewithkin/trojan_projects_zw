@@ -31,8 +31,8 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch services from API
-  const { data: services, isLoading, isError, error, refetch } = useServices();
+  // Fetch only 10 latest services for home page
+  const { data: services, isLoading, isError, error, refetch } = useServices({ limit: 10 });
 
   const filteredServices = useMemo(() => {
     if (!services) return [];

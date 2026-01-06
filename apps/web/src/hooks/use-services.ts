@@ -12,7 +12,7 @@ import type {
 const API_URL = env.NEXT_PUBLIC_API_URL;
 
 // Fetch all services with optional filters
-export function useServices(filters?: { category?: string; featured?: boolean }) {
+export function useServices(filters?: { category?: string; featured?: boolean; page?: number; limit?: number }) {
   return useQuery<Service[]>({
     queryKey: ["services", filters],
     queryFn: async () => {
@@ -22,6 +22,12 @@ export function useServices(filters?: { category?: string; featured?: boolean })
       }
       if (filters?.featured !== undefined) {
         params.append("featured", String(filters.featured));
+      }
+      if (filters?.page !== undefined) {
+        params.append("page", String(filters.page));
+      }
+      if (filters?.limit !== undefined) {
+        params.append("limit", String(filters.limit));
       }
       
       const url = `${API_URL}/api/services${params.toString() ? `?${params.toString()}` : ""}`;
