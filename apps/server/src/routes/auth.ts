@@ -1,0 +1,286 @@
+import { Hono } from "hono";
+import { db } from "@trojan_projects_zw/db";
+import { signUpSchema, signInSchema, type AuthResponse, type AuthUser } from "../lib/auth/types";
+import { hashPassword, verifyPassword } from "../lib/auth/password";
+import { createJWT, generateSessionToken, verifyJWT, extractBearerToken } from "../lib/auth/jwt";
+import { generateToken } from "../lib/auth/jwt";
+
+const authRoute = new Hono();
+
+// Helper to convert DB user to AuthUser
+function toAuthUser(user: any): AuthUser {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    emailVerified: user.emailVerified,
+    image: user.image,
+    role: user.role,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
+
+// Sign Up
+authRoute.post("/sign-up", async (c) => {
+  try {
+    const body = await c.req.json();
+    const validation = signUpSchema.safeParse(body);
+
+    if (!validation.success) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid input",
+      }, 400);
+    }
+
+    const { name, email, password } = validation.data;
+
+    // Check if user already exists
+    const existingUser = await db.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "User with this email already exists",
+      }, 409);
+    }
+
+    // Hash password
+    const hashedPassword = await hashPassword(password);
+
+    // Create user
+    const userId = generateToken(16);
+    const user = await db.user.create({
+      data: {
+        id: userId,
+        name,
+        email,
+        emailVerified: false,
+        role: "user",
+      },
+    });
+
+    // Create account with password
+    const accountId = generateToken(16);
+    await db.account.create({
+      data: {
+        id: accountId,
+        accountId: email,
+        providerId: "credentials",
+        userId: user.id,
+        password: hashedPassword,
+      },
+    });
+
+    // Create session
+    const sessionId = generateToken(16);
+    const sessionToken = generateSessionToken();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    const session = await db.session.create({
+      data: {
+        id: sessionId,
+        userId: user.id,
+        token: sessionToken,
+        expiresAt,
+        ipAddress: c.req.header("x-forwarded-for") || "unknown",
+        userAgent: c.req.header("user-agent") || "unknown",
+      },
+    });
+
+    // Create JWT
+    const jwt = await createJWT(user.id, session.id);
+
+    return c.json<AuthResponse>({
+      success: true,
+      user: toAuthUser(user),
+      session: {
+        id: session.id,
+        userId: user.id,
+        token: sessionToken,
+        expiresAt: session.expiresAt,
+        createdAt: session.createdAt,
+      },
+      token: jwt,
+    }, 201);
+  } catch (error) {
+    console.error("Sign up error:", error);
+    return c.json<AuthResponse>({
+      success: false,
+      error: "Failed to create account",
+    }, 500);
+  }
+});
+
+// Sign In
+authRoute.post("/sign-in", async (c) => {
+  try {
+    const body = await c.req.json();
+    const validation = signInSchema.safeParse(body);
+
+    if (!validation.success) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: validation.error.errors[0]?.message || "Invalid input",
+      }, 400);
+    }
+
+    const { email, password } = validation.data;
+
+    // Find user
+    const user = await db.user.findUnique({
+      where: { email },
+      include: {
+        accounts: {
+          where: { providerId: "credentials" },
+        },
+      },
+    });
+
+    if (!user || !user.accounts[0]?.password) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "Invalid email or password",
+      }, 401);
+    }
+
+    // Verify password
+    const isValid = await verifyPassword(password, user.accounts[0].password);
+    if (!isValid) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "Invalid email or password",
+      }, 401);
+    }
+
+    // Create session
+    const sessionId = generateToken(16);
+    const sessionToken = generateSessionToken();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    const session = await db.session.create({
+      data: {
+        id: sessionId,
+        userId: user.id,
+        token: sessionToken,
+        expiresAt,
+        ipAddress: c.req.header("x-forwarded-for") || "unknown",
+        userAgent: c.req.header("user-agent") || "unknown",
+      },
+    });
+
+    // Create JWT
+    const jwt = await createJWT(user.id, session.id);
+
+    return c.json<AuthResponse>({
+      success: true,
+      user: toAuthUser(user),
+      session: {
+        id: session.id,
+        userId: user.id,
+        token: sessionToken,
+        expiresAt: session.expiresAt,
+        createdAt: session.createdAt,
+      },
+      token: jwt,
+    });
+  } catch (error) {
+    console.error("Sign in error:", error);
+    return c.json<AuthResponse>({
+      success: false,
+      error: "Failed to sign in",
+    }, 500);
+  }
+});
+
+// Get Session
+authRoute.get("/session", async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    const token = extractBearerToken(authHeader);
+
+    if (!token) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "No token provided",
+      }, 401);
+    }
+
+    // Verify JWT
+    const payload = await verifyJWT(token);
+    if (!payload) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "Invalid or expired token",
+      }, 401);
+    }
+
+    // Find session
+    const session = await db.session.findUnique({
+      where: { id: payload.sessionId },
+      include: { user: true },
+    });
+
+    if (!session || session.expiresAt < new Date()) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "Session expired",
+      }, 401);
+    }
+
+    return c.json<AuthResponse>({
+      success: true,
+      user: toAuthUser(session.user),
+      session: {
+        id: session.id,
+        userId: session.userId,
+        token: session.token,
+        expiresAt: session.expiresAt,
+        createdAt: session.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error("Get session error:", error);
+    return c.json<AuthResponse>({
+      success: false,
+      error: "Failed to get session",
+    }, 500);
+  }
+});
+
+// Sign Out
+authRoute.post("/sign-out", async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    const token = extractBearerToken(authHeader);
+
+    if (!token) {
+      return c.json<AuthResponse>({
+        success: true,
+      });
+    }
+
+    // Verify JWT
+    const payload = await verifyJWT(token);
+    if (payload) {
+      // Delete session
+      await db.session.delete({
+        where: { id: payload.sessionId },
+      }).catch(() => {}); // Ignore if already deleted
+    }
+
+    return c.json<AuthResponse>({
+      success: true,
+    });
+  } catch (error) {
+    console.error("Sign out error:", error);
+    return c.json<AuthResponse>({
+      success: true, // Still return success for sign out
+    });
+  }
+});
+
+export default authRoute;
