@@ -4,39 +4,65 @@ import { useState, useMemo } from "react";
 import { ProductCard } from "@/components/product-card";
 import { FilterBar } from "@/components/filter-bar";
 import { HeroBanner } from "@/components/hero-banner";
+import { useServices } from "@/hooks/use-services";
+import { ServicesGridSkeleton } from "@/components/skeletons";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const TROJAN_NAVY = "#0F1B4D";
 
 export default function ServicesPage() {
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [sortBy, setSortBy] = useState("popular");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-    // Mock products for display
-    const projects = [];
+    // Fetch services from API with pagination
+    const { data: services, isLoading, isError } = useServices({ 
+        category: selectedCategory,
+        page: currentPage,
+        limit: itemsPerPage 
+    });
 
-    // Filter and sort products
+    // Fetch services from API with pagination
+    const { data: services, isLoading, isError } = useServices({ 
+        category: selectedCategory,
+        page: currentPage,
+        limit: itemsPerPage 
+    });
+
+    // Filter and sort services
     const filteredProducts = useMemo(() => {
-        let filtered = [...projects];
-
-        // Filter by category
-        if (selectedCategory !== "all") {
-            filtered = filtered.filter((product) => {
-                const name = product.name.toLowerCase();
-                if (selectedCategory === "solar") return name.includes("kva") || name.includes("solar");
-                if (selectedCategory === "cctv") return name.includes("cctv");
-                return true;
-            });
-        }
+        if (!services) return [];
+        let filtered = [...services];
 
         // Sort
         if (sortBy === "price-asc") {
-            filtered.sort((a, b) => parseFloat(a.price.replace(/[^0-9.]/g, "")) - parseFloat(b.price.replace(/[^0-9.]/g, "")));
+            filtered.sort((a, b) => a.price - b.price);
         } else if (sortBy === "price-desc") {
-            filtered.sort((a, b) => parseFloat(b.price.replace(/[^0-9.]/g, "")) - parseFloat(a.price.replace(/[^0-9.]/g, "")));
+            filtered.sort((a, b) => b.price - a.price);
+        } else if (sortBy === "rating") {
+            filtered.sort((a, b) => b.rating - a.rating);
         }
 
         return filtered;
-    }, [selectedCategory, sortBy]);
+    }, [services, sortBy]);
+
+    // Calculate total pages (assuming API returns total count)
+    const totalPages = Math.ceil((services?.length || 0) / itemsPerPage);
+
+    // Handle category change - reset to page 1
+    const handleCategoryChange = (category: string) => {
+        setSelectedCategory(category);
+        setCurrentPage(1);
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -55,7 +81,7 @@ export default function ServicesPage() {
                 <div className="mt-8">
                     <FilterBar
                         selectedCategory={selectedCategory}
-                        onCategoryChange={setSelectedCategory}
+                        onCategoryChange={handleCategoryChange}
                         onSortChange={setSortBy}
                     />
                 </div>
@@ -66,33 +92,83 @@ export default function ServicesPage() {
                         {selectedCategory === "all" ? "All Services" : `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Solutions`}
                     </h2>
                     <p className="text-gray-500 mt-1">
-                        {filteredProducts.length} {filteredProducts.length === 1 ? "service" : "services"} available
+                        {isLoading ? "Loading..." : `${filteredProducts.length} ${filteredProducts.length === 1 ? "service" : "services"} available`}
                     </p>
                 </div>
 
+                {/* Loading State */}
+                {isLoading && <ServicesGridSkeleton />}
+
+                {/* Error State */}
+                {isError && (
+                    <div className="text-center py-16">
+                        <p className="text-red-500 text-lg">Failed to load services</p>
+                    </div>
+                )}
+
                 {/* Products Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredProducts.map((product, index) => (
-                        <ProductCard
-                            key={product.id}
-                            id={product.id}
-                            name={product.name}
-                            price={product.price}
-                            priceRange={product.priceRange}
-                            description={product.description}
-                            image={product.images[0]}
-                            brands={product.brands}
-                            isFeatured={index === 0}
-                        />
-                    ))}
-                </div>
+                {!isLoading && !isError && (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {filteredProducts.map((product) => (
+                                <ProductCard
+                                    key={product.id}
+                                    id={product.id}
+                                    name={product.name}
+                                    price={product.priceFormatted}
+                                    description={product.description}
+                                    image={product.images[0]}
+                                    brands={product.brands}
+                                    isFeatured={product.featured}
+                                    rating={product.rating}
+                                    reviewCount={product.reviewCount}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="mt-8 flex justify-center">
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious 
+                                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            />
+                                        </PaginationItem>
+                                        
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                            <PaginationItem key={page}>
+                                                <PaginationLink
+                                                    onClick={() => setCurrentPage(page)}
+                                                    isActive={currentPage === page}
+                                                    className="cursor-pointer"
+                                                >
+                                                    {page}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+                                        
+                                        <PaginationItem>
+                                            <PaginationNext 
+                                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
+                        )}
+                    </>
+                )}
 
                 {/* Empty State */}
-                {filteredProducts.length === 0 && (
+                {!isLoading && !isError && filteredProducts.length === 0 && (
                     <div className="text-center py-16">
                         <p className="text-gray-500 text-lg">No services found in this category.</p>
                         <button
-                            onClick={() => setSelectedCategory("all")}
+                            onClick={() => handleCategoryChange("all")}
                             className="mt-4 text-sm font-medium"
                             style={{ color: TROJAN_NAVY }}
                         >
