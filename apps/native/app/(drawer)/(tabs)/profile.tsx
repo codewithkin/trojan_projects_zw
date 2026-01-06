@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { ScrollView, View, Pressable, Image, Switch, SafeAreaView, StatusBar, Platform, useWindowDimensions } from "react-native";
+import { ScrollView, View, Pressable, Switch, StatusBar, Platform, useWindowDimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
@@ -506,6 +507,7 @@ export default function Profile() {
                         </View>
 
                     </View>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );

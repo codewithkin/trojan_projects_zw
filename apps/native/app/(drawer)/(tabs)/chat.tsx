@@ -3,6 +3,7 @@ import { ScrollView, View, TextInput, Pressable, KeyboardAvoidingView, Platform,
 import { Text } from "@/components/ui/text";
 import { Ionicons } from "@expo/vector-icons";
 import { authClient } from "@/lib/auth-client";
+import { env } from "@trojan_projects_zw/env/native";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -67,7 +68,9 @@ export default function Chat() {
             ws.current.close();
         }
 
-        const wsUrl = `ws://10.255.235.15:3000/ws?roomId=${encodeURIComponent(currentRoomId)}&userId=${encodeURIComponent(session.user.id)}&userName=${encodeURIComponent(session.user.name || "User")}&userRole=${encodeURIComponent(session.user.role || "customer")}`;
+        // Convert HTTP URL to WebSocket URL
+        const apiUrl = env.EXPO_PUBLIC_API_URL.replace(/^https?:/, "ws:");
+        const wsUrl = `${apiUrl}/ws?roomId=${encodeURIComponent(currentRoomId)}&userId=${encodeURIComponent(session.user.id)}&userName=${encodeURIComponent(session.user.name || "User")}&userRole=${encodeURIComponent(session.user.role || "customer")}`;
 
         ws.current = new WebSocket(wsUrl);
 
