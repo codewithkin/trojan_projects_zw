@@ -3,11 +3,9 @@ import { Stack } from "expo-router";
 import { HeroUINativeProvider } from "heroui-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
 
 import { AppThemeProvider } from "@/contexts/app-theme-context";
-import { authClient } from "@/lib/auth-client";
+import { AuthProvider } from "@/contexts/auth-context";
 
 export const unstable_settings = {
   initialRouteName: "splash",
@@ -33,9 +31,11 @@ export default function Layout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
         <AppThemeProvider>
-          <HeroUINativeProvider>
-            <StackLayout />
-          </HeroUINativeProvider>
+          <AuthProvider>
+            <HeroUINativeProvider>
+              <StackLayout />
+            </HeroUINativeProvider>
+          </AuthProvider>
         </AppThemeProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>

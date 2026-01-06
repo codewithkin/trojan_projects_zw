@@ -3,7 +3,7 @@ import { View, TextInput, Pressable, KeyboardAvoidingView, Platform, FlatList, I
 import { useRouter } from "expo-router";
 import { Text } from "@/components/ui/text";
 import { Ionicons } from "@expo/vector-icons";
-import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/contexts/auth-context";
 import { env } from "@trojan_projects_zw/env/native";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -54,7 +54,7 @@ const mockChatRooms: ChatRoom[] = [
 
 export default function Chat() {
     const router = useRouter();
-    const { data: session } = authClient.useSession();
+    const { isAuthenticated, requireAuth } = useAuth();
     const [activeTab, setActiveTab] = useState<TabType>("projects");
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -68,9 +68,12 @@ export default function Chat() {
         return time || "";
     };
 
-    const handleRoomPress = (room: ChatRoom) => {
-        // Navigate to individual chat screen without tabs/header
-        router.push(`/chat/${room.id}`);
+    const handleRoomPress = async (room: ChatRoom) => {
+        const authed = await requireAuth("Sign in to access chat");
+        if (authed) {
+            // Navigate to individual chat screen without tabs/header
+            router.push(`/chat/${room.id}`);
+        }
     };
 
     const renderChatRoom = ({ item }: { item: ChatRoom }) => (

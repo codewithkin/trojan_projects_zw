@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/contexts/auth-context";
 import { env } from "@trojan_projects_zw/env/native";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -63,7 +63,7 @@ const statusConfig: Record<ProjectStatus, { label: string; color: string; bg: st
 
 export default function Projects() {
     const router = useRouter();
-    const { data: session } = authClient.useSession();
+    const { user } = useAuth();
     const { width } = useWindowDimensions();
     const [activeTab, setActiveTab] = useState<TabId>("all");
     const [projects, setProjects] = useState<Project[]>([]);
@@ -75,7 +75,7 @@ export default function Projects() {
     const [reviewText, setReviewText] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
-    const isStaff = (session?.user as { role?: string } | undefined)?.role === "staff" || (session?.user as { role?: string } | undefined)?.role === "support";
+    const isStaff = (user as { role?: string } | undefined)?.role === "staff" || (user as { role?: string } | undefined)?.role === "support";
 
     // Responsive breakpoints
     const isTablet = width >= 768;

@@ -5,7 +5,7 @@ import { Text } from "@/components/ui/text";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "expo-router";
-import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/contexts/auth-context";
 import { env } from "@trojan_projects_zw/env/native";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -62,7 +62,7 @@ const getStatusConfig = (status: QuoteStatus) => {
 
 export default function Quotes() {
     const router = useRouter();
-    const { data: session } = authClient.useSession();
+    const { user, isAuthenticated, requireAuth } = useAuth();
     const [selectedFilter, setSelectedFilter] = useState<QuoteStatus | "all">("all");
     const [showModal, setShowModal] = useState(false);
     const [showServicePicker, setShowServicePicker] = useState(false);
@@ -79,7 +79,7 @@ export default function Quotes() {
         location: "",
     });
 
-    const isStaff = (session?.user as { role?: string } | undefined)?.role === "staff" || (session?.user as { role?: string } | undefined)?.role === "support";
+    const isStaff = (user as { role?: string } | undefined)?.role === "staff" || (user as { role?: string } | undefined)?.role === "support";
 
     const fetchQuotes = useCallback(async () => {
         try {
@@ -248,7 +248,10 @@ export default function Quotes() {
                         <Button
                             className="rounded-full"
                             style={{ backgroundColor: TROJAN_GOLD }}
-                            onPress={() => setShowModal(true)}
+                            onPress={async () => {
+                                const authed = await requireAuth("Sign in to request a quote");
+                                if (authed) setShowModal(true);
+                            }}
                         >
                             <View className="flex-row items-center">
                                 <Plus size={18} color={TROJAN_NAVY} />
@@ -481,7 +484,10 @@ export default function Quotes() {
                             <Button
                                 className="mt-4"
                                 style={{ backgroundColor: TROJAN_GOLD }}
-                                onPress={() => setShowModal(true)}
+                                onPress={async () => {
+                                    const authed = await requireAuth("Sign in to request a quote");
+                                    if (authed) setShowModal(true);
+                                }}
                             >
                                 <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
                                     Request Quote
