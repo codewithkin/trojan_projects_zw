@@ -88,9 +88,9 @@ export default function AboutPage() {
             </section>
 
             {/* Stats Section */}
-            <section className="py-12 -mt-8">
+            <section className="py-8 md:py-12 -mt-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                         {stats.map((stat) => {
                             const Icon = stat.icon;
                             return (
@@ -192,18 +192,18 @@ export default function AboutPage() {
             </section>
 
             {/* Team Section */}
-            <section className="py-16">
+            <section className="py-12 md:py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2
-                        className="text-3xl font-bold text-center mb-4"
+                        className="text-2xl md:text-3xl font-bold text-center mb-4"
                         style={{ color: TROJAN_NAVY }}
                     >
                         Meet Our Team
                     </h2>
-                    <p className="text-gray-600 text-center max-w-2xl mx-auto mb-12">
+                    <p className="text-gray-600 text-center max-w-2xl mx-auto mb-8 md:mb-12 px-4">
                         Our dedicated professionals bring years of experience and passion to every project.
                     </p>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                         {teamMembers.map((member) => (
                             <div
                                 key={member.name}
