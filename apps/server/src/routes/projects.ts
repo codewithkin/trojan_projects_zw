@@ -13,11 +13,21 @@ const projectsRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
+    const page = parseInt(c.req.query("page") || "1");
+    const limit = parseInt(c.req.query("limit") || "10");
+    const skip = (page - 1) * limit;
+
     try {
       const isStaff = (session.user as { role?: string }).role === "staff" || (session.user as { role?: string }).role === "support";
+      const where = isStaff ? {} : { quote: { userId: session.user.id } };
       
+      // Get total count
+      const totalCount = await db.project.count({ where });
+
       const projects = await db.project.findMany({
-        where: isStaff ? {} : { quote: { userId: session.user.id } },
+        where,
+        skip,
+        take: limit,
         include: {
           quote: {
             include: {
@@ -62,7 +72,16 @@ const projectsRoute = new Hono()
         updatedAt: project.updatedAt,
       }));
 
-      return c.json({ projects: transformedProjects });
+      return c.json({ 
+        projects: transformedProjects,
+        pagination: {
+          page,
+          limit,
+          total: totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+          hasMore: page < Math.ceil(totalCount / limit),
+        }
+      });
     } catch (error) {
       console.error("Error fetching projects:", error);
       return c.json({ error: "Failed to fetch projects" }, 500);

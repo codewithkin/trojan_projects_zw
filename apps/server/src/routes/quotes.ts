@@ -13,11 +13,21 @@ const quotesRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
+    const page = parseInt(c.req.query("page") || "1");
+    const limit = parseInt(c.req.query("limit") || "10");
+    const skip = (page - 1) * limit;
+
     try {
       const isStaff = (session.user as { role?: string }).role === "staff" || (session.user as { role?: string }).role === "support";
+      const where = isStaff ? {} : { userId: session.user.id };
       
+      // Get total count
+      const totalCount = await db.quote.count({ where });
+
       const quotes = await db.quote.findMany({
-        where: isStaff ? {} : { userId: session.user.id },
+        where,
+        skip,
+        take: limit,
         include: {
           service: {
             select: {
@@ -60,7 +70,16 @@ const quotesRoute = new Hono()
         updatedAt: quote.updatedAt,
       }));
 
-      return c.json({ quotes: transformedQuotes });
+      return c.json({ 
+        quotes: transformedQuotes,
+        pagination: {
+          page,
+          limit,
+          total: totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+          hasMore: page < Math.ceil(totalCount / limit),
+        }
+      });
     } catch (error) {
       console.error("Error fetching quotes:", error);
       return c.json({ error: "Failed to fetch quotes" }, 500);
