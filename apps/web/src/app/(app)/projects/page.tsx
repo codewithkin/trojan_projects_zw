@@ -161,39 +161,9 @@ export default function ServicesPage() {
                     <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                         Our Services
                     </h1>
-                    <p className="text-gray-300 mb-6">
+                    <p className="text-gray-300">
                         Professional engineering solutions for every need
                     </p>
-
-                    {/* Search Bar */}
-                    <div className="flex gap-2 max-w-2xl mx-auto">
-                        <div className="relative flex-1">
-                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <Input
-                                placeholder="Search services, brands..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-12 pr-4 py-6 text-lg rounded-full bg-white border-0 placeholder:text-gray-400"
-                            />
-                        </div>
-                        <Button
-                            variant="outline"
-                            size="lg"
-                            className="rounded-full bg-white border-0 px-6"
-                            onClick={() => setShowFilters(!showFilters)}
-                        >
-                            <SlidersHorizontal size={20} className="mr-2" />
-                            Filters
-                            {activeFiltersCount > 0 && (
-                                <span
-                                    className="ml-2 w-5 h-5 rounded-full text-xs flex items-center justify-center text-white"
-                                    style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-                                >
-                                    {activeFiltersCount}
-                                </span>
-                            )}
-                        </Button>
-                    </div>
                 </div>
             </section>
 
@@ -343,6 +313,36 @@ export default function ServicesPage() {
                                 </button>
                             );
                         })}
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="flex gap-2 max-w-xl mb-6">
+                        <div className="relative flex-1">
+                            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Input
+                                placeholder="Search services, brands..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-12 pr-4 py-3 rounded-full bg-white border border-gray-200 placeholder:text-gray-400"
+                            />
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="default"
+                            className="rounded-full px-4"
+                            onClick={() => setShowFilters(!showFilters)}
+                        >
+                            <SlidersHorizontal size={18} className="mr-2" />
+                            Filters
+                            {activeFiltersCount > 0 && (
+                                <span
+                                    className="ml-2 w-5 h-5 rounded-full text-xs flex items-center justify-center text-white"
+                                    style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                                >
+                                    {activeFiltersCount}
+                                </span>
+                            )}
+                        </Button>
                     </div>
 
                     {/* Results Info */}
