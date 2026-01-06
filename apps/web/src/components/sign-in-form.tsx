@@ -3,7 +3,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import z from "zod";
 
-import { authClient } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 
 import Loader from "./loader";
 import { Button } from "./ui/button";
@@ -12,7 +13,7 @@ import { Label } from "./ui/label";
 
 export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   const router = useRouter();
-  const { isPending } = authClient.useSession();
+  const { isPending } = useSession();
 
   const form = useForm({
     defaultValues: {
@@ -20,21 +21,21 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
       password: "",
     },
     onSubmit: async ({ value }) => {
-      await authClient.signIn.email(
-        {
+      try {
+        const response = await signIn({
           email: value.email,
           password: value.password,
-        },
-        {
-          onSuccess: () => {
-            router.push("/dashboard");
-            toast.success("Sign in successful");
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
+        });
+
+        if (response.success) {
+          router.push("/dashboard");
+          toast.success("Sign in successful");
+        } else {
+          toast.error(response.error || "Sign in failed");
+        }
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Sign in failed");
+      }
     },
     validators: {
       onSubmit: z.object({
