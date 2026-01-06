@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Install dependencies stage
 FROM base AS install
+# Copy package.json files and essential configs
 COPY package.json bun.lock ./
 COPY apps/server/package.json ./apps/server/
 COPY apps/web/package.json ./apps/web/
@@ -14,16 +15,19 @@ COPY packages/db/package.json ./packages/db/
 COPY packages/env/package.json ./packages/env/
 COPY turbo.json ./
 
-# Install all dependencies
+# Copy Prisma schema and config so postinstall can generate client
+COPY packages/db/prisma/schema ./packages/db/prisma/schema
+COPY packages/db/prisma.config.ts ./packages/db/
+
+# Copy .env file for Prisma to find DATABASE_URL
+COPY apps/server/.env ./apps/server/
+
+# Install all dependencies (triggers postinstall for prisma generate)
 RUN bun install --frozen-lockfile
 
 # Copy source code stage
 FROM install AS build
 COPY . .
-
-# Generate Prisma Client explicitly
-WORKDIR /app/packages/db
-RUN bun run db:generate
 
 # Build the server
 WORKDIR /app/apps/server
