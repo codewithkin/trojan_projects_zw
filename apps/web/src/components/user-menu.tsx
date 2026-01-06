@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+import { hasAdminAccess } from "@/config/admins";
 
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
@@ -41,13 +42,24 @@ export default function UserMenu() {
     );
   }
 
+  const isAdmin = hasAdminAccess(session.user);
+
   return (
     <div className="flex items-center gap-3">
-      <Link href="/projects/new">
-        <Button style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
-          Request Project
-        </Button>
-      </Link>
+      {isAdmin && (
+        <Link href="/dashboard">
+          <Button style={{ backgroundColor: TROJAN_NAVY, color: "white" }}>
+            Dashboard
+          </Button>
+        </Link>
+      )}
+      {!isAdmin && (
+        <Link href="/projects/new">
+          <Button style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
+            Request Project
+          </Button>
+        </Link>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" />}>
           {session.user.name}
