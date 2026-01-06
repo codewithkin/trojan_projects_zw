@@ -23,6 +23,7 @@ model User {
   ratings         ServiceRating[]
   likes           ServiceLike[]
   serviceRequests ServiceRequest[]
+  quotes          Quote[]
 
   @@unique([email])
   @@map("user")

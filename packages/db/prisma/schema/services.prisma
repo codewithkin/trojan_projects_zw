@@ -28,6 +28,7 @@ model Service {
   ratings      ServiceRating[]
   likes        ServiceLike[]
   requests     ServiceRequest[]
+  quotes       Quote[]
 
   @@index([category])
   @@index([featured])
@@ -67,7 +68,77 @@ model ServiceLike {
   @@map("service_like")
 }
 
-// Service request status
+// Quote status - initial request before becoming a project
+enum QuoteStatus {
+  pending      // User submitted, waiting for staff to review
+  approved     // Staff approved, user can promote to project
+  rejected     // Staff rejected
+}
+
+// Project status - after quote is accepted
+enum ProjectStatus {
+  pending          // Quote converted to project, waiting for staff to accept
+  starting         // Staff accepted, team on the way
+  in_progress      // Team arrived, work in progress
+  waiting_for_review  // Work complete, waiting for user confirmation
+  completed        // User confirmed, project done
+  cancelled        // Project was cancelled
+}
+
+// Quote - user request for a service quotation
+model Quote {
+  id               String       @id @default(cuid())
+  serviceId        String
+  service          Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           QuoteStatus  @default(pending)
+  location         String
+  notes            String?
+  estimatedPrice   Decimal?     @db.Decimal(10, 2)
+  staffNotes       String?      // Notes from staff about the quote
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  
+  // Link to project if quote is promoted
+  project          Project?
+
+  @@index([serviceId])
+  @@index([userId])
+  @@index([status])
+  @@map("quote")
+}
+
+// Project - active work after quote approval
+model Project {
+  id               String        @id @default(cuid())
+  quoteId          String        @unique
+  quote            Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  status           ProjectStatus @default(pending)
+  finalPrice       Decimal?      @db.Decimal(10, 2)
+  
+  // Scheduling
+  scheduledDate    DateTime?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  
+  // Staff assignment
+  technicianName   String?
+  technicianPhone  String?
+  
+  // User review
+  userRating       Int?          // 1-5 stars
+  userReview       String?
+  
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([quoteId])
+  @@index([status])
+  @@map("project")
+}
+
+// Service request status (legacy - keeping for backward compatibility)
 enum ServiceRequestStatus {
   pending
   confirmed
@@ -76,7 +147,7 @@ enum ServiceRequestStatus {
   cancelled
 }
 
-// User requests for services (projects)
+// User requests for services (legacy model - migrate to Quote/Project)
 model ServiceRequest {
   id               String               @id @default(cuid())
   serviceId        String
