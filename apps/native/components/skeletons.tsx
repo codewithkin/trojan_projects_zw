@@ -60,9 +60,9 @@ export function Skeleton({
 
 export function ServiceCardSkeleton() {
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, { width: "100%" }]}>
             {/* Image */}
-            <Skeleton height={160} borderRadius={12} />
+            <Skeleton width="100%" height={160} borderRadius={12} />
 
             {/* Content */}
             <View style={styles.content}>
@@ -178,9 +178,10 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         flexWrap: "wrap",
         gap: 12,
+        width: "100%",
     },
     gridItem: {
-        width: (width - 48) / 2,
+        width: "100%",
     },
     detailContainer: {
         flex: 1,
