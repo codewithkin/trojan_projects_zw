@@ -372,7 +372,7 @@ export default function NewProjectPage() {
                     </>
                 )}
             </div>
-            
+
             {/* Auth Modal */}
             <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
         </>
