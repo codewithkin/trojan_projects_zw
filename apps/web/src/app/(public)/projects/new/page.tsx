@@ -154,8 +154,8 @@ export default function NewProjectPage() {
                         </CardContent>
                     </Card>
                 </div>
-                <AuthModal 
-                    open={showAuthModal} 
+                <AuthModal
+                    open={showAuthModal}
                     onOpenChange={setShowAuthModal}
                     message="Sign in to create a new project"
                 />
@@ -378,8 +378,8 @@ export default function NewProjectPage() {
             </div>
 
             {/* Auth Modal */}
-            <AuthModal 
-                open={showAuthModal} 
+            <AuthModal
+                open={showAuthModal}
                 onOpenChange={setShowAuthModal}
                 message="Sign in to create a new project"
             />

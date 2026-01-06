@@ -8,6 +8,7 @@
     },
     "name": "trojan_projects_zw",
     "slug": "trojan_projects_zw",
+    "version": "1.0.0",
     "plugins": [
       "expo-font"
     ],
@@ -16,12 +17,19 @@
       "reactCompiler": true
     },
     "android": {
-      "package": "com.codewithkin.trojan_projects_zw"
+      "package": "com.codewithkin.trojan_projects_zw",
+      "versionCode": 1
     },
     "extra": {
       "eas": {
         "projectId": "9368f028-4c59-4d83-9eec-da9174aac356"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9368f028-4c59-4d83-9eec-da9174aac356"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
