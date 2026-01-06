@@ -266,10 +266,10 @@ export default function OrderDetailPage() {
                                         <div className="relative flex flex-col items-center">
                                             <div
                                                 className={`w-3 h-3 rounded-full ${event.status === "completed"
-                                                        ? "bg-green-500"
-                                                        : event.status === "current"
-                                                            ? "bg-blue-500 ring-4 ring-blue-100"
-                                                            : "bg-gray-300"
+                                                    ? "bg-green-500"
+                                                    : event.status === "current"
+                                                        ? "bg-blue-500 ring-4 ring-blue-100"
+                                                        : "bg-gray-300"
                                                     }`}
                                             />
                                             {index < orderData.timeline.length - 1 && (
