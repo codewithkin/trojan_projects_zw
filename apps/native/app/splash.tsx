@@ -14,14 +14,14 @@ export default function SplashScreen() {
 
                 if (session?.user) {
                     // User is authenticated - redirect to main app
-                    router.replace("/(drawer)/(tabs)");
+                    router.replace("/(tabs)");
                 } else {
                     // No session - allow guest access to main app
-                    router.replace("/(drawer)/(tabs)");
+                    router.replace("/(tabs)");
                 }
             } catch (error) {
                 // Error checking session, still allow guest access
-                router.replace("/(drawer)/(tabs)");
+                router.replace("/(tabs)");
             }
         };
 

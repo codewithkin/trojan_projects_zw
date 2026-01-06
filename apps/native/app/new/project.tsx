@@ -97,7 +97,7 @@ export default function NewProjectScreen() {
             const data = await response.json();
             if (response.ok) {
                 Alert.alert("Success", "Project created successfully!", [
-                    { text: "OK", onPress: () => router.push("/(drawer)/(tabs)/projects") },
+                    { text: "OK", onPress: () => router.push("/(tabs)/projects") },
                 ]);
             } else {
                 Alert.alert("Error", data.error || "Failed to create project");

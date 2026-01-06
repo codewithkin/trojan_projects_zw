@@ -55,7 +55,7 @@ export default function LoginScreen() {
                 { email, password },
                 {
                     onSuccess: () => {
-                        router.replace("/(drawer)/(tabs)");
+                        router.replace("/(tabs)");
                     },
                     onError: (error) => {
                         if (error.error.status === 403) {

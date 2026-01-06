@@ -22,35 +22,8 @@ interface ChatRoom {
 
 type TabType = "projects" | "support";
 
-// Mock chat rooms - replace with actual data from your API
-const mockChatRooms: ChatRoom[] = [
-    {
-        id: "proj-1",
-        name: "Solar Installation - Harare",
-        type: "project",
-        lastMessage: "The installation team will arrive tomorrow at 9 AM",
-        lastMessageTime: "10:30 AM",
-        unreadCount: 2,
-        status: "In Progress",
-    },
-    {
-        id: "proj-2",
-        name: "CCTV System - Bulawayo",
-        type: "project",
-        lastMessage: "We've completed the site survey",
-        lastMessageTime: "Yesterday",
-        unreadCount: 0,
-        status: "Planning",
-    },
-    {
-        id: "support",
-        name: "Trojan Support",
-        type: "support",
-        lastMessage: "How can we help you today?",
-        lastMessageTime: "2 days ago",
-        unreadCount: 0,
-    },
-];
+// TODO: Replace with actual data from API
+const mockChatRooms: ChatRoom[] = [];
 
 export default function Chat() {
     const router = useRouter();
@@ -111,7 +84,7 @@ export default function Chat() {
                     </Text>
                     {item.unreadCount > 0 && (
                         <View
-                            className="min-w-[20px] h-5 rounded-full items-center justify-center px-1.5"
+                            className="min-w-5 h-5 rounded-full items-center justify-center px-1.5"
                             style={{ backgroundColor: TROJAN_GOLD }}
                         >
                             <Text className="text-xs font-bold" style={{ color: TROJAN_NAVY }}>
@@ -192,14 +165,17 @@ export default function Chat() {
                 ListEmptyComponent={
                     <View className="flex-1 items-center justify-center py-20">
                         <Ionicons
-                            name={activeTab === "projects" ? "briefcase-outline" : "headset-outline"}
+                            name={activeTab === "projects" ? "chatbubbles-outline" : "headset-outline"}
                             size={64}
                             color="#D1D5DB"
                         />
-                        <Text className="text-gray-400 mt-4 text-center px-8">
+                        <Text className="text-lg font-semibold text-gray-900 mt-4">
+                            No {activeTab} chats yet
+                        </Text>
+                        <Text className="text-gray-500 mt-2 text-center px-8">
                             {activeTab === "projects"
-                                ? "No project chats yet.\nStart a project to chat with your team."
-                                : "No support conversations.\nNeed help? Start a new chat!"}
+                                ? "Project chats will appear here when you start working on projects with our team."
+                                : "Need help? Contact our support team to start a conversation."}
                         </Text>
                     </View>
                 }

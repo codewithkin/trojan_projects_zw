@@ -712,13 +712,13 @@ export default function Projects() {
                             </Text>
                             <Text style={{ fontSize: isTablet ? 16 : 14, color: "#9CA3AF", textAlign: "center", paddingHorizontal: 32 }}>
                                 {activeTab === "all"
-                                    ? "You haven't started any projects yet. Request a quote to get started!"
+                                    ? "You haven't started any projects yet. Create a new project to get started!"
                                     : `You don't have any ${tabs.find(t => t.id === activeTab)?.label.toLowerCase()} projects.`
                                 }
                             </Text>
                             {activeTab === "all" && !isStaff && (
                                 <Pressable
-                                    onPress={() => router.push("/(drawer)/(tabs)/quotes")}
+                                    onPress={() => router.push("/new/project")}
                                     style={{
                                         marginTop: 20,
                                         backgroundColor: TROJAN_GOLD,
@@ -731,7 +731,7 @@ export default function Projects() {
                                     }}
                                 >
                                     <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: 15 }}>
-                                        Request a Quote
+                                        New Project
                                     </Text>
                                     <Ionicons name="arrow-forward" size={18} color={TROJAN_NAVY} />
                                 </Pressable>

@@ -15,12 +15,14 @@ function StackLayout() {
   return (
     <Stack screenOptions={{}}>
       <Stack.Screen name="splash" options={{ headerShown: false }} />
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="chat" options={{ headerShown: false }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="signup" options={{ headerShown: false }} />
       <Stack.Screen name="user-onboarding" options={{ headerShown: false }} />
+      <Stack.Screen name="new" options={{ headerShown: false }} />
+      <Stack.Screen name="service" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
     </Stack>
   );

@@ -78,7 +78,7 @@ export default function NewQuoteScreen() {
             const data = await response.json();
             if (response.ok) {
                 Alert.alert("Success", "Quote request submitted successfully!", [
-                    { text: "OK", onPress: () => router.push("/(drawer)/(tabs)/quotes") },
+                    { text: "OK", onPress: () => router.push("/(tabs)/quotes") },
                 ]);
             } else {
                 Alert.alert("Error", data.error || "Failed to submit quote");

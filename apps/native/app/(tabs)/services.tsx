@@ -183,13 +183,13 @@ export default function Services() {
 
                         {/* Filter Toggle */}
                         <View className="px-4 pt-3 flex-row items-center justify-between">
-                            {!isLoading && !isError && (
+                            {!isLoading && !error && (
                                 <Text className="text-sm text-gray-500">
                                     {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
                                 </Text>
                             )}
                             {isLoading && <Text className="text-sm text-gray-500">Loading...</Text>}
-                            {isError && <Text className="text-sm text-red-500">Error loading services</Text>}
+                            {error && <Text className="text-sm text-red-500">Error loading services</Text>}
                             <TouchableOpacity
                                 onPress={() => setShowFilters(!showFilters)}
                                 className="flex-row items-center"

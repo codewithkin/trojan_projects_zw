@@ -112,7 +112,7 @@ export default function Quotes() {
                 Alert.alert("Success", "Quote promoted to project successfully!");
                 await fetchQuotes();
                 // Navigate to projects tab
-                router.push("/(drawer)/(tabs)/projects");
+                router.push("/(tabs)/projects");
             } else {
                 Alert.alert("Error", data.error || "Failed to promote quote");
             }
@@ -385,7 +385,7 @@ export default function Quotes() {
                                         <Button
                                             className="w-full mt-2"
                                             style={{ backgroundColor: `${TROJAN_NAVY}10` }}
-                                            onPress={() => router.push("/(drawer)/(tabs)/projects")}
+                                            onPress={() => router.push("/(tabs)/projects")}
                                         >
                                             <View className="flex-row items-center">
                                                 <CheckCircle2 size={16} color={TROJAN_NAVY} />
