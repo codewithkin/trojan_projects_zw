@@ -12,7 +12,7 @@ import { TestimonialSection } from "@/components/testimonial-section";
 import { FAQSection } from "@/components/faq-section";
 import { ServicesGridSkeleton } from "@/components/skeletons";
 import { useServices } from "@/hooks/use-services";
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -31,12 +31,12 @@ const categories = [
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: session } = useSession();
+  const { user } = useSession();
 
   // Log session on mount and when it changes
   useEffect(() => {
-    console.log("🏠 Home Page - User Session:", session);
-  }, [session]);
+    console.log("🏠 Home Page - User Session:", user);
+  }, [user]);
 
   // Fetch only 10 latest services for home page
   const { data: services, isLoading, isError, error, refetch } = useServices({ limit: 10 });
