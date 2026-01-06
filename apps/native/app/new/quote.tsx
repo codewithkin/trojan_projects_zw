@@ -181,178 +181,178 @@ export default function NewQuoteScreen() {
                             <ArrowLeft size={20} color={TROJAN_NAVY} />
                             <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
                         </Pressable>
-                    {fetchingServices ? (
-                        <View className="items-center justify-center py-12">
-                            <ActivityIndicator size="large" color={TROJAN_GOLD} />
-                            <Text className="text-gray-500 mt-4">Loading services...</Text>
-                        </View>
-                    ) : (
-                        <>
-                            {/* Service Selection */}
-                            <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Service Type *
-                                </Text>
-                                <Pressable
-                                    onPress={() => setShowServicePicker(!showServicePicker)}
-                                    className="border border-gray-300 rounded-lg p-3 flex-row items-center justify-between bg-white"
-                                >
-                                    <Text
-                                        className={formData.serviceName ? "text-gray-900" : "text-gray-400"}
-                                    >
-                                        {formData.serviceName || "Select a service"}
+                        {fetchingServices ? (
+                            <View className="items-center justify-center py-12">
+                                <ActivityIndicator size="large" color={TROJAN_GOLD} />
+                                <Text className="text-gray-500 mt-4">Loading services...</Text>
+                            </View>
+                        ) : (
+                            <>
+                                {/* Service Selection */}
+                                <View className="mb-4">
+                                    <Text className="text-sm font-medium text-gray-700 mb-2">
+                                        Service Type *
                                     </Text>
-                                    <ChevronDown size={20} color="#6B7280" />
-                                </Pressable>
-                                {showServicePicker && (
-                                    <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-80">
-                                        <ScrollView nestedScrollEnabled>
-                                            {services.length > 0 ? (
-                                                Object.entries(groupedServices).length > 0 ? (
-                                                    Object.entries(groupedServices).map(([category, categoryServices]) => (
-                                                        <View key={category}>
-                                                            <View className="px-3 py-2 bg-gray-50 border-b border-gray-100">
-                                                                <Text className="text-xs font-semibold text-gray-600 uppercase">
-                                                                    {category}
-                                                                </Text>
+                                    <Pressable
+                                        onPress={() => setShowServicePicker(!showServicePicker)}
+                                        className="border border-gray-300 rounded-lg p-3 flex-row items-center justify-between bg-white"
+                                    >
+                                        <Text
+                                            className={formData.serviceName ? "text-gray-900" : "text-gray-400"}
+                                        >
+                                            {formData.serviceName || "Select a service"}
+                                        </Text>
+                                        <ChevronDown size={20} color="#6B7280" />
+                                    </Pressable>
+                                    {showServicePicker && (
+                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-80">
+                                            <ScrollView nestedScrollEnabled>
+                                                {services.length > 0 ? (
+                                                    Object.entries(groupedServices).length > 0 ? (
+                                                        Object.entries(groupedServices).map(([category, categoryServices]) => (
+                                                            <View key={category}>
+                                                                <View className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+                                                                    <Text className="text-xs font-semibold text-gray-600 uppercase">
+                                                                        {category}
+                                                                    </Text>
+                                                                </View>
+                                                                {categoryServices.map((service) => (
+                                                                    <Pressable
+                                                                        key={service.id}
+                                                                        onPress={() => {
+                                                                            setFormData({
+                                                                                ...formData,
+                                                                                serviceId: service.id,
+                                                                                serviceName: service.name,
+                                                                            });
+                                                                            setShowServicePicker(false);
+                                                                        }}
+                                                                        className="p-3 border-b border-gray-100"
+                                                                    >
+                                                                        <Text className="text-gray-900">{service.name}</Text>
+                                                                    </Pressable>
+                                                                ))}
                                                             </View>
-                                                            {categoryServices.map((service) => (
-                                                                <Pressable
-                                                                    key={service.id}
-                                                                    onPress={() => {
-                                                                        setFormData({
-                                                                            ...formData,
-                                                                            serviceId: service.id,
-                                                                            serviceName: service.name,
-                                                                        });
-                                                                        setShowServicePicker(false);
-                                                                    }}
-                                                                    className="p-3 border-b border-gray-100"
-                                                                >
-                                                                    <Text className="text-gray-900">{service.name}</Text>
-                                                                </Pressable>
-                                                            ))}
-                                                        </View>
-                                                    ))
+                                                        ))
+                                                    ) : (
+                                                        // Fallback flat list if grouping doesn't work
+                                                        services.map((service) => (
+                                                            <Pressable
+                                                                key={service.id}
+                                                                onPress={() => {
+                                                                    setFormData({
+                                                                        ...formData,
+                                                                        serviceId: service.id,
+                                                                        serviceName: service.name,
+                                                                    });
+                                                                    setShowServicePicker(false);
+                                                                }}
+                                                                className="p-3 border-b border-gray-100 flex-row items-center justify-between"
+                                                            >
+                                                                <View>
+                                                                    <Text className="text-gray-900 font-medium">{service.name}</Text>\n                                                                <Text className="text-gray-500 text-xs mt-1">{service.category}</Text>
+                                                                </View>
+                                                            </Pressable>
+                                                        ))
+                                                    )
                                                 ) : (
-                                                    // Fallback flat list if grouping doesn't work
-                                                    services.map((service) => (
-                                                        <Pressable
-                                                            key={service.id}
-                                                            onPress={() => {
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    serviceId: service.id,
-                                                                    serviceName: service.name,
-                                                                });
-                                                                setShowServicePicker(false);
-                                                            }}
-                                                            className="p-3 border-b border-gray-100 flex-row items-center justify-between"
-                                                        >
-                                                            <View>
-                                                                <Text className="text-gray-900 font-medium">{service.name}</Text>\n                                                                <Text className="text-gray-500 text-xs mt-1">{service.category}</Text>
-                                                            </View>
-                                                        </Pressable>
-                                                    ))
-                                                )
-                                            ) : (
-                                                <View className="p-4 items-center">
-                                                    <Text className="text-gray-500">No services available</Text>
-                                                </View>
-                                            )}
-                                        </ScrollView>
-                                    </View>
-                                )}
-                            </View>
+                                                    <View className="p-4 items-center">
+                                                        <Text className="text-gray-500">No services available</Text>
+                                                    </View>
+                                                )}
+                                            </ScrollView>
+                                        </View>
+                                    )}
+                                </View>
 
-                            {/* Location */}
-                            <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Project Location *
-                                </Text>
-                                <TextInput
-                                    className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
-                                    placeholder="e.g., Borrowdale, Harare"
-                                    placeholderTextColor="#9CA3AF"
-                                    value={formData.location}
-                                    onChangeText={(text) => setFormData({ ...formData, location: text })}
-                                />
-                            </View>
+                                {/* Location */}
+                                <View className="mb-4">
+                                    <Text className="text-sm font-medium text-gray-700 mb-2">
+                                        Project Location *
+                                    </Text>
+                                    <TextInput
+                                        className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
+                                        placeholder="e.g., Borrowdale, Harare"
+                                        placeholderTextColor="#9CA3AF"
+                                        value={formData.location}
+                                        onChangeText={(text) => setFormData({ ...formData, location: text })}
+                                    />
+                                </View>
 
-                            {/* Project Description */}
-                            <View className="mb-6">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Project Description
-                                </Text>
-                                <TextInput
-                                    className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
-                                    placeholder="Describe your project requirements, timeline, and any specific details..."
-                                    placeholderTextColor="#9CA3AF"
-                                    multiline
-                                    numberOfLines={5}
-                                    textAlignVertical="top"
-                                    value={formData.notes}
-                                    onChangeText={(text) => setFormData({ ...formData, notes: text })}
-                                    style={{ minHeight: 120 }}
-                                />
-                                <Text className="text-xs text-gray-500 mt-1">
-                                    Include any relevant details to help us provide an accurate quote
-                                </Text>
-                            </View>
+                                {/* Project Description */}
+                                <View className="mb-6">
+                                    <Text className="text-sm font-medium text-gray-700 mb-2">
+                                        Project Description
+                                    </Text>
+                                    <TextInput
+                                        className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
+                                        placeholder="Describe your project requirements, timeline, and any specific details..."
+                                        placeholderTextColor="#9CA3AF"
+                                        multiline
+                                        numberOfLines={5}
+                                        textAlignVertical="top"
+                                        value={formData.notes}
+                                        onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                                        style={{ minHeight: 120 }}
+                                    />
+                                    <Text className="text-xs text-gray-500 mt-1">
+                                        Include any relevant details to help us provide an accurate quote
+                                    </Text>
+                                </View>
 
-                            {/* Info Card */}
-                            <View className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
-                                <Text className="font-semibold text-blue-900 mb-2">
-                                    What happens next?
-                                </Text>
-                                <View className="space-y-2">
-                                    <View className="flex-row items-start">
-                                        <Text className="text-blue-800 mr-2">•</Text>
-                                        <Text className="text-sm text-blue-800 flex-1">
-                                            Our team will review your quote request within 24 hours
-                                        </Text>
-                                    </View>
-                                    <View className="flex-row items-start">
-                                        <Text className="text-blue-800 mr-2">•</Text>
-                                        <Text className="text-sm text-blue-800 flex-1">
-                                            We'll contact you to discuss project details and provide an estimate
-                                        </Text>
-                                    </View>
-                                    <View className="flex-row items-start">
-                                        <Text className="text-blue-800 mr-2">•</Text>
-                                        <Text className="text-sm text-blue-800 flex-1">
-                                            Once approved, you can start your project from the quotes page
-                                        </Text>
+                                {/* Info Card */}
+                                <View className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
+                                    <Text className="font-semibold text-blue-900 mb-2">
+                                        What happens next?
+                                    </Text>
+                                    <View className="space-y-2">
+                                        <View className="flex-row items-start">
+                                            <Text className="text-blue-800 mr-2">•</Text>
+                                            <Text className="text-sm text-blue-800 flex-1">
+                                                Our team will review your quote request within 24 hours
+                                            </Text>
+                                        </View>
+                                        <View className="flex-row items-start">
+                                            <Text className="text-blue-800 mr-2">•</Text>
+                                            <Text className="text-sm text-blue-800 flex-1">
+                                                We'll contact you to discuss project details and provide an estimate
+                                            </Text>
+                                        </View>
+                                        <View className="flex-row items-start">
+                                            <Text className="text-blue-800 mr-2">•</Text>
+                                            <Text className="text-sm text-blue-800 flex-1">
+                                                Once approved, you can start your project from the quotes page
+                                            </Text>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
 
-                            {/* Action Buttons */}
-                            <View className="flex-row gap-3 mb-8">
-                                <Pressable
-                                    onPress={() => router.back()}
-                                    disabled={loading}
-                                    className="flex-1 border border-gray-300 rounded-lg p-4 items-center bg-white"
-                                >
-                                    <Text className="font-semibold text-gray-700">Cancel</Text>
-                                </Pressable>
-                                <Pressable
-                                    onPress={handleSubmit}
-                                    disabled={loading}
-                                    className="flex-1 rounded-lg p-4 items-center"
-                                    style={{ backgroundColor: TROJAN_GOLD }}
-                                >
-                                    {loading ? (
-                                        <ActivityIndicator size="small" color={TROJAN_NAVY} />
-                                    ) : (
-                                        <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
-                                            Submit Request
-                                        </Text>
-                                    )}
-                                </Pressable>
-                            </View>
-                        </>
-                    )}
+                                {/* Action Buttons */}
+                                <View className="flex-row gap-3 mb-8">
+                                    <Pressable
+                                        onPress={() => router.back()}
+                                        disabled={loading}
+                                        className="flex-1 border border-gray-300 rounded-lg p-4 items-center bg-white"
+                                    >
+                                        <Text className="font-semibold text-gray-700">Cancel</Text>
+                                    </Pressable>
+                                    <Pressable
+                                        onPress={handleSubmit}
+                                        disabled={loading}
+                                        className="flex-1 rounded-lg p-4 items-center"
+                                        style={{ backgroundColor: TROJAN_GOLD }}
+                                    >
+                                        {loading ? (
+                                            <ActivityIndicator size="small" color={TROJAN_NAVY} />
+                                        ) : (
+                                            <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
+                                                Submit Request
+                                            </Text>
+                                        )}
+                                    </Pressable>
+                                </View>
+                            </>
+                        )}
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
