@@ -290,21 +290,36 @@ export default function NewQuoteScreen() {
                                     {showLocationPicker && (
                                         <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-64">
                                             <ScrollView nestedScrollEnabled>
-                                                {zimbabweLocations.map((location) => (
-                                                    <Pressable
-                                                        key={location}
-                                                        onPress={() => {
-                                                            setFormData({
-                                                                ...formData,
-                                                                location: location,
-                                                            });
-                                                            setShowLocationPicker(false);
-                                                        }}
-                                                        className="p-3 border-b border-gray-100"
-                                                    >
-                                                        <Text className="text-gray-900">{location}</Text>
-                                                    </Pressable>
-                                                ))}
+                                                {zimbabweLocations.map((location) => {
+                                                    const isDisabled = location !== "Mutare";
+                                                    return (
+                                                        <Pressable
+                                                            key={location}
+                                                            onPress={() => {
+                                                                if (!isDisabled) {
+                                                                    setFormData({
+                                                                        ...formData,
+                                                                        location: location,
+                                                                    });
+                                                                    setShowLocationPicker(false);
+                                                                }
+                                                            }}
+                                                            className="p-3 border-b border-gray-100"
+                                                            style={{ opacity: isDisabled ? 0.5 : 1 }}
+                                                        >
+                                                            <View className="flex-row items-center justify-between">
+                                                                <Text className={`font-medium ${isDisabled ? "text-gray-400" : "text-gray-900"}`}>
+                                                                    {location}
+                                                                </Text>
+                                                                {isDisabled && (
+                                                                    <Text className="text-xs text-gray-400 italic">
+                                                                        Coming Soon
+                                                                    </Text>
+                                                                )}
+                                                            </View>
+                                                        </Pressable>
+                                                    );
+                                                })}
                                             </ScrollView>
                                         </View>
                                     )}
