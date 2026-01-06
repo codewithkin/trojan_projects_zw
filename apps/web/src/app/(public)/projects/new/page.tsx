@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,63 +22,68 @@ import { AuthModal } from "@/components/auth-modal";
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-interface Quote {
+const zimbabweLocations = [
+    "Harare",
+    "Bulawayo",
+    "Mutare",
+    "Gweru",
+    "Kwekwe",
+    "Kadoma",
+    "Masvingo",
+    "Chinhoyi",
+    "Norton",
+    "Marondera",
+    "Ruwa",
+    "Chitungwiza",
+    "Bindura",
+    "Beitbridge",
+    "Redcliff",
+    "Victoria Falls",
+    "Hwange",
+    "Chegutu",
+    "Kariba",
+    "Karoi",
+    "Other",
+];
+
+interface Service {
     id: string;
-    service: {
-        id: string;
-        name: string;
-        category: string;
-    };
-    location: string;
-    notes: string | null;
-    estimatedPrice: number | null;
-    status: string;
-    hasProject?: boolean;
-    createdAt: string;
+    name: string;
+    slug: string;
+    category: string;
 }
 
 export default function NewProjectPage() {
     const router = useRouter();
     const { user } = useSession();
     const [loading, setLoading] = useState(false);
-    const [fetchingQuotes, setFetchingQuotes] = useState(true);
-    const [approvedQuotes, setApprovedQuotes] = useState<Quote[]>([]);
+    const [fetchingServices, setFetchingServices] = useState(true);
+    const [services, setServices] = useState<Service[]>([]);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [formData, setFormData] = useState({
-        quoteId: "",
-        finalPrice: "",
+        serviceId: "",
+        location: "",
+        price: "",
         scheduledDate: "",
         notes: "",
     });
 
     useEffect(() => {
-        // Only fetch if authenticated
-        if (user) {
-            fetchApprovedQuotes();
-        } else {
-            setFetchingQuotes(false);
-        }
-    }, [user]);
+        fetchServices();
+    }, []);
 
-    const fetchApprovedQuotes = async () => {
+    const fetchServices = async () => {
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/quotes?status=approved`,
-                {
-                    credentials: "include",
-                }
-            );
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
             const data = await response.json();
-            if (data.quotes) {
-                // Filter quotes that don't have projects yet
-                const quotesWithoutProjects = data.quotes.filter((q: Quote) => !q.hasProject);
-                setApprovedQuotes(quotesWithoutProjects);
+            if (data.services) {
+                setServices(data.services);
             }
         } catch (error) {
-            console.error("Error fetching quotes:", error);
-            toast.error("Failed to load approved quotes");
+            console.error("Error fetching services:", error);
+            toast.error("Failed to load services");
         } finally {
-            setFetchingQuotes(false);
+            setFetchingServices(false);
         }
     };
 
@@ -91,21 +96,28 @@ export default function NewProjectPage() {
             return;
         }
 
-        if (!formData.quoteId) {
-            toast.error("Please select an approved quote");
+        if (!formData.serviceId) {
+            toast.error("Please select a service");
+            return;
+        }
+
+        if (!formData.location) {
+            toast.error("Please select a location");
             return;
         }
 
         setLoading(true);
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/quotes/${formData.quoteId}/promote`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/projects`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
                     body: JSON.stringify({
-                        finalPrice: formData.finalPrice ? parseFloat(formData.finalPrice) : null,
+                        serviceId: formData.serviceId,
+                        location: formData.location,
+                        price: formData.price ? parseFloat(formData.price) : null,
                         scheduledDate: formData.scheduledDate || null,
                         notes: formData.notes || null,
                     }),
@@ -115,7 +127,7 @@ export default function NewProjectPage() {
             const data = await response.json();
             if (response.ok) {
                 toast.success("Project created successfully!");
-                router.push("/projects");
+                router.push("/");
             } else {
                 toast.error(data.error || "Failed to create project");
             }
@@ -127,32 +139,38 @@ export default function NewProjectPage() {
         }
     };
 
-    const selectedQuote = approvedQuotes.find((q) => q.id === formData.quoteId);
-
     // If not logged in, show auth prompt
     if (!user) {
         return (
             <>
-                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center py-8">
-                                <p className="text-5xl mb-3">🔒</p>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                    Sign In Required
-                                </h3>
-                                <p className="text-gray-500 mb-4">
-                                    Please sign in to create a new project
-                                </p>
-                                <Button
-                                    onClick={() => setShowAuthModal(true)}
-                                    style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-                                >
-                                    Sign In
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                <div className="min-h-screen bg-gray-50 py-8">
+                    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <Card className="shadow-lg">
+                            <CardContent className="pt-12 pb-12">
+                                <div className="text-center">
+                                    <div
+                                        className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+                                        style={{ backgroundColor: `${TROJAN_GOLD}20` }}
+                                    >
+                                        <Lock size={40} style={{ color: TROJAN_NAVY }} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold mb-3" style={{ color: TROJAN_NAVY }}>
+                                        Sign In Required
+                                    </h3>
+                                    <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                                        Please sign in to create a new project
+                                    </p>
+                                    <Button
+                                        onClick={() => setShowAuthModal(true)}
+                                        size="lg"
+                                        style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                                    >
+                                        Sign In
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
                 <AuthModal
                     open={showAuthModal}
@@ -165,167 +183,183 @@ export default function NewProjectPage() {
 
     return (
         <>
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <button
-                        onClick={() => router.push("/projects" as any)}
-                        className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
-                    >
-                        <ArrowLeft size={16} className="mr-1" />
-                        Back to Projects
-                    </button>
-                    <h1 className="text-3xl font-bold" style={{ color: TROJAN_NAVY }}>
-                        Start New Project
-                    </h1>
-                    <p className="text-gray-500 mt-1">
-                        Convert an approved quote into an active project
-                    </p>
-                </div>
+            <div className="min-h-screen bg-gray-50 py-8">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Header */}
+                    <div className="mb-6">
+                        <button
+                            onClick={() => router.back()}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg mb-6 transition-colors w-fit"
+                            style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                        >
+                            <ArrowLeft size={20} />
+                            <span className="font-semibold">Back</span>
+                        </button>
+                        <h1 className="text-3xl sm:text-4xl font-bold mb-2" style={{ color: TROJAN_NAVY }}>
+                            New Project
+                        </h1>
+                        <p className="text-gray-600">
+                            Create a new project request
+                        </p>
+                    </div>
 
-                {fetchingQuotes ? (
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center py-8">
-                                <p className="text-gray-500">Loading approved quotes...</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ) : approvedQuotes.length === 0 ? (
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="text-center py-8">
-                                <p className="text-5xl mb-3">📋</p>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                    No Approved Quotes
-                                </h3>
-                                <p className="text-gray-500 mb-4">
-                                    You need an approved quote before starting a project
-                                </p>
-                                <Button
-                                    onClick={() => router.push("/quotes/new" as never)}
-                                    style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-                                >
-                                    Request a Quote
-                                </Button>
+                {fetchingServices ? (
+                    <Card className="shadow-lg">
+                        <CardContent className="pt-12 pb-12">
+                            <div className="text-center">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: TROJAN_GOLD }}></div>
+                                <p className="text-gray-600">Loading services...</p>
                             </div>
                         </CardContent>
                     </Card>
                 ) : (
                     <>
                         {/* Form */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Project Details</CardTitle>
+                        <Card className="shadow-lg">
+                            <CardHeader className="border-b" style={{ backgroundColor: `${TROJAN_NAVY}05` }}>
+                                <CardTitle style={{ color: TROJAN_NAVY }}>Project Details</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="pt-6">
                                 <form onSubmit={handleSubmit} className="space-y-6">
-                                    {/* Quote Selection */}
+                                    {/* Service Selection */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="quote">Select Approved Quote *</Label>
+                                        <Label htmlFor="service" className="text-base font-medium">
+                                            Service <span className="text-red-500">*</span>
+                                        </Label>
                                         <Select
-                                            value={formData.quoteId}
+                                            value={formData.serviceId}
                                             onValueChange={(value) => {
-                                                if (value) setFormData({ ...formData, quoteId: value });
+                                                if (value) {
+                                                    setFormData({ ...formData, serviceId: value });
+                                                }
                                             }}
                                         >
-                                            <SelectTrigger id="quote" className="w-full h-10">
-                                                <SelectValue />
+                                            <SelectTrigger id="service" className="w-full h-12 text-base">
+                                                <SelectValue>
+                                                    {formData.serviceId
+                                                        ? services.find((s) => s.id === formData.serviceId)?.name || "Select a service"
+                                                        : "Select a service"}
+                                                </SelectValue>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {approvedQuotes.map((quote) => (
-                                                    <SelectItem key={quote.id} value={quote.id}>
-                                                        {quote.service.name} - {quote.location}
-                                                        {quote.estimatedPrice && (
-                                                            <span className="text-gray-500 ml-2">
-                                                                (US${quote.estimatedPrice.toFixed(2)})
-                                                            </span>
-                                                        )}
+                                                {services.map((service) => (
+                                                    <SelectItem key={service.id} value={service.id}>
+                                                        <div className="flex flex-col items-start">
+                                                            <span className="font-medium">{service.name}</span>
+                                                            <span className="text-sm text-gray-500">{service.category}</span>
+                                                        </div>
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
 
-                                    {/* Selected Quote Details */}
-                                    {selectedQuote && (
-                                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                                            <h4 className="font-semibold text-blue-900 mb-2">
-                                                Quote Details
-                                            </h4>
-                                            <div className="space-y-1 text-sm text-blue-800">
-                                                <p>
-                                                    <strong>Service:</strong> {selectedQuote.service.name}
-                                                </p>
-                                                <p>
-                                                    <strong>Location:</strong> {selectedQuote.location}
-                                                </p>
-                                                {selectedQuote.notes && (
-                                                    <p>
-                                                        <strong>Notes:</strong> {selectedQuote.notes}
-                                                    </p>
-                                                )}
-                                                {selectedQuote.estimatedPrice && (
-                                                    <p>
-                                                        <strong>Estimated Price:</strong> US$
-                                                        {selectedQuote.estimatedPrice.toFixed(2)}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Final Price */}
+                                    {/* Location Selection */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="finalPrice">Final Price (Optional)</Label>
+                                        <Label htmlFor="location" className="text-base font-medium">
+                                            Location <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Select
+                                            value={formData.location}
+                                            onValueChange={(value) => {
+                                                if (value) {
+                                                    setFormData({ ...formData, location: value });
+                                                }
+                                            }}
+                                        >
+                                            <SelectTrigger id="location" className="w-full h-12 text-base">
+                                                <SelectValue>
+                                                    {formData.location || "Select location"}
+                                                </SelectValue>
+                                            </SelectTrigger>
+                                            <SelectContent className="max-h-80">
+                                                {zimbabweLocations.map((location) => {
+                                                    const isDisabled = location !== "Mutare";
+                                                    return (
+                                                        <SelectItem
+                                                            key={location}
+                                                            value={location}
+                                                            disabled={isDisabled}
+                                                        >
+                                                            <div className="flex items-center justify-between w-full">
+                                                                <span className={isDisabled ? "opacity-50" : ""}>
+                                                                    {location}
+                                                                </span>
+                                                                {isDisabled && (
+                                                                    <span className="text-xs text-gray-400 italic ml-2">
+                                                                        Coming Soon
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </SelectItem>
+                                                    );
+                                                })}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    {/* Project Price */}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="price" className="text-base font-medium">
+                                            Project Price (Optional)
+                                        </Label>
                                         <Input
-                                            id="finalPrice"
+                                            id="price"
                                             type="number"
                                             step="0.01"
                                             placeholder="e.g., 1250.00"
-                                            value={formData.finalPrice}
+                                            className="h-12 text-base"
+                                            value={formData.price}
                                             onChange={(e) =>
-                                                setFormData({ ...formData, finalPrice: e.target.value })
+                                                setFormData({ ...formData, price: e.target.value })
                                             }
                                         />
-                                        <p className="text-xs text-gray-500">
-                                            Leave blank to use the estimated price from the quote
+                                        <p className="text-sm text-gray-500">
+                                            Agreed upon price in USD
                                         </p>
                                     </div>
 
                                     {/* Scheduled Date */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="scheduledDate">Scheduled Start Date (Optional)</Label>
+                                        <Label htmlFor="scheduledDate" className="text-base font-medium">
+                                            Scheduled Start Date (Optional)
+                                        </Label>
                                         <Input
                                             id="scheduledDate"
                                             type="date"
+                                            className="h-12 text-base"
                                             value={formData.scheduledDate}
                                             onChange={(e) =>
                                                 setFormData({ ...formData, scheduledDate: e.target.value })
                                             }
                                         />
+                                        <p className="text-sm text-gray-500">
+                                            Format: YYYY-MM-DD (e.g., 2026-02-15)
+                                        </p>
                                     </div>
 
                                     {/* Additional Notes */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="notes">Additional Notes (Optional)</Label>
+                                        <Label htmlFor="notes" className="text-base font-medium">
+                                            Project Details (Optional)
+                                        </Label>
                                         <Textarea
                                             id="notes"
-                                            placeholder="Any additional information about the project..."
+                                            placeholder="Describe what you need for this project..."
+                                            className="min-h-30 text-base"
                                             value={formData.notes}
                                             onChange={(e) =>
                                                 setFormData({ ...formData, notes: e.target.value })
                                             }
-                                            rows={4}
                                         />
                                     </div>
 
-                                    {/* Submit Button */}
-                                    <div className="flex gap-3 pt-4">
+                                    {/* Submit Buttons */}
+                                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            className="flex-1"
+                                            className="flex-1 h-12 text-base"
                                             onClick={() => router.back()}
                                             disabled={loading}
                                         >
@@ -333,11 +367,11 @@ export default function NewProjectPage() {
                                         </Button>
                                         <Button
                                             type="submit"
-                                            className="flex-1"
+                                            className="flex-1 h-12 text-base font-semibold"
                                             style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                                             disabled={loading}
                                         >
-                                            {loading ? "Creating Project..." : "Start Project"}
+                                            {loading ? "Creating Project..." : "Create Project"}
                                         </Button>
                                     </div>
                                 </form>
@@ -345,29 +379,28 @@ export default function NewProjectPage() {
                         </Card>
 
                         {/* Info Card */}
-                        <Card className="mt-6 border-blue-100 bg-blue-50">
+                        <Card className="mt-6 shadow-md border-blue-200 bg-blue-50">
                             <CardContent className="pt-6">
-                                <h3 className="font-semibold text-blue-900 mb-2">
+                                <h3 className="font-semibold text-blue-900 mb-3 text-lg">
                                     What happens next?
                                 </h3>
-                                <ul className="space-y-2 text-sm text-blue-800">
-                                    <li className="flex items-start">
-                                        <span className="mr-2">•</span>
+                                <ul className="space-y-3 text-sm text-blue-800">
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-blue-900 font-bold mt-0.5">•</span>
                                         <span>
-                                            Your project will be created with a "scheduled" status
+                                            Your project request will be reviewed by our team
                                         </span>
                                     </li>
-                                    <li className="flex items-start">
-                                        <span className="mr-2">•</span>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-blue-900 font-bold mt-0.5">•</span>
                                         <span>
-                                            Our team will assign a technician and contact you to confirm
-                                            details
+                                            We&apos;ll contact you to confirm details and schedule the work
                                         </span>
                                     </li>
-                                    <li className="flex items-start">
-                                        <span className="mr-2">•</span>
+                                    <li className="flex items-start gap-2">
+                                        <span className="text-blue-900 font-bold mt-0.5">•</span>
                                         <span>
-                                            You can track project progress from the projects page
+                                            You can track progress from the home page once approved
                                         </span>
                                     </li>
                                 </ul>
@@ -375,6 +408,7 @@ export default function NewProjectPage() {
                         </Card>
                     </>
                 )}
+                </div>
             </div>
 
             {/* Auth Modal */}
