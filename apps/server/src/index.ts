@@ -11,11 +11,17 @@ import projectsRoute from "./routes/projects";
 
 const app = new Hono();
 
+// Log CORS info for debugging
+console.log("CORS middleware configured to allow all origins dynamically");
+
 app.use(logger());
 app.use(
   "/*",
   cors({
-    origin: (origin) => origin || "*", // Return the requesting origin (allows credentials)
+    origin: (origin) => {
+      console.log("CORS request from origin:", origin);
+      return origin || "*";
+    },
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
