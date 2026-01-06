@@ -11,7 +11,7 @@ export const auth = betterAuth({
   }),
 
   trustedOrigins: [
-    "*", // Allow all origins
+    (origin) => true, // Allow all origins
   ],
   socialProviders: {
     google: {

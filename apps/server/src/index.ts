@@ -15,9 +15,10 @@ app.use(logger());
 app.use(
   "/*",
   cors({
-    origin: "*",
+    origin: (origin) => origin || "*", // Return the requesting origin (allows credentials)
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   }),
 );
 

@@ -24,7 +24,6 @@ export default function TabLayout() {
           shadowOpacity: 0.05,
           shadowRadius: 8,
           elevation: 8,
-          // Center tab bar on large tablets
           ...(screenWidth >= 1024 ? {
             marginHorizontal: "auto",
             maxWidth: 600,
@@ -54,12 +53,9 @@ export default function TabLayout() {
             <View
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: isTablet ? 16 : 12,
-                paddingHorizontal: isTablet ? 24 : 16,
-                paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Feather name="home" size={isTablet ? 28 : 24} color={color} />
+              <Feather name="home" size={isTablet ? 28 : 24} color={focused ? TROJAN_NAVY : color} />
             </View>
           ),
         }}
@@ -72,12 +68,9 @@ export default function TabLayout() {
             <View
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: isTablet ? 16 : 12,
-                paddingHorizontal: isTablet ? 24 : 16,
-                paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Feather name="grid" size={isTablet ? 28 : 24} color={color} />
+              <Feather name="grid" size={isTablet ? 28 : 24} color={focused ? TROJAN_NAVY : color} />
             </View>
           ),
         }}
@@ -90,12 +83,9 @@ export default function TabLayout() {
             <View
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: isTablet ? 16 : 12,
-                paddingHorizontal: isTablet ? 24 : 16,
-                paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Feather name="briefcase" size={isTablet ? 28 : 24} color={color} />
+              <Feather name="briefcase" size={isTablet ? 28 : 24} color={focused ? TROJAN_NAVY : color} />
             </View>
           ),
         }}
@@ -108,24 +98,19 @@ export default function TabLayout() {
             <View
               style={{
                 backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-                borderRadius: isTablet ? 16 : 12,
-                paddingHorizontal: isTablet ? 24 : 16,
-                paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Feather name="message-circle" size={isTablet ? 28 : 24} color={color} />
+              <Feather name="message-circle" size={isTablet ? 28 : 24} color={focused ? TROJAN_NAVY : color} />
             </View>
           ),
         }}
       />
-      {/* Hide quotes from tab bar - accessed from projects/services */}
       <Tabs.Screen
         name="quotes"
         options={{
           href: null,
         }}
       />
-      {/* Hide deprecated profile tab */}
       <Tabs.Screen
         name="profile"
         options={{
