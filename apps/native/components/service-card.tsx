@@ -62,10 +62,10 @@ export function ServiceCard({ service, onPress, onWishlist }: ServiceCardProps) 
                     style={styles.wishlistButton}
                     onPress={handleWishlist}
                 >
-                    <Ionicons 
-                        name={isWishlisted ? "heart" : "heart-outline"} 
-                        size={18} 
-                        color={isWishlisted ? "#DC2626" : "#666"} 
+                    <Ionicons
+                        name={isWishlisted ? "heart" : "heart-outline"}
+                        size={18}
+                        color={isWishlisted ? "#DC2626" : "#666"}
                     />
                 </TouchableOpacity>
 

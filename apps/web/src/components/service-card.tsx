@@ -169,8 +169,8 @@ export function ServiceCard({ service }: ServiceCardProps) {
                 </div>
             </Link>
 
-            <AuthModal 
-                open={showAuthModal} 
+            <AuthModal
+                open={showAuthModal}
                 onOpenChange={setShowAuthModal}
                 message="Sign in to save services to your wishlist"
             />
