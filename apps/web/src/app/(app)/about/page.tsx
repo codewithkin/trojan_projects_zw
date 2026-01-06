@@ -259,7 +259,7 @@ export default function AboutPage() {
                                 <div>
                                     <h3 className="font-semibold text-gray-900">Address</h3>
                                     <p className="text-gray-600">
-                                        123 Main Street, Harare<br />
+                                        Mutare<br />
                                         Zimbabwe
                                     </p>
                                 </div>
@@ -320,7 +320,7 @@ export default function AboutPage() {
                                     <p className="font-semibold" style={{ color: TROJAN_NAVY }}>
                                         Trojan Projects
                                     </p>
-                                    <p className="text-sm text-gray-500">Harare, Zimbabwe</p>
+                                    <p className="text-sm text-gray-500">Mutare, Zimbabwe</p>
                                 </div>
                             </div>
                         </div>

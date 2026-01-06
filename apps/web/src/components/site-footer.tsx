@@ -69,8 +69,8 @@ export function SiteFooter() {
                                 <span>info@trojanprojects.co.zw</span>
                             </li>
                             <li className="flex items-start gap-2">
-                                <MapPin size={16} className="mt-0.5 flex-shrink-0" style={{ color: TROJAN_GOLD }} />
-                                <span>123 Main Street, Harare, Zimbabwe</span>
+                                <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: TROJAN_GOLD }} />
+                                <span>Mutare, Zimbabwe</span>
                             </li>
                         </ul>
                     </div>
