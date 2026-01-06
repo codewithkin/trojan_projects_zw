@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Package, FolderKanban, MessageCircle, Users, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
+import { signOut } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -20,11 +21,12 @@ const navItems = [
 
 export function SiteHeader() {
     const pathname = usePathname();
+    const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { data: session, isPending } = authClient.useSession();
+    const { user, isPending } = useSession();
 
     // Conditionally add "My Projects" for authenticated users
-    const displayNavItems = session?.user
+    const displayNavItems = user
         ? [
             ...navItems.slice(0, 2),
             { name: "My Projects", href: "/my-projects", icon: FolderKanban },
@@ -38,8 +40,8 @@ export function SiteHeader() {
     };
 
     const handleSignOut = async () => {
-        await authClient.signOut();
-        window.location.href = "/login";
+        await signOut();
+        router.push("/login");
     };
 
     return (
@@ -88,14 +90,14 @@ export function SiteHeader() {
                     <div className="flex items-center gap-3">
                         {!isPending && (
                             <>
-                                {session?.user ? (
+                                {user ? (
                                     <div className="hidden md:flex items-center gap-3">
                                         <div className="text-right">
                                             <p className="text-sm font-medium text-gray-900">
-                                                {session.user.name}
+                                                {user.name}
                                             </p>
                                             <p className="text-xs text-gray-500">
-                                                {session.user.email}
+                                                {user.email}
                                             </p>
                                         </div>
                                         <Button
@@ -168,11 +170,11 @@ export function SiteHeader() {
                         })}
 
                         <div className="border-t border-gray-100 pt-4 mt-4">
-                            {session?.user ? (
+                            {user ? (
                                 <div className="space-y-3">
                                     <div className="px-4">
-                                        <p className="font-medium text-gray-900">{session.user.name}</p>
-                                        <p className="text-sm text-gray-500">{session.user.email}</p>
+                                        <p className="font-medium text-gray-900">{user.name}</p>
+                                        <p className="text-sm text-gray-500">{user.email}</p>
                                     </div>
                                     <Button
                                         variant="outline"
