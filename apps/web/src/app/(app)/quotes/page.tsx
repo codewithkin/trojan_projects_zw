@@ -54,7 +54,7 @@ export default function QuotesPage() {
                         </h1>
                         <p className="text-gray-500 mt-1">Manage your service quotes and estimates</p>
                     </div>
-                    <Link href="/services">
+                    <Link href="/quotes/new">
                         <Button
                             size="lg"
                             className="rounded-full"

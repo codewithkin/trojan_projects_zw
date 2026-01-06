@@ -463,7 +463,7 @@ export default function Projects() {
                         </Text>
                         {!isStaff && (
                             <Pressable
-                                onPress={() => router.push("/(drawer)/(tabs)/quotes")}
+                                onPress={() => router.push("/new/project")}
                                 style={{
                                     backgroundColor: TROJAN_GOLD,
                                     paddingHorizontal: isTablet ? 20 : 16,
@@ -476,7 +476,7 @@ export default function Projects() {
                             >
                                 <Ionicons name="add" size={isTablet ? 20 : 18} color={TROJAN_NAVY} />
                                 <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: isTablet ? 16 : 14 }}>
-                                    New Quote
+                                    New Project
                                 </Text>
                             </Pressable>
                         )}

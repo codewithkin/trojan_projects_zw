@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { ScrollView, View, Pressable, Modal, TextInput, KeyboardAvoidingView, Platform, RefreshControl, ActivityIndicator, Alert } from "react-native";
-import { Plus, Clock, CheckCircle2, XCircle, FileText, DollarSign, Calendar, X, ChevronDown, ArrowRight } from "lucide-react-native";
+import { ScrollView, View, Pressable, RefreshControl, ActivityIndicator, Alert } from "react-native";
+import { Plus, Clock, CheckCircle2, XCircle, FileText, DollarSign, Calendar, ArrowRight } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,12 +36,6 @@ interface Quote {
     updatedAt: string;
 }
 
-interface Service {
-    id: string;
-    name: string;
-    slug: string;
-}
-
 const statusFilters: { label: string; value: QuoteStatus | "all" }[] = [
     { label: "All", value: "all" },
     { label: "Pending", value: "pending" },
@@ -64,20 +58,10 @@ export default function Quotes() {
     const router = useRouter();
     const { user, isAuthenticated, requireAuth } = useAuth();
     const [selectedFilter, setSelectedFilter] = useState<QuoteStatus | "all">("all");
-    const [showModal, setShowModal] = useState(false);
-    const [showServicePicker, setShowServicePicker] = useState(false);
     const [quotes, setQuotes] = useState<Quote[]>([]);
-    const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
     const [promotingId, setPromotingId] = useState<string | null>(null);
-    const [newQuote, setNewQuote] = useState({
-        serviceId: "",
-        serviceName: "",
-        notes: "",
-        location: "",
-    });
 
     const isStaff = (user as { role?: string } | undefined)?.role === "staff" || (user as { role?: string } | undefined)?.role === "support";
 
@@ -95,26 +79,14 @@ export default function Quotes() {
         }
     }, []);
 
-    const fetchServices = useCallback(async () => {
-        try {
-            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/services`);
-            const data = await response.json();
-            if (data.services) {
-                setServices(data.services.map((s: Service) => ({ id: s.id, name: s.name, slug: s.slug })));
-            }
-        } catch (error) {
-            console.error("Error fetching services:", error);
-        }
-    }, []);
-
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
-            await Promise.all([fetchQuotes(), fetchServices()]);
+            await fetchQuotes();
             setLoading(false);
         };
         loadData();
-    }, [fetchQuotes, fetchServices]);
+    }, [fetchQuotes]);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -126,41 +98,6 @@ export default function Quotes() {
         if (selectedFilter === "all") return true;
         return quote.status === selectedFilter;
     });
-
-    const handleSubmitQuote = async () => {
-        if (!newQuote.serviceId || !newQuote.location) {
-            Alert.alert("Error", "Please select a service and enter your location");
-            return;
-        }
-
-        setSubmitting(true);
-        try {
-            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/quotes`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    serviceId: newQuote.serviceId,
-                    location: newQuote.location,
-                    notes: newQuote.notes || null,
-                }),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                Alert.alert("Success", "Quote request submitted successfully!");
-                setShowModal(false);
-                setNewQuote({ serviceId: "", serviceName: "", notes: "", location: "" });
-                await fetchQuotes();
-            } else {
-                Alert.alert("Error", data.error || "Failed to submit quote");
-            }
-        } catch (error) {
-            Alert.alert("Error", "Failed to submit quote. Please try again.");
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     const handlePromoteToProject = async (quoteId: string) => {
         setPromotingId(quoteId);
@@ -250,7 +187,7 @@ export default function Quotes() {
                             style={{ backgroundColor: TROJAN_GOLD }}
                             onPress={async () => {
                                 const authed = await requireAuth("Sign in to request a quote");
-                                if (authed) setShowModal(true);
+                                if (authed) router.push("/new/quote");
                             }}
                         >
                             <View className="flex-row items-center">
@@ -486,7 +423,7 @@ export default function Quotes() {
                                 style={{ backgroundColor: TROJAN_GOLD }}
                                 onPress={async () => {
                                     const authed = await requireAuth("Sign in to request a quote");
-                                    if (authed) setShowModal(true);
+                                    if (authed) router.push("/new/quote");
                                 }}
                             >
                                 <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
@@ -497,123 +434,6 @@ export default function Quotes() {
                     )}
                 </View>
             </ScrollView>
-
-            {/* New Quote Modal */}
-            <Modal
-                visible={showModal}
-                animationType="slide"
-                transparent
-                onRequestClose={() => setShowModal(false)}
-            >
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                    className="flex-1"
-                >
-                    <Pressable
-                        className="flex-1 bg-black/50"
-                        onPress={() => setShowModal(false)}
-                    />
-                    <View className="bg-white rounded-t-3xl p-6" style={{ maxHeight: "80%" }}>
-                        {/* Modal Header */}
-                        <View className="flex-row items-center justify-between mb-6">
-                            <Text className="text-xl font-bold" style={{ color: TROJAN_NAVY }}>
-                                Request a Quote
-                            </Text>
-                            <Pressable onPress={() => setShowModal(false)}>
-                                <X size={24} color="#6B7280" />
-                            </Pressable>
-                        </View>
-
-                        <ScrollView showsVerticalScrollIndicator={false}>
-                            {/* Service Select */}
-                            <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Service Type *
-                                </Text>
-                                <Pressable
-                                    onPress={() => setShowServicePicker(!showServicePicker)}
-                                    className="border border-gray-300 rounded-lg p-3 flex-row items-center justify-between"
-                                >
-                                    <Text className={newQuote.serviceName ? "text-gray-900" : "text-gray-400"}>
-                                        {newQuote.serviceName || "Select a service"}
-                                    </Text>
-                                    <ChevronDown size={20} color="#6B7280" />
-                                </Pressable>
-                                {showServicePicker && (
-                                    <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-48">
-                                        <ScrollView nestedScrollEnabled>
-                                            {services.map((service) => (
-                                                <Pressable
-                                                    key={service.id}
-                                                    onPress={() => {
-                                                        setNewQuote({
-                                                            ...newQuote,
-                                                            serviceId: service.id,
-                                                            serviceName: service.name,
-                                                        });
-                                                        setShowServicePicker(false);
-                                                    }}
-                                                    className="p-3 border-b border-gray-100"
-                                                >
-                                                    <Text className="text-gray-900">{service.name}</Text>
-                                                </Pressable>
-                                            ))}
-                                        </ScrollView>
-                                    </View>
-                                )}
-                            </View>
-
-                            {/* Description */}
-                            <View className="mb-4">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Project Description
-                                </Text>
-                                <TextInput
-                                    className="border border-gray-300 rounded-lg p-3 text-gray-900"
-                                    placeholder="Describe your project requirements..."
-                                    placeholderTextColor="#9CA3AF"
-                                    multiline
-                                    numberOfLines={4}
-                                    textAlignVertical="top"
-                                    value={newQuote.notes}
-                                    onChangeText={(text) => setNewQuote({ ...newQuote, notes: text })}
-                                    style={{ minHeight: 100 }}
-                                />
-                            </View>
-
-                            {/* Location */}
-                            <View className="mb-6">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Location *
-                                </Text>
-                                <TextInput
-                                    className="border border-gray-300 rounded-lg p-3 text-gray-900"
-                                    placeholder="e.g., Borrowdale, Harare"
-                                    placeholderTextColor="#9CA3AF"
-                                    value={newQuote.location}
-                                    onChangeText={(text) => setNewQuote({ ...newQuote, location: text })}
-                                />
-                            </View>
-
-                            {/* Submit Button */}
-                            <Button
-                                className="w-full mb-4"
-                                style={{ backgroundColor: TROJAN_GOLD }}
-                                onPress={handleSubmitQuote}
-                                disabled={submitting}
-                            >
-                                {submitting ? (
-                                    <ActivityIndicator size="small" color={TROJAN_NAVY} />
-                                ) : (
-                                    <Text className="font-semibold text-base" style={{ color: TROJAN_NAVY }}>
-                                        Submit Quote Request
-                                    </Text>
-                                )}
-                            </Button>
-                        </ScrollView>
-                    </View>
-                </KeyboardAvoidingView>
-            </Modal>
         </View>
     );
 }
