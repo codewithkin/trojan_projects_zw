@@ -80,10 +80,6 @@ export function SiteFooter() {
                     <p className="text-sm text-gray-500">
                         © {new Date().getFullYear()} Trojan Projects ZW. All rights reserved.
                     </p>
-                    <div className="flex gap-6 text-sm text-gray-500">
-                        <Link href="#" className="hover:text-gray-900">Privacy Policy</Link>
-                        <Link href="#" className="hover:text-gray-900">Terms of Service</Link>
-                    </div>
                 </div>
             </div>
         </footer>
