@@ -1,0 +1,103 @@
+// Service Categories
+enum ServiceCategory {
+  solar
+  cctv
+  electrical
+  water
+  welding
+}
+
+// Service offered by Trojan Projects
+model Service {
+  id           String          @id @default(cuid())
+  name         String
+  slug         String          @unique
+  description  String
+  price        Decimal         @db.Decimal(10, 2)
+  priceRange   String?
+  category     ServiceCategory
+  featured     Boolean         @default(false)
+  images       String[]
+  brands       String[]
+  supports     String[]
+  specifications Json?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  ratings      ServiceRating[]
+  likes        ServiceLike[]
+  requests     ServiceRequest[]
+
+  @@index([category])
+  @@index([featured])
+  @@map("service")
+}
+
+// User ratings for services
+model ServiceRating {
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([serviceId, userId]) // One rating per user per service
+  @@index([serviceId])
+  @@index([userId])
+  @@map("service_rating")
+}
+
+// Users who have liked/wishlisted a service
+model ServiceLike {
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([serviceId, userId]) // One like per user per service
+  @@index([serviceId])
+  @@index([userId])
+  @@map("service_like")
+}
+
+// Service request status
+enum ServiceRequestStatus {
+  pending
+  confirmed
+  in_progress
+  completed
+  cancelled
+}
+
+// User requests for services (projects)
+model ServiceRequest {
+  id               String               @id @default(cuid())
+  serviceId        String
+  service          Service              @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           ServiceRequestStatus @default(pending)
+  location         String
+  notes            String?
+  estimatedPrice   Decimal?             @db.Decimal(10, 2)
+  finalPrice       Decimal?             @db.Decimal(10, 2)
+  requestDate      DateTime             @default(now())
+  confirmedDate    DateTime?
+  completedDate    DateTime?
+  technicianName   String?
+  technicianPhone  String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@index([serviceId])
+  @@index([userId])
+  @@index([status])
+  @@map("service_request")
+}

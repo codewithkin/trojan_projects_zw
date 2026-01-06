@@ -10,6 +10,11 @@ model User {
   accounts      Account[]
   preferences   UserPreference?
 
+  // Service relations
+  ratings         ServiceRating[]
+  likes           ServiceLike[]
+  serviceRequests ServiceRequest[]
+
   @@unique([email])
   @@map("user")
 }
