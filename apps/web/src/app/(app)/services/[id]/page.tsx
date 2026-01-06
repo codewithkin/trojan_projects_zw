@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,24 +18,71 @@ import {
     ChevronLeft,
     ChevronRight,
     Share2,
-    Zap
+    Zap,
+    AlertCircle,
+    Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { services, type Service, categoryConfig } from "@/data/services";
+import { ServiceDetailSkeleton } from "@/components/skeletons";
+import { useService, useServices, useLikeService, useRequestService } from "@/hooks/use-services";
+import { authClient } from "@/lib/auth-client";
+import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
+const categoryConfig: Record<string, { label: string; color: string }> = {
+    solar: { label: "Solar", color: "#FFC107" },
+    cctv: { label: "CCTV", color: "#3B82F6" },
+    electrical: { label: "Electrical", color: "#8B5CF6" },
+    water: { label: "Water", color: "#06B6D4" },
+    welding: { label: "Welding", color: "#F97316" },
+};
+
 export default function ServiceDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const slug = params.id as string;
+
+    const { data: service, isLoading, isError, error } = useService(slug);
+    const { data: allServices } = useServices();
+    const likeMutation = useLikeService();
+    const requestMutation = useRequestService();
+    const { data: session } = authClient.useSession();
+
     const [selectedImage, setSelectedImage] = useState(0);
-    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
     const [quantity, setQuantity] = useState(1);
 
-    const service = useMemo(() => {
-        return services.find((s) => s.id === params.id);
-    }, [params.id]);
+    // Get related services
+    const relatedServices = allServices
+        ?.filter((s) => s.category === service?.category && s.slug !== slug)
+        .slice(0, 4) ?? [];
+
+    // Loading state
+    if (isLoading) {
+        return <ServiceDetailSkeleton />;
+    }
+
+    // Error state
+    if (isError) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+                    <h1 className="text-2xl font-bold mb-4" style={{ color: TROJAN_NAVY }}>
+                        Failed to load service
+                    </h1>
+                    <p className="text-gray-600 mb-6">
+                        {error instanceof Error ? error.message : "An error occurred"}
+                    </p>
+                    <Button onClick={() => router.push("/")} style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
+                        Browse Services
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     if (!service) {
         return (
@@ -56,6 +103,7 @@ export default function ServiceDetailPage() {
     }
 
     const category = categoryConfig[service.category];
+    const isLiked = session?.user && service.likedBy?.includes(session.user.id);
 
     const nextImage = () => {
         setSelectedImage((prev) => (prev + 1) % service.images.length);
@@ -65,10 +113,22 @@ export default function ServiceDetailPage() {
         setSelectedImage((prev) => (prev - 1 + service.images.length) % service.images.length);
     };
 
-    // Get related services
-    const relatedServices = services
-        .filter((s) => s.category === service.category && s.id !== service.id)
-        .slice(0, 4);
+    const handleLike = () => {
+        if (!session?.user) {
+            setShowAuthModal(true);
+            return;
+        }
+        likeMutation.mutate(slug);
+    };
+
+    const handleRequest = () => {
+        if (!session?.user) {
+            setShowAuthModal(true);
+            return;
+        }
+        // For now, use a default location - this could open a modal for location input
+        requestMutation.mutate({ slug, location: "To be confirmed" });
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -156,13 +216,14 @@ export default function ServiceDetailPage() {
                             {/* Wishlist & Share */}
                             <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex flex-col gap-2">
                                 <button
-                                    onClick={() => setIsWishlisted(!isWishlisted)}
-                                    className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+                                    onClick={handleLike}
+                                    disabled={likeMutation.isPending}
+                                    className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
                                 >
                                     <Heart
                                         size={20}
-                                        fill={isWishlisted ? "#EF4444" : "none"}
-                                        color={isWishlisted ? "#EF4444" : "#6B7280"}
+                                        fill={isLiked ? "#EF4444" : "none"}
+                                        color={isLiked ? "#EF4444" : "#6B7280"}
                                     />
                                 </button>
                                 <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
@@ -182,9 +243,9 @@ export default function ServiceDetailPage() {
                                 <button
                                     key={idx}
                                     onClick={() => setSelectedImage(idx)}
-                                    className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === idx ? "ring-2 ring-offset-2" : "opacity-70 hover:opacity-100"
+                                    className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === idx ? "ring-2 ring-offset-2 ring-yellow-500" : "opacity-70 hover:opacity-100 border-transparent"
                                         }`}
-                                    style={selectedImage === idx ? { borderColor: TROJAN_GOLD, ringColor: TROJAN_GOLD } : { borderColor: "transparent" }}
+                                    style={selectedImage === idx ? { borderColor: TROJAN_GOLD } : undefined}
                                 >
                                     <Image
                                         src={img}
@@ -231,13 +292,16 @@ export default function ServiceDetailPage() {
                         <div className="p-4 sm:p-6 bg-gray-50 rounded-xl sm:rounded-2xl">
                             <div className="flex items-baseline gap-2 mb-2">
                                 <span className="text-3xl sm:text-4xl font-bold" style={{ color: TROJAN_NAVY }}>
-                                    {service.price}
+                                    {service.priceFormatted}
                                 </span>
                                 <span className="text-gray-500 text-sm sm:text-base">starting price</span>
                             </div>
-                            <p className="text-gray-600 text-sm">
-                                Price range: <span className="font-medium">{service.priceRange}</span>
-                            </p>
+                            {service.requestsCount > 0 && (
+                                <div className="flex items-center gap-2 text-gray-600 text-sm mb-2">
+                                    <Users size={16} />
+                                    <span>Served {service.requestsCount} customers</span>
+                                </div>
+                            )}
                             <p className="text-xs text-gray-500 mt-2">
                                 *Final price depends on brand selection, specifications, and installation requirements
                             </p>
@@ -260,40 +324,40 @@ export default function ServiceDetailPage() {
                                     System Specifications
                                 </h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {service.specifications.inverter && (
+                                    {(service.specifications as { inverter?: string }).inverter && (
                                         <div className="bg-white border rounded-xl p-4">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Zap size={16} style={{ color: TROJAN_GOLD }} />
                                                 <span className="text-sm text-gray-500">Inverter</span>
                                             </div>
                                             <p className="font-medium text-sm" style={{ color: TROJAN_NAVY }}>
-                                                {service.specifications.inverter}
+                                                {(service.specifications as { inverter?: string }).inverter}
                                             </p>
                                         </div>
                                     )}
-                                    {service.specifications.battery && (
+                                    {(service.specifications as { battery?: string }).battery && (
                                         <div className="bg-white border rounded-xl p-4">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Zap size={16} style={{ color: TROJAN_GOLD }} />
                                                 <span className="text-sm text-gray-500">Battery</span>
                                             </div>
                                             <p className="font-medium text-sm" style={{ color: TROJAN_NAVY }}>
-                                                {service.specifications.battery}
+                                                {(service.specifications as { battery?: string }).battery}
                                             </p>
                                         </div>
                                     )}
-                                    {service.specifications.panels && (
+                                    {(service.specifications as { panels?: string }).panels && (
                                         <div className="bg-white border rounded-xl p-4">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Zap size={16} style={{ color: TROJAN_GOLD }} />
                                                 <span className="text-sm text-gray-500">Solar Panels</span>
                                             </div>
                                             <p className="font-medium text-sm" style={{ color: TROJAN_NAVY }}>
-                                                {service.specifications.panels}
+                                                {(service.specifications as { panels?: string }).panels}
                                             </p>
                                         </div>
                                     )}
-                                    {service.specifications.protectionKit && (
+                                    {(service.specifications as { protectionKit?: boolean }).protectionKit && (
                                         <div className="bg-white border rounded-xl p-4">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Shield size={16} style={{ color: "#16A34A" }} />
@@ -317,7 +381,7 @@ export default function ServiceDetailPage() {
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     {service.supports.map((item, idx) => (
                                         <div key={idx} className="flex items-center gap-2 text-sm">
-                                            <Check size={16} className="text-green-500 flex-shrink-0" />
+                                            <Check size={16} className="text-green-500 shrink-0" />
                                             <span className="text-gray-700">{item}</span>
                                         </div>
                                     ))}
@@ -370,9 +434,11 @@ export default function ServiceDetailPage() {
                                 size="lg"
                                 className="w-full rounded-full text-base sm:text-lg py-5 sm:py-6"
                                 style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                                onClick={handleRequest}
+                                disabled={requestMutation.isPending}
                             >
                                 <ShoppingCart size={20} className="mr-2" />
-                                Request This Service
+                                {requestMutation.isPending ? "Requesting..." : "Request This Service"}
                             </Button>
                             <div className="grid grid-cols-2 gap-3">
                                 <Button variant="outline" size="lg" className="rounded-full">
@@ -403,7 +469,7 @@ export default function ServiceDetailPage() {
                             {relatedServices.map((related) => (
                                 <Link
                                     key={related.id}
-                                    href={`/services/${related.id}`}
+                                    href={`/services/${related.slug}`}
                                     className="group bg-white rounded-xl overflow-hidden border hover:shadow-lg transition-shadow"
                                 >
                                     <div className="relative aspect-square bg-gray-100">
@@ -422,7 +488,7 @@ export default function ServiceDetailPage() {
                                             {related.name}
                                         </h3>
                                         <p className="font-bold text-sm sm:text-base" style={{ color: TROJAN_GOLD }}>
-                                            {related.price}
+                                            {related.priceFormatted}
                                         </p>
                                     </div>
                                 </Link>
@@ -431,6 +497,9 @@ export default function ServiceDetailPage() {
                     </div>
                 )}
             </div>
+
+            {/* Auth Modal */}
+            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
         </div>
     );
 }
