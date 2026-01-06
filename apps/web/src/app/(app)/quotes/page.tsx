@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Plus, Clock, CheckCircle2, XCircle, ArrowRight, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { projects } from "@/data/projects";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -17,7 +16,7 @@ const mockQuotes = [
         amount: "US$1,250",
         status: "pending",
         date: "2 days ago",
-        image: projects[2].images[0],
+        image: "https://picsum.photos/seed/solar2/400/400",
     },
     {
         id: 2,
@@ -25,7 +24,7 @@ const mockQuotes = [
         amount: "US$850",
         status: "approved",
         date: "1 week ago",
-        image: projects[3].images[0],
+        image: "https://picsum.photos/seed/cctv1/400/400",
     },
     {
         id: 3,
@@ -33,7 +32,7 @@ const mockQuotes = [
         amount: "US$3,200",
         status: "rejected",
         date: "2 weeks ago",
-        image: projects[0].images[0],
+        image: "https://picsum.photos/seed/solar3/400/400",
     },
 ];
 

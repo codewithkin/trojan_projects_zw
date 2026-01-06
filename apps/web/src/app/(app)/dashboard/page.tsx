@@ -7,7 +7,7 @@ import { DashboardStats } from "@/components/stats-card";
 import { ProductCard } from "@/components/product-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { projects } from "@/data/projects";
+import { useServices } from "@/hooks/use-services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -46,6 +46,8 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
+    const { data: services } = useServices();
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -149,22 +151,22 @@ export default function DashboardPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    {projects.slice(0, 3).map((product) => (
-                                        <Link key={product.id} href={`/services/${product.id}`}>
+                                    {services?.slice(0, 3).map((service) => (
+                                        <Link key={service.id} href={`/services/${service.slug}`}>
                                             <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                                                 <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
                                                     <Image
-                                                        src={product.images[0]}
-                                                        alt={product.name}
+                                                        src={service.images[0]}
+                                                        alt={service.name}
                                                         fill
                                                         className="object-cover"
                                                     />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-medium text-gray-900 text-sm truncate">
-                                                        {product.name}
+                                                        {service.name}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">{product.priceRange}</p>
+                                                    <p className="text-xs text-gray-500">{service.priceFormatted}</p>
                                                 </div>
                                             </div>
                                         </Link>

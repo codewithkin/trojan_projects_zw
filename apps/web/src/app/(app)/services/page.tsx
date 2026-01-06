@@ -4,13 +4,15 @@ import { useState, useMemo } from "react";
 import { ProductCard } from "@/components/product-card";
 import { FilterBar } from "@/components/filter-bar";
 import { HeroBanner } from "@/components/hero-banner";
-import { projects } from "@/data/projects";
 
 const TROJAN_NAVY = "#0F1B4D";
 
 export default function ServicesPage() {
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [sortBy, setSortBy] = useState("popular");
+
+    // Mock products for display
+    const projects = [];
 
     // Filter and sort products
     const filteredProducts = useMemo(() => {
@@ -46,7 +48,7 @@ export default function ServicesPage() {
                     highlight="Up to 30% Savings"
                     ctaText="Get a Quote"
                     ctaLink="/quotes"
-                    productImage={projects[0].images[0]}
+                    productImage="https://picsum.photos/seed/solar1/400/400"
                 />
 
                 {/* Filter Bar */}
