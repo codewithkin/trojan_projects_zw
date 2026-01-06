@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { ScrollView, View, Pressable, RefreshControl, ActivityIndicator, Alert } from "react-native";
-import { Plus, Clock, CheckCircle2, XCircle, FileText, DollarSign, Calendar, ArrowRight } from "lucide-react-native";
+import { ScrollView, View, Pressable, RefreshControl, ActivityIndicator, Alert, SafeAreaView, StatusBar, Platform } from "react-native";
+import { Plus, Clock, CheckCircle2, XCircle, FileText, DollarSign, Calendar, ArrowRight, File } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -164,7 +164,13 @@ export default function Quotes() {
     }
 
     return (
-        <View className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
+        <SafeAreaView
+            style={{
+                flex: 1,
+                backgroundColor: "#F9FAFB",
+                paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+            }}
+        >
             <ScrollView
                 className="flex-1"
                 refreshControl={
@@ -411,7 +417,7 @@ export default function Quotes() {
                     {/* Empty State */}
                     {filteredQuotes.length === 0 && (
                         <View className="items-center justify-center py-16">
-                            <Text className="text-5xl mb-3">📄</Text>
+                            <File size={64} color={TROJAN_NAVY} style={{ marginBottom: 12 }} />
                             <Text className="text-lg font-medium text-gray-900">No quotes found</Text>
                             <Text className="text-gray-500 mt-1 text-center">
                                 {selectedFilter === "all"
@@ -434,6 +440,6 @@ export default function Quotes() {
                     )}
                 </View>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
