@@ -126,7 +126,7 @@ export default function NewQuoteScreen() {
                 </View>
                 <View className="flex-1 items-center justify-center p-6">
                     <View className="bg-white rounded-2xl p-8 items-center w-full max-w-sm shadow-sm">
-                        <View 
+                        <View
                             className="w-16 h-16 rounded-full items-center justify-center mb-4"
                             style={{ backgroundColor: `${TROJAN_GOLD}20` }}
                         >
