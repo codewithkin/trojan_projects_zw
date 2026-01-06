@@ -87,10 +87,10 @@ export default function ChatPage() {
                     </p>
                 </div>
 
-                {/* Chat Container */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    {/* Chat Container */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden max-w-full">
                     {/* Chat Messages */}
-                    <div className="h-96 overflow-y-auto p-6 space-y-4">
+                    <div className="h-96 md:h-[500px] overflow-y-auto p-4 md:p-6 space-y-4">
                         {messages.map((message) => (
                             <div
                                 key={message.id}
@@ -116,14 +116,14 @@ export default function ChatPage() {
                     </div>
 
                     {/* Quick Replies */}
-                    <div className="px-6 py-4 border-t border-gray-100 bg-gray-50">
+                    <div className="px-4 md:px-6 py-4 border-t border-gray-100 bg-gray-50">
                         <p className="text-xs text-gray-500 mb-2">Quick replies:</p>
                         <div className="flex flex-wrap gap-2">
                             {quickReplies.map((reply) => (
                                 <button
                                     key={reply}
                                     onClick={() => sendMessage(reply)}
-                                    className="px-3 py-1.5 rounded-full text-sm bg-white border border-gray-200 text-gray-600 hover:border-gray-300 transition"
+                                    className="px-3 py-1.5 rounded-full text-xs md:text-sm bg-white border border-gray-200 text-gray-600 hover:border-gray-300 transition"
                                 >
                                     {reply}
                                 </button>
@@ -132,7 +132,7 @@ export default function ChatPage() {
                     </div>
 
                     {/* Input */}
-                    <form onSubmit={handleSubmit} className="p-4 border-t border-gray-100">
+                    <form onSubmit={handleSubmit} className="p-3 md:p-4 border-t border-gray-100">
                         <div className="flex gap-2">
                             <Input
                                 value={inputValue}
