@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -12,6 +12,12 @@ const stats = [
 ];
 
 export function StatsSection() {
+    const { width } = useWindowDimensions();
+    const isTablet = width >= 768;
+    const isLargeTablet = width >= 1024;
+    // 2 columns on mobile (48%), 4 columns on large tablet (23%), 2 on regular tablet
+    const cardWidth = isLargeTablet ? "23%" : "48%";
+
     return (
         <View style={styles.container}>
             <View style={styles.content}>
@@ -24,7 +30,7 @@ export function StatsSection() {
                 {/* Stats Grid */}
                 <View style={styles.grid}>
                     {stats.map((stat, index) => (
-                        <View key={index} style={styles.statCard}>
+                        <View key={index} style={[styles.statCard, { width: cardWidth as any }]}>
                             <View style={[styles.iconContainer, { backgroundColor: `${stat.color}20` }]}>
                                 <Ionicons name={stat.icon as any} size={24} color={stat.color} />
                             </View>
@@ -69,7 +75,6 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     statCard: {
-        width: "48%",
         backgroundColor: "rgba(255, 255, 255, 0.1)",
         borderRadius: 12,
         padding: 20,
