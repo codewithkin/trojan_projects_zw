@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, Plus, AlertCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { TestimonialSection } from "@/components/testimonial-section";
 import { FAQSection } from "@/components/faq-section";
 import { ServicesGridSkeleton } from "@/components/skeletons";
 import { useServices } from "@/hooks/use-services";
+import { useSession } from "@/lib/auth-client";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -30,6 +31,12 @@ const categories = [
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: session } = useSession();
+
+  // Log session on mount and when it changes
+  useEffect(() => {
+    console.log("🏠 Home Page - User Session:", session);
+  }, [session]);
 
   // Fetch only 10 latest services for home page
   const { data: services, isLoading, isError, error, refetch } = useServices({ limit: 10 });
