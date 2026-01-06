@@ -1,15 +1,13 @@
 import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
-import { auth } from "@trojan_projects_zw/auth";
+import { authMiddleware } from "../lib/auth/middleware";
 
 const projectsRoute = new Hono()
   // GET /api/projects - Get user's projects
-  .get("/", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .get("/", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -18,8 +16,8 @@ const projectsRoute = new Hono()
     const skip = (page - 1) * limit;
 
     try {
-      const isStaff = (session.user as { role?: string }).role === "staff" || (session.user as { role?: string }).role === "support";
-      const where = isStaff ? {} : { quote: { userId: session.user.id } };
+      const isStaff = user.role === "staff" || user.role === "support";
+      const where = isStaff ? {} : { quote: { userId: user.id } };
       
       // Get total count
       const totalCount = await db.project.count({ where });
@@ -88,12 +86,10 @@ const projectsRoute = new Hono()
     }
   })
   // GET /api/projects/:id - Get single project
-  .get("/:id", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .get("/:id", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -131,8 +127,8 @@ const projectsRoute = new Hono()
         return c.json({ error: "Project not found" }, 404);
       }
 
-      const isStaff = (session.user as { role?: string }).role === "staff" || (session.user as { role?: string }).role === "support";
-      const isOwner = project.quote.userId === session.user.id;
+      const isStaff = user.role === "staff" || user.role === "support";
+      const isOwner = project.quote.userId === user.id;
 
       if (!isStaff && !isOwner) {
         return c.json({ error: "Unauthorized" }, 403);
@@ -167,12 +163,10 @@ const projectsRoute = new Hono()
     }
   })
   // PATCH /api/projects/:id/status - Update project status
-  .patch("/:id/status", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .patch("/:id/status", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -194,8 +188,8 @@ const projectsRoute = new Hono()
         return c.json({ error: "Project not found" }, 404);
       }
 
-      const isStaff = (session.user as { role?: string }).role === "staff" || (session.user as { role?: string }).role === "support";
-      const isOwner = project.quote.userId === session.user.id;
+      const isStaff = user.role === "staff" || user.role === "support";
+      const isOwner = project.quote.userId === user.id;
 
       if (!isStaff && !isOwner) {
         return c.json({ error: "Unauthorized" }, 403);
@@ -290,12 +284,10 @@ const projectsRoute = new Hono()
     }
   })
   // POST /api/projects/:id/review - Submit user review
-  .post("/:id/review", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .post("/:id/review", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -317,7 +309,7 @@ const projectsRoute = new Hono()
         return c.json({ error: "Project not found" }, 404);
       }
 
-      if (project.quote.userId !== session.user.id) {
+      if (project.quote.userId !== user.id) {
         return c.json({ error: "You can only review your own projects" }, 403);
       }
 

@@ -1,15 +1,13 @@
 import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
-import { auth } from "@trojan_projects_zw/auth";
+import { authMiddleware } from "../lib/auth/middleware";
 
 const quotesRoute = new Hono()
   // GET /api/quotes - Get user's quotes
-  .get("/", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .get("/", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -18,8 +16,8 @@ const quotesRoute = new Hono()
     const skip = (page - 1) * limit;
 
     try {
-      const isStaff = (session.user as { role?: string }).role === "staff" || (session.user as { role?: string }).role === "support";
-      const where = isStaff ? {} : { userId: session.user.id };
+      const isStaff = user.role === "staff" || user.role === "support";
+      const where = isStaff ? {} : { userId: user.id };
       
       // Get total count
       const totalCount = await db.quote.count({ where });
@@ -86,12 +84,10 @@ const quotesRoute = new Hono()
     }
   })
   // POST /api/quotes - Create a new quote request
-  .post("/", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .post("/", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -115,7 +111,7 @@ const quotesRoute = new Hono()
       const quote = await db.quote.create({
         data: {
           serviceId,
-          userId: session.user.id,
+          userId: user.id,
           location,
           notes: notes || null,
         },
@@ -147,12 +143,10 @@ const quotesRoute = new Hono()
     }
   })
   // PATCH /api/quotes/:id - Update quote (staff only for approval/rejection)
-  .patch("/:id", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .patch("/:id", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -168,8 +162,8 @@ const quotesRoute = new Hono()
         return c.json({ error: "Quote not found" }, 404);
       }
 
-      const isStaff = (session.user as { role?: string }).role === "staff" || (session.user as { role?: string }).role === "support";
-      const isOwner = quote.userId === session.user.id;
+      const isStaff = user.role === "staff" || user.role === "support";
+      const isOwner = quote.userId === user.id;
 
       if (!isStaff && !isOwner) {
         return c.json({ error: "Unauthorized" }, 403);
@@ -219,12 +213,10 @@ const quotesRoute = new Hono()
     }
   })
   // POST /api/quotes/:id/promote - Promote approved quote to project (user only)
-  .post("/:id/promote", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .post("/:id/promote", authMiddleware, async (c) => {
+    const user = c.get("user");
 
-    if (!session?.user) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -240,7 +232,7 @@ const quotesRoute = new Hono()
         return c.json({ error: "Quote not found" }, 404);
       }
 
-      if (quote.userId !== session.user.id) {
+      if (quote.userId !== user.id) {
         return c.json({ error: "You can only promote your own quotes" }, 403);
       }
 

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
-import { auth } from "@trojan_projects_zw/auth";
+import { authMiddleware, requireAuth } from "../lib/auth/middleware";
 
 const servicesRoute = new Hono()
   // GET /api/services - Get all services (public)
@@ -171,15 +171,13 @@ const servicesRoute = new Hono()
     }
   })
   // POST /api/services/:slug/like - Like a service (authenticated)
-  .post("/:slug/like", async (c) => {
+  .post("/:slug/like", authMiddleware, async (c) => {
     const slug = c.req.param("slug");
     
-    // Get session from better-auth
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+    // Get user from context (set by authMiddleware)
+    const user = c.get("user");
     
-    if (!session) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -198,7 +196,7 @@ const servicesRoute = new Hono()
         where: {
           serviceId_userId: {
             serviceId: service.id,
-            userId: session.user.id,
+            userId: user.id,
           },
         },
       });
@@ -214,7 +212,7 @@ const servicesRoute = new Hono()
         await db.serviceLike.create({
           data: {
             serviceId: service.id,
-            userId: session.user.id,
+            userId: user.id,
           },
         });
         return c.json({ liked: true });
@@ -225,14 +223,12 @@ const servicesRoute = new Hono()
     }
   })
   // POST /api/services/:slug/request - Request a service (authenticated)
-  .post("/:slug/request", async (c) => {
+  .post("/:slug/request", authMiddleware, async (c) => {
     const slug = c.req.param("slug");
     
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+    const user = c.get("user");
     
-    if (!session) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -256,7 +252,7 @@ const servicesRoute = new Hono()
       const request = await db.serviceRequest.create({
         data: {
           serviceId: service.id,
-          userId: session.user.id,
+          userId: user.id,
           location,
           notes,
           estimatedPrice: service.price,
@@ -277,18 +273,16 @@ const servicesRoute = new Hono()
     }
   })
   // GET /api/services/user/requests - Get user's requests (authenticated)
-  .get("/user/requests", async (c) => {
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+  .get("/user/requests", authMiddleware, async (c) => {
+    const user = c.get("user");
     
-    if (!session) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
     try {
       const requests = await db.serviceRequest.findMany({
-        where: { userId: session.user.id },
+        where: { userId: user.id },
         include: {
           service: {
             select: {
@@ -324,14 +318,12 @@ const servicesRoute = new Hono()
     }
   })
   // POST /api/services/:slug/rate - Rate a service (authenticated)
-  .post("/:slug/rate", async (c) => {
+  .post("/:slug/rate", authMiddleware, async (c) => {
     const slug = c.req.param("slug");
     
-    const session = await auth.api.getSession({
-      headers: c.req.raw.headers,
-    });
+    const user = c.get("user");
     
-    if (!session) {
+    if (!user) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -357,7 +349,7 @@ const servicesRoute = new Hono()
         where: {
           serviceId_userId: {
             serviceId: service.id,
-            userId: session.user.id,
+            userId: user.id,
           },
         },
         update: {
@@ -366,7 +358,7 @@ const servicesRoute = new Hono()
         },
         create: {
           serviceId: service.id,
-          userId: session.user.id,
+          userId: user.id,
           rating,
           comment,
         },

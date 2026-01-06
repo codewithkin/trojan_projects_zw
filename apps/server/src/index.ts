@@ -1,9 +1,9 @@
-import { auth } from "@trojan_projects_zw/auth";
 import { env } from "@trojan_projects_zw/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
+import authRoute from "./routes/auth";
 import preferencesRoute from "./routes/preferences";
 import servicesRoute from "./routes/services";
 import quotesRoute from "./routes/quotes";
@@ -28,8 +28,7 @@ app.use(
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
-
+app.route("/api/auth", authRoute);
 app.route("/api/preferences", preferencesRoute);
 app.route("/api/services", servicesRoute);
 app.route("/api/quotes", quotesRoute);
