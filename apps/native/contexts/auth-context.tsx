@@ -4,10 +4,12 @@ import { AuthModal } from "@/components/auth-modal";
 
 interface AuthContextType {
     user: AuthUser | null;
+    session: { user: AuthUser } | null;
     isLoading: boolean;
     isAuthenticated: boolean;
     signOut: () => Promise<void>;
     refetchSession: () => Promise<void>;
+    refreshSession: () => Promise<void>;
     requireAuth: (message?: string) => Promise<boolean>;
 }
 
@@ -83,10 +85,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         <AuthContext.Provider
             value={{
                 user,
+                session: user ? { user } : null,
                 isLoading,
                 isAuthenticated: !!user,
                 signOut,
                 refetchSession,
+                refreshSession: refetchSession,
                 requireAuth,
             }}
         >
