@@ -6,6 +6,8 @@ import { logger } from "hono/logger";
 
 import preferencesRoute from "./routes/preferences";
 import servicesRoute from "./routes/services";
+import quotesRoute from "./routes/quotes";
+import projectsRoute from "./routes/projects";
 
 const app = new Hono();
 
@@ -42,6 +44,8 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.route("/api/preferences", preferencesRoute);
 app.route("/api/services", servicesRoute);
+app.route("/api/quotes", quotesRoute);
+app.route("/api/projects", projectsRoute);
 
 app.get("/", (c) => {
   return c.text("OK");
