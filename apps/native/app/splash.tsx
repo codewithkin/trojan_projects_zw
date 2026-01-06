@@ -13,17 +13,15 @@ export default function SplashScreen() {
                 const { data: session } = await authClient.getSession();
 
                 if (session?.user) {
-                    // User is authenticated - check if they have completed onboarding
-                    // For now, redirect to main app
+                    // User is authenticated - redirect to main app
                     router.replace("/(drawer)/(tabs)");
                 } else {
-                    // No session - check if user has been onboarded
-                    // For now, redirect to login page
-                    router.replace("/login");
+                    // No session - allow guest access to main app
+                    router.replace("/(drawer)/(tabs)");
                 }
             } catch (error) {
-                // Error checking session, show login
-                router.replace("/login");
+                // Error checking session, still allow guest access
+                router.replace("/(drawer)/(tabs)");
             }
         };
 
