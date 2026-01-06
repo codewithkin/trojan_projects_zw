@@ -3,12 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, Users } from "lucide-react";
 import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
-import { type Service } from "@/data/services";
+import { type Service } from "@/types/services";
 import { authClient } from "@/lib/auth-client";
 import { AuthModal } from "@/components/auth-modal";
+import { useLikeService } from "@/hooks/use-services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -18,10 +19,10 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service }: ServiceCardProps) {
-    const [isWishlisted, setIsWishlisted] = useState(false);
     const [imageError, setImageError] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const { data: session } = authClient.useSession();
+    const likeMutation = useLikeService();
     const router = useRouter();
 
     const handleWishlistClick = (e: React.MouseEvent) => {
@@ -33,7 +34,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
             return;
         }
 
-        setIsWishlisted(!isWishlisted);
+        likeMutation.mutate(service.slug);
     };
 
     const categoryColors: Record<string, string> = {
@@ -46,7 +47,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
     return (
         <>
-            <Link href={`/(app)/services/${service.id}`} className="block">
+            <Link href={`/services/${service.slug}`} className="block">
                 <div className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                     {/* Image Container */}
                     <div className="relative aspect-square overflow-hidden bg-gray-100">
@@ -69,11 +70,12 @@ export function ServiceCard({ service }: ServiceCardProps) {
                         {/* Wishlist Button */}
                         <button
                             onClick={handleWishlistClick}
-                            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10"
+                            disabled={likeMutation.isPending}
+                            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10 disabled:opacity-50"
                         >
                             <Heart
                                 size={18}
-                                className={isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"}
+                                className={service.likesCount > 0 ? "fill-red-500 text-red-500" : "text-gray-400"}
                             />
                         </button>
 
@@ -139,18 +141,21 @@ export function ServiceCard({ service }: ServiceCardProps) {
                             </div>
                         )}
 
-                        {/* Price */}
+                        {/* Price & Request Count */}
                         <div className="flex items-center justify-between">
                             <div>
                                 <p
                                     className="text-lg font-bold"
                                     style={{ color: TROJAN_NAVY }}
                                 >
-                                    {service.price}
+                                    {service.priceFormatted}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                    Range: {service.priceRange}
-                                </p>
+                                {service.requestsCount > 0 && (
+                                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                                        <Users size={12} />
+                                        {service.requestsCount} served
+                                    </p>
+                                )}
                             </div>
                             <Button
                                 size="sm"

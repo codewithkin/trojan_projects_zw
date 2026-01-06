@@ -2,11 +2,12 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Sun, Camera, Zap, Droplets, Wrench, Search, SlidersHorizontal, X, Star, Check } from "lucide-react";
+import { Sun, Camera, Zap, Droplets, Wrench, Search, SlidersHorizontal, X, Star, Check, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ServiceCard } from "@/components/service-card";
-import { services } from "@/data/services";
+import { ServicesGridSkeleton } from "@/components/skeletons";
+import { useServices } from "@/hooks/use-services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -53,6 +54,9 @@ export default function ServicesPage() {
     const searchParams = useSearchParams();
     const categoryParam = searchParams.get("category");
 
+    // Fetch services from API
+    const { data: services, isLoading, isError, error, refetch } = useServices();
+
     const [selectedCategory, setSelectedCategory] = useState(categoryParam || "all");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedPriceRange, setSelectedPriceRange] = useState("all");
@@ -91,6 +95,7 @@ export default function ServicesPage() {
     };
 
     const filteredServices = useMemo(() => {
+        if (!services) return [];
         let result = services.filter((service) => {
             // Category filter
             const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
@@ -100,8 +105,8 @@ export default function ServicesPage() {
                 service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 service.brands.some(b => b.toLowerCase().includes(searchQuery.toLowerCase()));
 
-            // Price range filter
-            const price = extractPrice(service.price);
+            // Price range filter - now using numeric price from API
+            const price = service.price;
             let matchesPrice = true;
 
             if (customMinPrice || customMaxPrice) {
@@ -128,10 +133,10 @@ export default function ServicesPage() {
         // Sort
         switch (selectedSort) {
             case "price-low":
-                result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
+                result.sort((a, b) => a.price - b.price);
                 break;
             case "price-high":
-                result.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
+                result.sort((a, b) => b.price - a.price);
                 break;
             case "rating":
                 result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -146,7 +151,7 @@ export default function ServicesPage() {
         }
 
         return result;
-    }, [selectedCategory, searchQuery, selectedPriceRange, selectedSort, selectedRating, featuredOnly, customMinPrice, customMaxPrice]);
+    }, [services, selectedCategory, searchQuery, selectedPriceRange, selectedSort, selectedRating, featuredOnly, customMinPrice, customMaxPrice]);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -341,28 +346,62 @@ export default function ServicesPage() {
                     </div>
 
                     {/* Results Info */}
-                    <div className="flex items-center justify-between mb-6">
-                        <p className="text-sm text-gray-500">
-                            Showing {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
-                        </p>
-                        {activeFiltersCount > 0 && (
+                    {!isLoading && !isError && (
+                        <div className="flex items-center justify-between mb-6">
                             <p className="text-sm text-gray-500">
-                                {activeFiltersCount} filter{activeFiltersCount > 1 ? "s" : ""} applied
+                                Showing {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
                             </p>
-                        )}
-                    </div>
+                            {activeFiltersCount > 0 && (
+                                <p className="text-sm text-gray-500">
+                                    {activeFiltersCount} filter{activeFiltersCount > 1 ? "s" : ""} applied
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Loading State */}
+                    {isLoading && (
+                        <ServicesGridSkeleton count={8} />
+                    )}
+
+                    {/* Error State */}
+                    {isError && (
+                        <div className="text-center py-16">
+                            <div className="flex justify-center mb-4">
+                                <AlertCircle size={48} className="text-red-500" />
+                            </div>
+                            <h3
+                                className="text-xl font-semibold mb-2"
+                                style={{ color: TROJAN_NAVY }}
+                            >
+                                Failed to load services
+                            </h3>
+                            <p className="text-gray-500 mb-4">
+                                {error instanceof Error ? error.message : "An error occurred while fetching services"}
+                            </p>
+                            <Button
+                                variant="outline"
+                                onClick={() => refetch()}
+                                className="rounded-full"
+                            >
+                                Try Again
+                            </Button>
+                        </div>
+                    )}
 
                     {/* Services Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredServices.map((service) => (
-                            <div key={service.id}>
-                                <ServiceCard service={service} />
-                            </div>
-                        ))}
-                    </div>
+                    {!isLoading && !isError && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {filteredServices.map((service) => (
+                                <div key={service.id}>
+                                    <ServiceCard service={service} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Empty State */}
-                    {filteredServices.length === 0 && (
+                    {!isLoading && !isError && filteredServices.length === 0 && (
                         <div className="text-center py-16">
                             <h3
                                 className="text-xl font-semibold mb-2"
