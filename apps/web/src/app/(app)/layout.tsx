@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { useSession } from "@/lib/auth-client";
 import { hasAdminAccess } from "@/config/admins";
+import { AppSidebar } from "@/components/app-sidebar";
+import { AppHeader } from "@/components/app-header";
+import { cn } from "@/lib/utils";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const { data: session, isPending } = useSession();
     const router = useRouter();
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     useEffect(() => {
         // Wait for session to load
@@ -46,12 +48,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50">
-            <SiteHeader />
-            <main className="flex-1">
-                {children}
-            </main>
-            <SiteFooter />
+        <div className="min-h-screen bg-gray-50">
+            <AppSidebar collapsed={sidebarCollapsed} />
+            <div
+                className={cn(
+                    "transition-all duration-300",
+                    sidebarCollapsed ? "ml-20" : "ml-64"
+                )}
+            >
+                <AppHeader
+                    onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    sidebarCollapsed={sidebarCollapsed}
+                />
+                <main className="p-6">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 }
