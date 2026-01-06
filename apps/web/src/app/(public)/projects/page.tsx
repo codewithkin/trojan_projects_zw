@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Sun, Camera, Zap, Droplets, Wrench, Search, SlidersHorizontal, X, Star, Check, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -44,7 +44,7 @@ const ratingFilters = [
     { id: "4.5-plus", label: "4.5+ Stars", minRating: 4.5 },
 ];
 
-export default function ServicesPage() {
+function ServicesPageContent() {
     const searchParams = useSearchParams();
     const categoryParam = searchParams.get("category");
 
@@ -418,5 +418,13 @@ export default function ServicesPage() {
                 </div>
             </section>
         </>
+    );
+}
+
+export default function ServicesPage() {
+    return (
+        <Suspense fallback={<ServicesGridSkeleton />}>
+            <ServicesPageContent />
+        </Suspense>
     );
 }
