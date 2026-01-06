@@ -1,6 +1,7 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Service, categoryConfig } from "@/data/services";
+import { Service } from "@/types/services";
+import { categoryConfig } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -106,9 +107,8 @@ export function ServiceCard({ service, onPress, onWishlist }: ServiceCardProps) 
                 <View style={styles.priceRow}>
                     <View>
                         <Text style={styles.price}>
-                            US${service.price.toLocaleString()}
+                            {service.priceFormatted || `US$${service.price.toLocaleString()}`}
                         </Text>
-                        <Text style={styles.priceRange}>{service.priceRange}</Text>
                     </View>
                     <TouchableOpacity
                         style={styles.requestButton}
@@ -247,10 +247,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "700",
         color: TROJAN_NAVY,
-    },
-    priceRange: {
-        fontSize: 11,
-        color: "#999",
     },
     requestButton: {
         backgroundColor: TROJAN_GOLD,
