@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-client";
 import { useSession } from "@/hooks/use-session";
+import { hasAdminAccess } from "@/config/admins";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -43,6 +44,8 @@ export function SiteHeader() {
         await signOut();
         router.push("/login");
     };
+
+    const isAdmin = user ? hasAdminAccess(user) : false;
 
     return (
         <header className="sticky top-0 z-50 bg-white">
@@ -92,14 +95,24 @@ export function SiteHeader() {
                             <>
                                 {user ? (
                                     <div className="hidden md:flex items-center gap-3">
-                                        <div className="text-right">
-                                            <p className="text-sm font-medium text-gray-900">
-                                                {user.name}
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                {user.email}
-                                            </p>
-                                        </div>
+                                        {isAdmin ? (
+                                            <Link href="/dashboard">
+                                                <Button style={{ backgroundColor: TROJAN_NAVY, color: "white" }}>
+                                                    Dashboard
+                                                </Button>
+                                            </Link>
+                                        ) : (
+                                            <>
+                                                <div className="text-right">
+                                                    <p className="text-sm font-medium text-gray-900">
+                                                        {user.name}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {user.email}
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -172,10 +185,21 @@ export function SiteHeader() {
                         <div className="border-t border-gray-100 pt-4 mt-4">
                             {user ? (
                                 <div className="space-y-3">
-                                    <div className="px-4">
-                                        <p className="font-medium text-gray-900">{user.name}</p>
-                                        <p className="text-sm text-gray-500">{user.email}</p>
-                                    </div>
+                                    {isAdmin ? (
+                                        <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                                            <Button
+                                                className="w-full"
+                                                style={{ backgroundColor: TROJAN_NAVY, color: "white" }}
+                                            >
+                                                Dashboard
+                                            </Button>
+                                        </Link>
+                                    ) : (
+                                        <div className="px-4">
+                                            <p className="font-medium text-gray-900">{user.name}</p>
+                                            <p className="text-sm text-gray-500">{user.email}</p>
+                                        </div>
+                                    )}
                                     <Button
                                         variant="outline"
                                         className="w-full justify-start gap-2 text-red-600"
