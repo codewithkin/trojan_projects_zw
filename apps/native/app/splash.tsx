@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useRouter } from "expo-router";
-import { authClient } from "@/lib/auth-client";
+import { getSession } from "@/lib/auth-client";
 
 export default function SplashScreen() {
     const router = useRouter();
@@ -10,7 +10,7 @@ export default function SplashScreen() {
         const checkAuth = async () => {
             try {
                 // Check if user has an active session
-                const { data: session } = await authClient.getSession();
+                const session = await getSession();
 
                 if (session?.user) {
                     // User is authenticated - redirect to main app

@@ -5,7 +5,8 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
 import { Card, CardContent } from "@/components/ui/card";
-import { authClient } from "@/lib/auth-client";
+import { useAuth } from "@/contexts/auth-context";
+import { signOut } from "@/lib/auth-client";
 import { userProjects } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -71,10 +72,11 @@ export default function Profile() {
     const isLargeTablet = width >= 1024;
     const contentPadding = isTablet ? 24 : 16;
 
-    const { data: session, isPending } = authClient.useSession();
+    const { session, isLoading: isPending, refreshSession } = useAuth();
 
     const handleSignOut = async () => {
-        await authClient.signOut();
+        await signOut();
+        refreshSession();
         router.replace("/login");
     };
 

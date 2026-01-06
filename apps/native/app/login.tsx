@@ -18,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { ErrorMessage } from "@/components/error-message";
-import { authClient } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
+import { useAuth } from "@/contexts/auth-context";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -35,11 +36,11 @@ export default function LoginScreen() {
     const { width: screenWidth } = useWindowDimensions();
     const isTablet = screenWidth >= 768;
     const isLargeTablet = screenWidth >= 1024;
+    const { refreshSession } = useAuth();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleEmailSignIn = async () => {
@@ -51,32 +52,20 @@ export default function LoginScreen() {
 
         setLoading(true);
         try {
-            await authClient.signIn.email(
-                { email, password },
-                {
-                    onSuccess: () => {
-                        router.replace("/(tabs)");
-                    },
-                    onError: (error) => {
-                        if (error.error.status === 403) {
-                            setError("Please verify your email address first");
-                        } else {
-                            setError(error.error.message || "Sign in failed");
-                        }
-                    },
+            const response = await signIn({ email, password });
+            if (response.success) {
+                refreshSession();
+                router.replace("/(tabs)");
+            } else {
+                if (response.error?.includes("verify")) {
+                    setError("Please verify your email address first");
+                } else {
+                    setError(response.error || "Sign in failed");
                 }
-            );
+            }
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleGoogleSignIn = async () => {
-        setGoogleLoading(true);
-        setError(null);
-        await authClient.signIn.social({
-            provider: "google",
-        });
     };
 
     return (
@@ -226,38 +215,6 @@ export default function LoginScreen() {
                         >
                             Sign in to continue to your account
                         </Text>
-
-                        {/* Google Sign In */}
-                        <Button
-                            variant="outline"
-                            className="w-full flex-row items-center justify-center gap-2"
-                            style={{
-                                borderColor: "#E5E7EB",
-                                borderRadius: isTablet ? 16 : 14,
-                                height: isTablet ? 56 : 48,
-                            }}
-                            onPress={handleGoogleSignIn}
-                            disabled={googleLoading}
-                        >
-                            <Text style={{ fontSize: isTablet ? 17 : 16, fontWeight: "500", color: "#374151" }}>
-                                {googleLoading ? "Connecting..." : "Continue with Google"}
-                            </Text>
-                        </Button>
-
-                        {/* Divider */}
-                        <View className="flex-row items-center" style={{ marginVertical: isTablet ? 32 : 24 }}>
-                            <View className="flex-1 h-px bg-gray-200" />
-                            <Text
-                                style={{
-                                    paddingHorizontal: 16,
-                                    fontSize: isTablet ? 14 : 13,
-                                    color: "#9CA3AF",
-                                }}
-                            >
-                                or sign in with email
-                            </Text>
-                            <View className="flex-1 h-px bg-gray-200" />
-                        </View>
 
                         {/* Error */}
                         <ErrorMessage message={error} />

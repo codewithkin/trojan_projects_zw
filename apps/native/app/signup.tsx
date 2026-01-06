@@ -18,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { ErrorMessage } from "@/components/error-message";
-import { authClient } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth-client";
+import { useAuth } from "@/contexts/auth-context";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -35,12 +36,12 @@ export default function SignUpScreen() {
     const { width: screenWidth } = useWindowDimensions();
     const isTablet = screenWidth >= 768;
     const isLargeTablet = screenWidth >= 1024;
+    const { refreshSession } = useAuth();
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleEmailSignUp = async () => {
@@ -56,28 +57,16 @@ export default function SignUpScreen() {
 
         setLoading(true);
         try {
-            await authClient.signUp.email(
-                { name, email, password },
-                {
-                    onSuccess: () => {
-                        router.push("/user-onboarding");
-                    },
-                    onError: (error) => {
-                        setError(error.error.message || "Sign up failed");
-                    },
-                }
-            );
+            const response = await signUp({ name, email, password });
+            if (response.success) {
+                refreshSession();
+                router.push("/user-onboarding");
+            } else {
+                setError(response.error || "Sign up failed");
+            }
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleGoogleSignUp = async () => {
-        setGoogleLoading(true);
-        setError(null);
-        await authClient.signIn.social({
-            provider: "google",
-        });
     };
 
     return (
@@ -205,38 +194,6 @@ export default function SignUpScreen() {
                         >
                             Sign up to get started
                         </Text>
-
-                        {/* Google Sign Up */}
-                        <Button
-                            variant="outline"
-                            className="w-full flex-row items-center justify-center gap-2"
-                            style={{
-                                borderColor: "#E5E7EB",
-                                borderRadius: isTablet ? 16 : 14,
-                                height: isTablet ? 56 : 48,
-                            }}
-                            onPress={handleGoogleSignUp}
-                            disabled={googleLoading}
-                        >
-                            <Text style={{ fontSize: isTablet ? 17 : 16, fontWeight: "500", color: "#374151" }}>
-                                {googleLoading ? "Connecting..." : "Continue with Google"}
-                            </Text>
-                        </Button>
-
-                        {/* Divider */}
-                        <View className="flex-row items-center" style={{ marginVertical: isTablet ? 28 : 20 }}>
-                            <View className="flex-1 h-px bg-gray-200" />
-                            <Text
-                                style={{
-                                    paddingHorizontal: 14,
-                                    fontSize: isTablet ? 14 : 13,
-                                    color: "#9CA3AF",
-                                }}
-                            >
-                                or sign up with email
-                            </Text>
-                            <View className="flex-1 h-px bg-gray-200" />
-                        </View>
 
                         {/* Error */}
                         <ErrorMessage message={error} />
