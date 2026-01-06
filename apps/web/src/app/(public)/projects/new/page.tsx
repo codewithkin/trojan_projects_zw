@@ -203,211 +203,211 @@ export default function NewProjectPage() {
                         </p>
                     </div>
 
-                {fetchingServices ? (
-                    <Card className="shadow-lg">
-                        <CardContent className="pt-12 pb-12">
-                            <div className="text-center">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: TROJAN_GOLD }}></div>
-                                <p className="text-gray-600">Loading services...</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <>
-                        {/* Form */}
+                    {fetchingServices ? (
                         <Card className="shadow-lg">
-                            <CardHeader className="border-b" style={{ backgroundColor: `${TROJAN_NAVY}05` }}>
-                                <CardTitle style={{ color: TROJAN_NAVY }}>Project Details</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-6">
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    {/* Service Selection */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="service" className="text-base font-medium">
-                                            Service <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Select
-                                            value={formData.serviceId}
-                                            onValueChange={(value) => {
-                                                if (value) {
-                                                    setFormData({ ...formData, serviceId: value });
-                                                }
-                                            }}
-                                        >
-                                            <SelectTrigger id="service" className="w-full h-12 text-base">
-                                                <SelectValue>
-                                                    {formData.serviceId
-                                                        ? services.find((s) => s.id === formData.serviceId)?.name || "Select a service"
-                                                        : "Select a service"}
-                                                </SelectValue>
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {services.map((service) => (
-                                                    <SelectItem key={service.id} value={service.id}>
-                                                        <div className="flex flex-col items-start">
-                                                            <span className="font-medium">{service.name}</span>
-                                                            <span className="text-sm text-gray-500">{service.category}</span>
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    {/* Location Selection */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="location" className="text-base font-medium">
-                                            Location <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Select
-                                            value={formData.location}
-                                            onValueChange={(value) => {
-                                                if (value) {
-                                                    setFormData({ ...formData, location: value });
-                                                }
-                                            }}
-                                        >
-                                            <SelectTrigger id="location" className="w-full h-12 text-base">
-                                                <SelectValue>
-                                                    {formData.location || "Select location"}
-                                                </SelectValue>
-                                            </SelectTrigger>
-                                            <SelectContent className="max-h-80">
-                                                {zimbabweLocations.map((location) => {
-                                                    const isDisabled = location !== "Mutare";
-                                                    return (
-                                                        <SelectItem
-                                                            key={location}
-                                                            value={location}
-                                                            disabled={isDisabled}
-                                                        >
-                                                            <div className="flex items-center justify-between w-full">
-                                                                <span className={isDisabled ? "opacity-50" : ""}>
-                                                                    {location}
-                                                                </span>
-                                                                {isDisabled && (
-                                                                    <span className="text-xs text-gray-400 italic ml-2">
-                                                                        Coming Soon
-                                                                    </span>
-                                                                )}
+                            <CardContent className="pt-12 pb-12">
+                                <div className="text-center">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: TROJAN_GOLD }}></div>
+                                    <p className="text-gray-600">Loading services...</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <>
+                            {/* Form */}
+                            <Card className="shadow-lg">
+                                <CardHeader className="border-b" style={{ backgroundColor: `${TROJAN_NAVY}05` }}>
+                                    <CardTitle style={{ color: TROJAN_NAVY }}>Project Details</CardTitle>
+                                </CardHeader>
+                                <CardContent className="pt-6">
+                                    <form onSubmit={handleSubmit} className="space-y-6">
+                                        {/* Service Selection */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="service" className="text-base font-medium">
+                                                Service <span className="text-red-500">*</span>
+                                            </Label>
+                                            <Select
+                                                value={formData.serviceId}
+                                                onValueChange={(value) => {
+                                                    if (value) {
+                                                        setFormData({ ...formData, serviceId: value });
+                                                    }
+                                                }}
+                                            >
+                                                <SelectTrigger id="service" className="w-full h-12 text-base">
+                                                    <SelectValue>
+                                                        {formData.serviceId
+                                                            ? services.find((s) => s.id === formData.serviceId)?.name || "Select a service"
+                                                            : "Select a service"}
+                                                    </SelectValue>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {services.map((service) => (
+                                                        <SelectItem key={service.id} value={service.id}>
+                                                            <div className="flex flex-col items-start">
+                                                                <span className="font-medium">{service.name}</span>
+                                                                <span className="text-sm text-gray-500">{service.category}</span>
                                                             </div>
                                                         </SelectItem>
-                                                    );
-                                                })}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                    {/* Project Price */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="price" className="text-base font-medium">
-                                            Project Price (Optional)
-                                        </Label>
-                                        <Input
-                                            id="price"
-                                            type="number"
-                                            step="0.01"
-                                            placeholder="e.g., 1250.00"
-                                            className="h-12 text-base"
-                                            value={formData.price}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, price: e.target.value })
-                                            }
-                                        />
-                                        <p className="text-sm text-gray-500">
-                                            Agreed upon price in USD
-                                        </p>
-                                    </div>
+                                        {/* Location Selection */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="location" className="text-base font-medium">
+                                                Location <span className="text-red-500">*</span>
+                                            </Label>
+                                            <Select
+                                                value={formData.location}
+                                                onValueChange={(value) => {
+                                                    if (value) {
+                                                        setFormData({ ...formData, location: value });
+                                                    }
+                                                }}
+                                            >
+                                                <SelectTrigger id="location" className="w-full h-12 text-base">
+                                                    <SelectValue>
+                                                        {formData.location || "Select location"}
+                                                    </SelectValue>
+                                                </SelectTrigger>
+                                                <SelectContent className="max-h-80">
+                                                    {zimbabweLocations.map((location) => {
+                                                        const isDisabled = location !== "Mutare";
+                                                        return (
+                                                            <SelectItem
+                                                                key={location}
+                                                                value={location}
+                                                                disabled={isDisabled}
+                                                            >
+                                                                <div className="flex items-center justify-between w-full">
+                                                                    <span className={isDisabled ? "opacity-50" : ""}>
+                                                                        {location}
+                                                                    </span>
+                                                                    {isDisabled && (
+                                                                        <span className="text-xs text-gray-400 italic ml-2">
+                                                                            Coming Soon
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </SelectItem>
+                                                        );
+                                                    })}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                    {/* Scheduled Date */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="scheduledDate" className="text-base font-medium">
-                                            Scheduled Start Date (Optional)
-                                        </Label>
-                                        <Input
-                                            id="scheduledDate"
-                                            type="date"
-                                            className="h-12 text-base"
-                                            value={formData.scheduledDate}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, scheduledDate: e.target.value })
-                                            }
-                                        />
-                                        <p className="text-sm text-gray-500">
-                                            Format: YYYY-MM-DD (e.g., 2026-02-15)
-                                        </p>
-                                    </div>
+                                        {/* Project Price */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="price" className="text-base font-medium">
+                                                Project Price (Optional)
+                                            </Label>
+                                            <Input
+                                                id="price"
+                                                type="number"
+                                                step="0.01"
+                                                placeholder="e.g., 1250.00"
+                                                className="h-12 text-base"
+                                                value={formData.price}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, price: e.target.value })
+                                                }
+                                            />
+                                            <p className="text-sm text-gray-500">
+                                                Agreed upon price in USD
+                                            </p>
+                                        </div>
 
-                                    {/* Additional Notes */}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="notes" className="text-base font-medium">
-                                            Project Details (Optional)
-                                        </Label>
-                                        <Textarea
-                                            id="notes"
-                                            placeholder="Describe what you need for this project..."
-                                            className="min-h-30 text-base"
-                                            value={formData.notes}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, notes: e.target.value })
-                                            }
-                                        />
-                                    </div>
+                                        {/* Scheduled Date */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="scheduledDate" className="text-base font-medium">
+                                                Scheduled Start Date (Optional)
+                                            </Label>
+                                            <Input
+                                                id="scheduledDate"
+                                                type="date"
+                                                className="h-12 text-base"
+                                                value={formData.scheduledDate}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, scheduledDate: e.target.value })
+                                                }
+                                            />
+                                            <p className="text-sm text-gray-500">
+                                                Format: YYYY-MM-DD (e.g., 2026-02-15)
+                                            </p>
+                                        </div>
 
-                                    {/* Submit Buttons */}
-                                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            className="flex-1 h-12 text-base"
-                                            onClick={() => router.back()}
-                                            disabled={loading}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            className="flex-1 h-12 text-base font-semibold"
-                                            style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-                                            disabled={loading}
-                                        >
-                                            {loading ? "Creating Project..." : "Create Project"}
-                                        </Button>
-                                    </div>
-                                </form>
-                            </CardContent>
-                        </Card>
+                                        {/* Additional Notes */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="notes" className="text-base font-medium">
+                                                Project Details (Optional)
+                                            </Label>
+                                            <Textarea
+                                                id="notes"
+                                                placeholder="Describe what you need for this project..."
+                                                className="min-h-30 text-base"
+                                                value={formData.notes}
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, notes: e.target.value })
+                                                }
+                                            />
+                                        </div>
 
-                        {/* Info Card */}
-                        <Card className="mt-6 shadow-md border-blue-200 bg-blue-50">
-                            <CardContent className="pt-6">
-                                <h3 className="font-semibold text-blue-900 mb-3 text-lg">
-                                    What happens next?
-                                </h3>
-                                <ul className="space-y-3 text-sm text-blue-800">
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-blue-900 font-bold mt-0.5">•</span>
-                                        <span>
-                                            Your project request will be reviewed by our team
-                                        </span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-blue-900 font-bold mt-0.5">•</span>
-                                        <span>
-                                            We&apos;ll contact you to confirm details and schedule the work
-                                        </span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-blue-900 font-bold mt-0.5">•</span>
-                                        <span>
-                                            You can track progress from the home page once approved
-                                        </span>
-                                    </li>
-                                </ul>
-                            </CardContent>
-                        </Card>
-                    </>
-                )}
+                                        {/* Submit Buttons */}
+                                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="flex-1 h-12 text-base"
+                                                onClick={() => router.back()}
+                                                disabled={loading}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                className="flex-1 h-12 text-base font-semibold"
+                                                style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                                                disabled={loading}
+                                            >
+                                                {loading ? "Creating Project..." : "Create Project"}
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </CardContent>
+                            </Card>
+
+                            {/* Info Card */}
+                            <Card className="mt-6 shadow-md border-blue-200 bg-blue-50">
+                                <CardContent className="pt-6">
+                                    <h3 className="font-semibold text-blue-900 mb-3 text-lg">
+                                        What happens next?
+                                    </h3>
+                                    <ul className="space-y-3 text-sm text-blue-800">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-blue-900 font-bold mt-0.5">•</span>
+                                            <span>
+                                                Your project request will be reviewed by our team
+                                            </span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-blue-900 font-bold mt-0.5">•</span>
+                                            <span>
+                                                We&apos;ll contact you to confirm details and schedule the work
+                                            </span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-blue-900 font-bold mt-0.5">•</span>
+                                            <span>
+                                                You can track progress from the home page once approved
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </CardContent>
+                            </Card>
+                        </>
+                    )}
                 </div>
             </div>
 

@@ -342,34 +342,7 @@ export default function Home() {
         </View>
       </ScrollView>
 
-      {/* Floating Action Button for New Project Request */}
-      <Pressable
-        onPress={() => router.push("/new/project")}
-        style={{
-          position: "absolute",
-          bottom: isTablet ? 32 : 24,
-          right: isTablet ? 32 : 24,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: TROJAN_GOLD,
-          width: isTablet ? 160 : 56,
-          height: 56,
-          borderRadius: isTablet ? 28 : 28,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
-        }}
-      >
-        <Ionicons name="add" size={isTablet ? 26 : 24} color={TROJAN_NAVY} />
-        {isTablet && (
-          <Text style={{ marginLeft: 8, color: TROJAN_NAVY, fontWeight: "700", fontSize: 16 }}>
-            New Project
-          </Text>
-        )}
-      </Pressable>
+
     </SafeAreaView>
   );
 }

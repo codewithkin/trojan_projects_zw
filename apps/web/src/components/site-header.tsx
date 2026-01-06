@@ -102,16 +102,18 @@ export function SiteHeader() {
                                                 </Button>
                                             </Link>
                                         ) : (
-                                            <>
-                                                <div className="text-right">
-                                                    <p className="text-sm font-medium text-gray-900">
-                                                        {user.name}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {user.email}
-                                                    </p>
-                                                </div>
-                                            </>
+                                            <div className="flex items-center gap-2">
+                                                <Link href="/quotes/new">
+                                                    <Button variant="outline">
+                                                        New Quote
+                                                    </Button>
+                                                </Link>
+                                                <Link href="/projects/new">
+                                                    <Button style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
+                                                        New Project
+                                                    </Button>
+                                                </Link>
+                                            </div>
                                         )}
                                         <Button
                                             variant="ghost"
@@ -195,10 +197,21 @@ export function SiteHeader() {
                                             </Button>
                                         </Link>
                                     ) : (
-                                        <div className="px-4">
-                                            <p className="font-medium text-gray-900">{user.name}</p>
-                                            <p className="text-sm text-gray-500">{user.email}</p>
-                                        </div>
+                                        <>
+                                            <Link href="/quotes/new" onClick={() => setMobileMenuOpen(false)}>
+                                                <Button variant="outline" className="w-full">
+                                                    New Quote
+                                                </Button>
+                                            </Link>
+                                            <Link href="/projects/new" onClick={() => setMobileMenuOpen(false)}>
+                                                <Button
+                                                    className="w-full"
+                                                    style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                                                >
+                                                    New Project
+                                                </Button>
+                                            </Link>
+                                        </>
                                     )}
                                     <Button
                                         variant="outline"
