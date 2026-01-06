@@ -63,17 +63,6 @@ export default function HomePage() {
               Browse our range of expert solar, electrical, security, and more services for your home and business.
             </p>
           </div>
-
-          {/* Search Section */}
-          <div className="relative max-w-2xl mx-auto mb-8">
-            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-            <Input
-              placeholder="Search services or projects..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 text-lg rounded-full bg-white border-0 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-gray-400 shadow-md"
-            />
-          </div>
         </div>
       </section>
 
@@ -103,6 +92,17 @@ export default function HomePage() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Search Section */}
+          <div className="relative max-w-xl mb-6">
+            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Input
+              placeholder="Search services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 pr-4 py-3 rounded-full bg-white border border-gray-200 placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-gray-400"
+            />
           </div>
 
           {/* Results Count */}
