@@ -77,8 +77,55 @@ export function useLikeService() {
       
       return res.json();
     },
-    onSuccess: (_, slug) => {
-      // Invalidate both the services list and the individual service
+    // Optimistic update
+    onMutate: async (slug) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["service", slug] });
+      await queryClient.cancelQueries({ queryKey: ["services"] });
+      
+      // Snapshot the previous value
+      const previousService = queryClient.getQueryData<ServiceDetail>(["service", slug]);
+      const previousServices = queryClient.getQueryData<Service[]>(["services"]);
+      
+      // Optimistically update the service
+      if (previousService) {
+        queryClient.setQueryData<ServiceDetail>(["service", slug], {
+          ...previousService,
+          userLiked: !previousService.userLiked,
+          likeCount: previousService.userLiked 
+            ? previousService.likeCount - 1 
+            : previousService.likeCount + 1,
+        });
+      }
+      
+      // Optimistically update services list
+      if (previousServices) {
+        queryClient.setQueryData<Service[]>(["services"], 
+          previousServices.map(service => 
+            service.slug === slug 
+              ? { 
+                  ...service, 
+                  userLiked: !service.userLiked,
+                  likeCount: service.userLiked ? service.likeCount - 1 : service.likeCount + 1,
+                }
+              : service
+          )
+        );
+      }
+      
+      return { previousService, previousServices };
+    },
+    // Rollback on error
+    onError: (err, slug, context) => {
+      if (context?.previousService) {
+        queryClient.setQueryData(["service", slug], context.previousService);
+      }
+      if (context?.previousServices) {
+        queryClient.setQueryData(["services"], context.previousServices);
+      }
+    },
+    // Always refetch after error or success
+    onSettled: (_, __, slug) => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       queryClient.invalidateQueries({ queryKey: ["service", slug] });
     },
@@ -106,8 +153,48 @@ export function useRequestService() {
       
       return res.json();
     },
-    onSuccess: (_, { slug }) => {
-      // Invalidate the service to update request count
+    // Optimistic update
+    onMutate: async ({ slug }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["service", slug] });
+      await queryClient.cancelQueries({ queryKey: ["services"] });
+      
+      // Snapshot the previous value
+      const previousService = queryClient.getQueryData<ServiceDetail>(["service", slug]);
+      const previousServices = queryClient.getQueryData<Service[]>(["services"]);
+      
+      // Optimistically update the request count
+      if (previousService) {
+        queryClient.setQueryData<ServiceDetail>(["service", slug], {
+          ...previousService,
+          requestCount: previousService.requestCount + 1,
+        });
+      }
+      
+      // Optimistically update services list
+      if (previousServices) {
+        queryClient.setQueryData<Service[]>(["services"], 
+          previousServices.map(service => 
+            service.slug === slug 
+              ? { ...service, requestCount: service.requestCount + 1 }
+              : service
+          )
+        );
+      }
+      
+      return { previousService, previousServices };
+    },
+    // Rollback on error
+    onError: (err, { slug }, context) => {
+      if (context?.previousService) {
+        queryClient.setQueryData(["service", slug], context.previousService);
+      }
+      if (context?.previousServices) {
+        queryClient.setQueryData(["services"], context.previousServices);
+      }
+    },
+    // Always refetch after error or success
+    onSettled: (_, __, { slug }) => {
       queryClient.invalidateQueries({ queryKey: ["service", slug] });
       queryClient.invalidateQueries({ queryKey: ["services"] });
       queryClient.invalidateQueries({ queryKey: ["user-requests"] });
