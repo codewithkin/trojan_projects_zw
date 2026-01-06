@@ -97,7 +97,7 @@ export async function signUp(data: {
   password: string;
   name: string;
 }): Promise<AuthResponse> {
-  const response = await authFetch<AuthResponse>("/auth/sign-up", {
+  const response = await authFetch<AuthResponse>("/api/auth/sign-up", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -113,7 +113,7 @@ export async function signIn(data: {
   email: string;
   password: string;
 }): Promise<AuthResponse> {
-  const response = await authFetch<AuthResponse>("/auth/sign-in", {
+  const response = await authFetch<AuthResponse>("/api/auth/sign-in", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -127,7 +127,7 @@ export async function signIn(data: {
 
 export async function signOut(): Promise<void> {
   try {
-    await authFetch<{ success: boolean }>("/auth/sign-out", {
+    await authFetch<{ success: boolean }>("/api/auth/sign-out", {
       method: "POST",
     });
   } catch (error) {
@@ -147,7 +147,7 @@ export async function getSession(): Promise<{
   }
 
   try {
-    const response = await authFetch<AuthResponse>("/auth/session", {
+    const response = await authFetch<AuthResponse>("/api/auth/session", {
       method: "GET",
     });
 
@@ -173,4 +173,48 @@ export async function getSession(): Promise<{
 // Check if user is authenticated (quick check without API call)
 export function isAuthenticated(): boolean {
   return !!getStoredToken();
+}
+
+// Forgot Password
+export async function forgotPassword(email: string): Promise<AuthResponse> {
+  return authFetch<AuthResponse>("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+// Reset Password
+export async function resetPassword(data: {
+  code: string;
+  password: string;
+}): Promise<AuthResponse> {
+  return authFetch<AuthResponse>("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// Verify Email
+export async function verifyEmail(code: string): Promise<AuthResponse> {
+  const response = await authFetch<AuthResponse>("/api/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+
+  if (response.success && response.user) {
+    const token = getStoredToken();
+    if (token) {
+      setStoredAuth(token, response.user);
+    }
+  }
+
+  return response;
+}
+
+// Resend Verification Email
+export async function resendVerification(email: string): Promise<AuthResponse> {
+  return authFetch<AuthResponse>("/api/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
 }
