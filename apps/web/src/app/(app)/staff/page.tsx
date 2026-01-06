@@ -287,70 +287,78 @@ export default function StaffPage() {
                         Add Staff Member
                     </Link>
                 </Button>
-                <CardContent>
-                    <div className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                        {stats.total}
-                    </div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-500">Active</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-500">Avg. Rating</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center gap-2">
-                        <Star size={20} className="text-yellow-500 fill-yellow-500" />
-                        <span className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                            {stats.avgRating}
-                        </span>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-gray-500">Total Projects</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                        {stats.totalProjects}
-                    </div>
-                </CardContent>
-            </Card>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-500">Total Staff</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
+                            {stats.total}
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-500">Active</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-500">Avg. Rating</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-2">
+                            <Star size={20} className="text-yellow-500 fill-yellow-500" />
+                            <span className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
+                                {stats.avgRating}
+                            </span>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-500">Total Projects</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
+                            {stats.totalProjects}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                    <TabsTrigger value="all">All ({mockStaff.length})</TabsTrigger>
+                    <TabsTrigger value="admin">
+                        Admins ({mockStaff.filter((s) => s.role === "admin").length})
+                    </TabsTrigger>
+                    <TabsTrigger value="staff">
+                        Staff ({mockStaff.filter((s) => s.role === "staff").length})
+                    </TabsTrigger>
+                    <TabsTrigger value="support">
+                        Support ({mockStaff.filter((s) => s.role === "support").length})
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value={activeTab} className="mt-4">
+                    <DataTable
+                        columns={columns}
+                        data={filteredStaff}
+                        searchKey="name"
+                        searchPlaceholder="Search staff..."
+                        exportFileName="staff"
+                    />
+                </TabsContent>
+            </Tabs>
         </div>
-
-            {/* Tabs */ }
-    <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-            <TabsTrigger value="all">All ({mockStaff.length})</TabsTrigger>
-            <TabsTrigger value="admin">
-                Admins ({mockStaff.filter((s) => s.role === "admin").length})
-            </TabsTrigger>
-            <TabsTrigger value="staff">
-                Staff ({mockStaff.filter((s) => s.role === "staff").length})
-            </TabsTrigger>
-            <TabsTrigger value="support">
-                Support ({mockStaff.filter((s) => s.role === "support").length})
-            </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={activeTab} className="mt-4">
-            <DataTable
-                columns={columns}
-                data={filteredStaff}
-                searchKey="name"
-                searchPlaceholder="Search staff..."
-                exportFileName="staff"
-            />
-        </TabsContent>
-    </Tabs>
-        </div >
     );
 }
