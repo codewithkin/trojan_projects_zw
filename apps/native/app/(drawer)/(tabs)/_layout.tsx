@@ -1,4 +1,4 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { Platform, View, useWindowDimensions } from "react-native";
 
@@ -95,7 +95,7 @@ export default function TabLayout() {
                 paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <MaterialIcons name={focused ? "work" : "work-outline"} size={isTablet ? 28 : 24} color={color} />
+              <Ionicons name={focused ? "briefcase" : "briefcase-outline"} size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
@@ -116,6 +116,13 @@ export default function TabLayout() {
               <Ionicons name={focused ? "chatbubbles" : "chatbubbles-outline"} size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
+        }}
+      />
+      {/* Hide quotes from tab bar - accessed from projects/services */}
+      <Tabs.Screen
+        name="quotes"
+        options={{
+          href: null,
         }}
       />
       {/* Hide deprecated profile tab */}
