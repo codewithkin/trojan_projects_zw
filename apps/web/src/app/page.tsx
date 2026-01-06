@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, Plus } from "lucide-react";
+import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, Plus, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/site-header";
@@ -10,7 +10,8 @@ import { ServiceCard } from "@/components/service-card";
 import { StatsSection } from "@/components/stats-section";
 import { TestimonialSection } from "@/components/testimonial-section";
 import { FAQSection } from "@/components/faq-section";
-import { services } from "@/data/services";
+import { ServicesGridSkeleton } from "@/components/skeletons";
+import { useServices } from "@/hooks/use-services";
 import Link from "next/link";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -29,14 +30,18 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Fetch services from API
+  const { data: services, isLoading, isError, error, refetch } = useServices();
+
   const filteredServices = useMemo(() => {
+    if (!services) return [];
     return services.filter((service) => {
       const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
       const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [services, selectedCategory, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -101,21 +106,54 @@ export default function HomePage() {
           </div>
 
           {/* Results Count */}
-          <p className="text-sm text-gray-500 mb-6">
-            Showing {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
-          </p>
+          {!isLoading && !isError && (
+            <p className="text-sm text-gray-500 mb-6">
+              Showing {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
+            </p>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <ServicesGridSkeleton count={8} />
+          )}
+
+          {/* Error State */}
+          {isError && (
+            <div className="text-center py-16">
+              <div className="flex justify-center mb-4">
+                <AlertCircle size={48} className="text-red-500" />
+              </div>
+              <h3
+                className="text-xl font-semibold mb-2"
+                style={{ color: TROJAN_NAVY }}
+              >
+                Failed to load services
+              </h3>
+              <p className="text-gray-500 mb-4">
+                {error instanceof Error ? error.message : "An error occurred while fetching services"}
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => refetch()}
+              >
+                Try Again
+              </Button>
+            </div>
+          )}
 
           {/* Services Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredServices.map((service) => (
-              <div key={service.id}>
-                <ServiceCard service={service} />
-              </div>
-            ))}
-          </div>
+          {!isLoading && !isError && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredServices.map((service) => (
+                <div key={service.id}>
+                  <ServiceCard service={service} />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Empty State */}
-          {filteredServices.length === 0 && (
+          {!isLoading && !isError && filteredServices.length === 0 && (
             <div className="text-center py-16">
               <h3
                 className="text-xl font-semibold mb-2"
