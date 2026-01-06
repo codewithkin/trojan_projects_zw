@@ -161,7 +161,7 @@ export default function ServicesPage() {
                     </p>
 
                     {/* Search Bar */}
-                    <div className="flex gap-2 max-w-2xl">
+                    <div className="flex gap-2 max-w-2xl mx-auto">
                         <div className="relative flex-1">
                             <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                             <Input
