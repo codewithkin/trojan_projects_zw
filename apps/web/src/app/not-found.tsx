@@ -52,7 +52,7 @@ export default function NotFound() {
 
                 {/* Illustration */}
                 <div className="mt-12">
-                    <div 
+                    <div
                         className="w-48 h-48 mx-auto rounded-full flex items-center justify-center"
                         style={{ backgroundColor: `${TROJAN_GOLD}20` }}
                     >

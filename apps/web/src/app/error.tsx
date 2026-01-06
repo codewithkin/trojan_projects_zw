@@ -24,7 +24,7 @@ export default function Error({
             <div className="max-w-md w-full text-center">
                 {/* Error Icon */}
                 <div className="mb-8">
-                    <div 
+                    <div
                         className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-4"
                         style={{ backgroundColor: `${TROJAN_GOLD}20` }}
                     >

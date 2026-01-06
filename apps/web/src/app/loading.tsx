@@ -8,12 +8,12 @@ export default function Loading() {
                 {/* Animated Logo/Spinner */}
                 <div className="relative w-24 h-24 mx-auto mb-6">
                     {/* Outer spinning ring */}
-                    <div 
+                    <div
                         className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin"
                         style={{ borderColor: TROJAN_GOLD, borderTopColor: "transparent" }}
                     />
                     {/* Inner pulse */}
-                    <div 
+                    <div
                         className="absolute inset-3 rounded-full animate-pulse"
                         style={{ backgroundColor: `${TROJAN_NAVY}20` }}
                     />
@@ -33,23 +33,23 @@ export default function Loading() {
 
                 {/* Animated dots */}
                 <div className="flex gap-1 justify-center mt-4">
-                    <div 
+                    <div
                         className="w-2 h-2 rounded-full animate-bounce"
-                        style={{ 
+                        style={{
                             backgroundColor: TROJAN_GOLD,
                             animationDelay: "0ms"
                         }}
                     />
-                    <div 
+                    <div
                         className="w-2 h-2 rounded-full animate-bounce"
-                        style={{ 
+                        style={{
                             backgroundColor: TROJAN_GOLD,
                             animationDelay: "150ms"
                         }}
                     />
-                    <div 
+                    <div
                         className="w-2 h-2 rounded-full animate-bounce"
-                        style={{ 
+                        style={{
                             backgroundColor: TROJAN_GOLD,
                             animationDelay: "300ms"
                         }}
