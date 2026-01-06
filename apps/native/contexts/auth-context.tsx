@@ -1,17 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
-import { authClient } from "@/lib/auth-client";
+import { getSession, signOut as authSignOut, AuthUser } from "@/lib/auth-client";
 import { AuthModal } from "@/components/auth-modal";
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    image?: string;
-    role?: string;
-}
-
 interface AuthContextType {
-    user: User | null;
+    user: AuthUser | null;
     isLoading: boolean;
     isAuthenticated: boolean;
     signOut: () => Promise<void>;
@@ -22,7 +14,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<AuthUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [authMessage, setAuthMessage] = useState<string | undefined>();
@@ -30,9 +22,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const fetchSession = useCallback(async () => {
         try {
-            const { data: session } = await authClient.getSession();
+            const session = await getSession();
             if (session?.user) {
-                setUser(session.user as User);
+                setUser(session.user);
             } else {
                 setUser(null);
             }
@@ -49,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signOut = useCallback(async () => {
         try {
-            await authClient.signOut();
+            await authSignOut();
             setUser(null);
         } catch (error) {
             console.error("Sign out error:", error);
