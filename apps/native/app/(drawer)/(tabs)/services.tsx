@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
-import { ScrollView, View, TextInput, TouchableOpacity, ActivityIndicator, useWindowDimensions } from "react-native";
+import { FlatList, ScrollView, View, TextInput, TouchableOpacity, ActivityIndicator, useWindowDimensions, RefreshControl } from "react-native";
 import { Text } from "@/components/ui/text";
 import { ProductCard } from "@/components/product-card";
-import { ServicesGridSkeleton, ServicesListSkeleton } from "@/components/skeletons";
-import { useServices } from "@/hooks/use-services";
+import { ServicesGridSkeleton } from "@/components/skeletons";
+import { usePaginatedServices } from "@/hooks/use-paginated-services";
 import { Ionicons } from "@expo/vector-icons";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -35,8 +35,6 @@ const sortOptions = [
 ];
 
 export default function Services() {
-    // Fetch services from API
-    const { data: services, isLoading, isError, error, refetch } = useServices();
     const { width } = useWindowDimensions();
     const isTablet = width >= 768;
 
@@ -45,6 +43,18 @@ export default function Services() {
     const [selectedPriceRange, setSelectedPriceRange] = useState("all");
     const [selectedSort, setSelectedSort] = useState("featured");
     const [showFilters, setShowFilters] = useState(false);
+
+    // Fetch services with pagination
+    const { 
+        services, 
+        isLoading, 
+        isRefreshing, 
+        isLoadingMore, 
+        error, 
+        hasMore, 
+        loadMore, 
+        refresh 
+    } = usePaginatedServices({ category: selectedCategory });
 
     const filteredServices = useMemo(() => {
         if (!services) return [];
@@ -91,32 +101,54 @@ export default function Services() {
     }, [services, selectedCategory, searchQuery, selectedPriceRange, selectedSort]);
 
     return (
-        <ScrollView className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
-            {/* Hero Section */}
-            <View
-                className="px-4 py-6"
-                style={{ backgroundColor: TROJAN_NAVY }}
-            >
-                <Text className="text-2xl font-bold text-white">
-                    Our Services
-                </Text>
-                <Text className="text-gray-300 mt-1">
-                    Professional engineering solutions for every need
-                </Text>
-
-                {/* Search Bar */}
-                <View className="bg-white rounded-full px-4 mt-4 flex-row items-center" style={{ height: 44 }}>
-                    <Ionicons name="search" size={18} color="#9CA3AF" />
-                    <TextInput
-                        placeholder="Search services, brands..."
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        className="flex-1 ml-2"
-                        placeholderTextColor="#9CA3AF"
-                        style={{ fontSize: 14 }}
+        <View className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
+            <FlatList
+                data={filteredServices}
+                keyExtractor={(item) => item.id}
+                numColumns={isTablet ? 2 : 1}
+                key={isTablet ? "tablet" : "mobile"}
+                contentContainerStyle={{ paddingBottom: 20 }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={refresh}
+                        tintColor={TROJAN_GOLD}
+                        colors={[TROJAN_GOLD]}
                     />
-                </View>
-            </View>
+                }
+                onEndReached={() => {
+                    if (hasMore && !isLoadingMore) {
+                        loadMore();
+                    }
+                }}
+                onEndReachedThreshold={0.5}
+                ListHeaderComponent={
+                    <>
+                        {/* Hero Section */}
+                        <View
+                            className="px-4 py-6"
+                            style={{ backgroundColor: TROJAN_NAVY }}
+                        >
+                            <Text className="text-2xl font-bold text-white">
+                                Our Services
+                            </Text>
+                            <Text className="text-gray-300 mt-1">
+                                Professional engineering solutions for every need
+                            </Text>
+
+                            {/* Search Bar */}
+                            <View className="bg-white rounded-full px-4 mt-4 flex-row items-center" style={{ height: 44 }}>
+                                <Ionicons name="search" size={18} color="#9CA3AF" />
+                                <TextInput
+                                    placeholder="Search services, brands..."
+                                    value={searchQuery}
+                                    onChangeText={setSearchQuery}
+                                    className="flex-1 ml-2"
+                                    placeholderTextColor="#9CA3AF"
+                                    style={{ fontSize: 14 }}
+                                />
+                            </View>
+                        </View>
 
             {/* Category Pills */}
             <View className="px-4 pt-4">
@@ -244,72 +276,64 @@ export default function Services() {
                 </View>
             )}
 
-            {/* Product Grid */}
-            <View className="px-4 pt-2 pb-8">
-                {/* Loading State */}
-                {isLoading && (
-                    isTablet ? (
-                        <ServicesGridSkeleton count={6} />
-                    ) : (
-                        <ServicesListSkeleton count={4} />
-                    )
-                )}
+            {/* Loading State - Initial */}
+            {isLoading && !services.length && (
+                <View className="px-4 pt-2">
+                    <ServicesGridSkeleton count={4} />
+                </View>
+            )}
 
-                {/* Error State */}
-                {isError && (
-                    <View className="items-center justify-center py-12">
-                        <Text className="text-5xl mb-3">⚠️</Text>
-                        <Text className="text-lg font-medium text-gray-900">Failed to load services</Text>
-                        <Text className="text-gray-500 mt-1 text-center px-4">
-                            {error?.message || "An error occurred while fetching services"}
-                        </Text>
-                        <TouchableOpacity
-                            onPress={refetch}
-                            className="mt-4 px-6 py-3 rounded-full"
-                            style={{ backgroundColor: TROJAN_GOLD }}
-                        >
-                            <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>Try Again</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-
-                {/* Services Grid */}
-                {!isLoading && !isError && (
-                    isTablet ? (
-                        // Tablet: 2-column grid
-                        <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
-                            {filteredServices.map((service) => (
-                                <View key={service.id} style={{ width: "50%", paddingHorizontal: 6, marginBottom: 12 }}>
-                                    <ProductCard
-                                        service={service}
-                                        onPress={() => console.log("View service", service.slug)}
-                                    />
-                                </View>
-                            ))}
-                        </View>
-                    ) : (
-                        // Mobile: Full-width list
-                        <View style={{ gap: 12 }}>
-                            {filteredServices.map((service) => (
-                                <ProductCard
-                                    key={service.id}
-                                    service={service}
-                                    onPress={() => console.log("View service", service.slug)}
-                                />
-                            ))}
-                        </View>
-                    )
-                )}
-            </View>
+            {/* Error State */}
+            {error && !services.length && (
+                <View className="items-center justify-center py-12 px-4">
+                    <Text className="text-5xl mb-3">⚠️</Text>
+                    <Text className="text-lg font-medium text-gray-900">Failed to load services</Text>
+                    <Text className="text-gray-500 mt-1 text-center">
+                        {error?.message || "An error occurred while fetching services"}
+                    </Text>
+                    <TouchableOpacity
+                        onPress={refresh}
+                        className="mt-4 px-6 py-3 rounded-full"
+                        style={{ backgroundColor: TROJAN_GOLD }}
+                    >
+                        <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>Try Again</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+        </>
+    }
+    renderItem={({ item: service }) => (
+        <View style={{ 
+            width: isTablet ? "50%" : "100%",
+            paddingHorizontal: isTablet ? 6 : 16,
+            marginBottom: 12 
+        }}>
+            <ProductCard
+                service={service}
+                onPress={() => console.log("View service", service.slug)}
+            />
+        </View>
+    )}
+    ListFooterComponent={
+        <>
+            {/* Load More Indicator */}
+            {isLoadingMore && (
+                <View className="py-4">
+                    <ActivityIndicator size="large" color={TROJAN_GOLD} />
+                </View>
+            )}
 
             {/* Empty State */}
-            {!isLoading && !isError && filteredServices.length === 0 && (
+            {!isLoading && !error && filteredServices.length === 0 && (
                 <View className="items-center justify-center py-12">
                     <Text className="text-5xl mb-3">🔍</Text>
                     <Text className="text-lg font-medium text-gray-900">No services found</Text>
                     <Text className="text-gray-500 mt-1">Try adjusting your filters</Text>
                 </View>
             )}
-        </ScrollView>
+        </>
+    }
+/>
+</View>
     );
 }
