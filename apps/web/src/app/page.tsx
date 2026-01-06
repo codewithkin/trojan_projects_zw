@@ -288,14 +288,16 @@ export default function HomePage() {
             Contact us for a free consultation and quote. Our experts will assess your needs
             and provide a tailored solution for your home or business.
           </p>
-          <Button
-            size="lg"
-            className="rounded-full px-8"
-            style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-          >
-            Get Free Quote
-            <ArrowRight size={18} className="ml-2" />
-          </Button>
+          <Link href="/chat">
+            <Button
+              size="lg"
+              className="rounded-full px-8"
+              style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+            >
+              Get Free Quote
+              <ArrowRight size={18} className="ml-2" />
+            </Button>
+          </Link>
         </div>
       </section>
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import Link from "next/link";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -137,12 +138,13 @@ export function FAQSection() {
                     className="mt-12 text-center"
                 >
                     <p className="text-gray-600 mb-4">Still have questions?</p>
-                    <button
-                        className="px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity"
+                    <Link
+                        href="/chat"
+                        className="inline-block px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity"
                         style={{ backgroundColor: TROJAN_NAVY, color: "white" }}
                     >
                         Contact Support
-                    </button>
+                    </Link>
                 </motion.div>
             </div>
         </section>
