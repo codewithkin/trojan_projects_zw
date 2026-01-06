@@ -24,6 +24,7 @@ model User {
   likes           ServiceLike[]
   serviceRequests ServiceRequest[]
   quotes          Quote[]
+  projects        Project[]
 
   @@unique([email])
   @@map("user")

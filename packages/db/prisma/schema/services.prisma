@@ -29,6 +29,7 @@ model Service {
   likes        ServiceLike[]
   requests     ServiceRequest[]
   quotes       Quote[]
+  projects     Project[]
 
   @@index([category])
   @@index([featured])
@@ -99,9 +100,6 @@ model Quote {
   staffNotes       String?      // Notes from staff about the quote
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
-  
-  // Link to project if quote is promoted
-  project          Project?
 
   @@index([serviceId])
   @@index([userId])
@@ -109,12 +107,17 @@ model Quote {
   @@map("quote")
 }
 
-// Project - active work after quote approval
+// Project - can be created directly or from a quote
 model Project {
   id               String        @id @default(cuid())
-  quoteId          String        @unique
-  quote            Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  serviceId        String
+  service          Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quoteId          String?       @unique // Optional link to a quote
   status           ProjectStatus @default(pending)
+  location         String
+  notes            String?
   finalPrice       Decimal?      @db.Decimal(10, 2)
   
   // Scheduling
@@ -133,6 +136,8 @@ model Project {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
+  @@index([serviceId])
+  @@index([userId])
   @@index([quoteId])
   @@index([status])
   @@map("project")

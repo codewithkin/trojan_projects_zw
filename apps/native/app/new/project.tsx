@@ -18,67 +18,51 @@ import { env } from "@trojan_projects_zw/env/native";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Text as StyledText } from "@/components/ui/text";
+import { zimbabweLocations } from "@/data/onboarding";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-interface Quote {
+interface Service {
     id: string;
-    service: {
-        id: string;
-        name: string;
-        category: string;
-    };
-    location: string;
-    notes: string | null;
-    estimatedPrice: number | null;
-    status: string;
-    hasProject: boolean;
-    createdAt: string;
+    name: string;
+    slug: string;
+    category: string;
 }
 
 export default function NewProjectScreen() {
     const router = useRouter();
     const { user, isAuthenticated, requireAuth } = useAuth();
     const [loading, setLoading] = useState(false);
-    const [fetchingQuotes, setFetchingQuotes] = useState(true);
-    const [approvedQuotes, setApprovedQuotes] = useState<Quote[]>([]);
-    const [showQuotePicker, setShowQuotePicker] = useState(false);
+    const [fetchingServices, setFetchingServices] = useState(true);
+    const [services, setServices] = useState<Service[]>([]);
+    const [showServicePicker, setShowServicePicker] = useState(false);
+    const [showLocationPicker, setShowLocationPicker] = useState(false);
     const [formData, setFormData] = useState({
-        quoteId: "",
-        quoteName: "",
-        finalPrice: "",
+        serviceId: "",
+        serviceName: "",
+        location: "",
+        price: "",
         scheduledDate: "",
         notes: "",
     });
 
     useEffect(() => {
-        if (isAuthenticated) {
-            fetchApprovedQuotes();
-        } else {
-            setFetchingQuotes(false);
-        }
-    }, [isAuthenticated]);
+        fetchServices();
+    }, []);
 
-    const fetchApprovedQuotes = async () => {
+    const fetchServices = async () => {
         try {
-            const response = await fetch(
-                `${env.EXPO_PUBLIC_API_URL}/api/quotes?status=approved`,
-                {
-                    credentials: "include",
-                }
-            );
+            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/services`);
             const data = await response.json();
-            if (data.quotes) {
-                // Filter quotes that don't have projects yet
-                const quotesWithoutProjects = data.quotes.filter((q: Quote) => !q.hasProject);
-                setApprovedQuotes(quotesWithoutProjects);
+            if (data.services) {
+                setServices(data.services);
             }
         } catch (error) {
-            console.error("Error fetching quotes:", error);
-            Alert.alert("Error", "Failed to load approved quotes");
+            console.error("Error fetching services:", error);
+            Alert.alert("Error", "Failed to load services");
         } finally {
-            setFetchingQuotes(false);
+            setFetchingServices(false);
         }
     };
 
@@ -87,21 +71,28 @@ export default function NewProjectScreen() {
         const isAuthed = await requireAuth("Please sign in to create a project");
         if (!isAuthed) return;
 
-        if (!formData.quoteId) {
-            Alert.alert("Error", "Please select an approved quote");
+        if (!formData.serviceId) {
+            Alert.alert("Error", "Please select a service");
+            return;
+        }
+
+        if (!formData.location) {
+            Alert.alert("Error", "Please select a location");
             return;
         }
 
         setLoading(true);
         try {
             const response = await fetch(
-                `${env.EXPO_PUBLIC_API_URL}/api/quotes/${formData.quoteId}/promote`,
+                `${env.EXPO_PUBLIC_API_URL}/api/projects`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
                     body: JSON.stringify({
-                        finalPrice: formData.finalPrice ? parseFloat(formData.finalPrice) : null,
+                        serviceId: formData.serviceId,
+                        location: formData.location,
+                        price: formData.price ? parseFloat(formData.price) : null,
                         scheduledDate: formData.scheduledDate || null,
                         notes: formData.notes || null,
                     }),
@@ -111,7 +102,7 @@ export default function NewProjectScreen() {
             const data = await response.json();
             if (response.ok) {
                 Alert.alert("Success", "Project created successfully!", [
-                    { text: "OK", onPress: () => router.push("/(tabs)/projects") },
+                    { text: "OK", onPress: () => router.replace("/(drawer)/") },
                 ]);
             } else {
                 Alert.alert("Error", data.error || "Failed to create project");
@@ -124,8 +115,6 @@ export default function NewProjectScreen() {
         }
     };
 
-    const selectedQuote = approvedQuotes.find((q) => q.id === formData.quoteId);
-
     // If not authenticated, show auth prompt
     if (!isAuthenticated) {
         return (
@@ -137,16 +126,14 @@ export default function NewProjectScreen() {
                 }}
             >
                 <View className="p-4">
-                    <View className="flex-row">
-                        <Pressable
-                            onPress={() => router.back()}
-                            className="flex-row items-center mb-4 px-3 py-2 rounded-lg self-start"
-                            style={{ backgroundColor: TROJAN_GOLD }}
-                        >
-                            <ArrowLeft size={20} color={TROJAN_NAVY} />
-                            <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
-                        </Pressable>
-                    </View>
+                    <Pressable
+                        onPress={() => router.back()}
+                        className="flex-row items-center mb-4 px-3 py-2 rounded-lg w-fit self-start"
+                        style={{ backgroundColor: TROJAN_GOLD }}
+                    >
+                        <ArrowLeft size={20} color={TROJAN_NAVY} />
+                        <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
+                    </Pressable>
                 </View>
                 <View className="flex-1 items-center justify-center p-6">
                     <View className="bg-white rounded-2xl p-8 items-center w-full max-w-sm shadow-sm">
@@ -191,86 +178,61 @@ export default function NewProjectScreen() {
             >
                 <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                     <View className="p-4">
-                        <View className="mb-6">
-                            <Pressable
-                                onPress={() => router.back()}
-                                className="flex-row items-center px-3 py-2 rounded-lg self-start"
-                                style={{ backgroundColor: TROJAN_GOLD }}
-                            >
-                                <ArrowLeft size={20} color={TROJAN_NAVY} />
-                                <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
-                            </Pressable>
-                        </View>
-                        {fetchingQuotes ? (
+                        <Pressable
+                            onPress={() => router.back()}
+                            className="flex-row items-center mb-6 px-3 py-2 rounded-lg w-fit self-start"
+                            style={{ backgroundColor: TROJAN_GOLD }}
+                        >
+                            <ArrowLeft size={20} color={TROJAN_NAVY} />
+                            <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
+                        </Pressable>
+
+                        {fetchingServices ? (
                             <View className="items-center justify-center py-12">
                                 <ActivityIndicator size="large" color={TROJAN_GOLD} />
-                                <Text className="text-gray-500 mt-4">Loading approved quotes...</Text>
-                            </View>
-                        ) : approvedQuotes.length === 0 ? (
-                            <View className="bg-white rounded-lg p-8 items-center">
-                                <Text className="text-5xl mb-3">📋</Text>
-                                <Text className="text-lg font-semibold text-gray-900 mb-2">
-                                    No Approved Quotes
-                                </Text>
-                                <Text className="text-gray-500 text-center mb-4">
-                                    You need an approved quote before starting a project
-                                </Text>
-                                <Pressable
-                                    onPress={() => router.push("/new/quote")}
-                                    className="rounded-lg p-3 px-6"
-                                    style={{ backgroundColor: TROJAN_GOLD }}
-                                >
-                                    <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
-                                        Request a Quote
-                                    </Text>
-                                </Pressable>
+                                <Text className="text-gray-500 mt-4">Loading services...</Text>
                             </View>
                         ) : (
                             <>
-                                {/* Quote Selection */}
+                                {/* Service Selection */}
                                 <View className="mb-4">
                                     <Text className="text-sm font-medium text-gray-700 mb-2">
-                                        Select Approved Quote *
+                                        Service *
                                     </Text>
                                     <Pressable
-                                        onPress={() => setShowQuotePicker(!showQuotePicker)}
+                                        onPress={() => setShowServicePicker(!showServicePicker)}
                                         className="border border-gray-300 rounded-lg p-3 flex-row items-center justify-between bg-white"
                                     >
                                         <Text
-                                            className={formData.quoteName ? "text-gray-900" : "text-gray-400"}
+                                            className={formData.serviceName ? "text-gray-900" : "text-gray-400"}
                                             numberOfLines={1}
                                             style={{ flex: 1 }}
                                         >
-                                            {formData.quoteName || "Choose a quote"}
+                                            {formData.serviceName || "Select a service"}
                                         </Text>
                                         <ChevronDown size={20} color="#6B7280" />
                                     </Pressable>
-                                    {showQuotePicker && (
-                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-64">
+                                    {showServicePicker && services.length > 0 && (
+                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-80">
                                             <ScrollView nestedScrollEnabled>
-                                                {approvedQuotes.map((quote) => (
+                                                {services.map((service) => (
                                                     <Pressable
-                                                        key={quote.id}
+                                                        key={service.id}
                                                         onPress={() => {
                                                             setFormData({
                                                                 ...formData,
-                                                                quoteId: quote.id,
-                                                                quoteName: `${quote.service.name} - ${quote.location}`,
+                                                                serviceId: service.id,
+                                                                serviceName: service.name,
                                                             });
-                                                            setShowQuotePicker(false);
+                                                            setShowServicePicker(false);
                                                         }}
                                                         className="p-3 border-b border-gray-100"
                                                     >
                                                         <Text className="text-gray-900 font-medium">
-                                                            {quote.service.name}
+                                                            {service.name}
                                                         </Text>
-                                                        <Text className="text-sm text-gray-500 mt-1">
-                                                            {quote.location}
-                                                            {quote.estimatedPrice && (
-                                                                <Text className="text-gray-600">
-                                                                    {" "}• US${quote.estimatedPrice.toFixed(2)}
-                                                                </Text>
-                                                            )}
+                                                        <Text className="text-sm text-gray-500 mt-0.5">
+                                                            {service.category}
                                                         </Text>
                                                     </Pressable>
                                                 ))}
@@ -279,68 +241,72 @@ export default function NewProjectScreen() {
                                     )}
                                 </View>
 
-                                {/* Selected Quote Details */}
-                                {selectedQuote && (
-                                    <View className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4">
-                                        <Text className="font-semibold text-blue-900 mb-2">
-                                            Quote Details
-                                        </Text>
-                                        <View className="space-y-1">
-                                            <View className="flex-row">
-                                                <Text className="text-sm font-medium text-blue-800 w-24">
-                                                    Service:
-                                                </Text>
-                                                <Text className="text-sm text-blue-800 flex-1">
-                                                    {selectedQuote.service.name}
-                                                </Text>
-                                            </View>
-                                            <View className="flex-row">
-                                                <Text className="text-sm font-medium text-blue-800 w-24">
-                                                    Location:
-                                                </Text>
-                                                <Text className="text-sm text-blue-800 flex-1">
-                                                    {selectedQuote.location}
-                                                </Text>
-                                            </View>
-                                            {selectedQuote.notes && (
-                                                <View className="flex-row">
-                                                    <Text className="text-sm font-medium text-blue-800 w-24">
-                                                        Notes:
-                                                    </Text>
-                                                    <Text className="text-sm text-blue-800 flex-1">
-                                                        {selectedQuote.notes}
-                                                    </Text>
-                                                </View>
-                                            )}
-                                            {selectedQuote.estimatedPrice && (
-                                                <View className="flex-row">
-                                                    <Text className="text-sm font-medium text-blue-800 w-24">
-                                                        Estimate:
-                                                    </Text>
-                                                    <Text className="text-sm text-blue-800 flex-1">
-                                                        US${selectedQuote.estimatedPrice.toFixed(2)}
-                                                    </Text>
-                                                </View>
-                                            )}
-                                        </View>
-                                    </View>
-                                )}
-
-                                {/* Final Price */}
+                                {/* Location Selection */}
                                 <View className="mb-4">
                                     <Text className="text-sm font-medium text-gray-700 mb-2">
-                                        Final Price (Optional)
+                                        Location *
+                                    </Text>
+                                    <Pressable
+                                        onPress={() => setShowLocationPicker(!showLocationPicker)}
+                                        className="border border-gray-300 rounded-lg p-3 flex-row items-center justify-between bg-white"
+                                    >
+                                        <Text
+                                            className={formData.location ? "text-gray-900" : "text-gray-400"}
+                                            numberOfLines={1}
+                                            style={{ flex: 1 }}
+                                        >
+                                            {formData.location || "Select location"}
+                                        </Text>
+                                        <ChevronDown size={20} color="#6B7280" />
+                                    </Pressable>
+                                    {showLocationPicker && (
+                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-80">
+                                            <ScrollView nestedScrollEnabled>
+                                                {zimbabweLocations.map((location, index) => {
+                                                    const isDisabled = location !== "Mutare";
+                                                    return (
+                                                        <Pressable
+                                                            key={index}
+                                                            onPress={() => {
+                                                                if (!isDisabled) {
+                                                                    setFormData({ ...formData, location });
+                                                                    setShowLocationPicker(false);
+                                                                }
+                                                            }}
+                                                            className="p-3 border-b border-gray-100"
+                                                            style={{ opacity: isDisabled ? 0.5 : 1 }}
+                                                        >
+                                                            <View className="flex-row items-center justify-between">
+                                                                <Text className="text-gray-900">{location}</Text>
+                                                                {isDisabled && (
+                                                                    <Text className="text-xs text-gray-400 italic">
+                                                                        Coming Soon
+                                                                    </Text>
+                                                                )}
+                                                            </View>
+                                                        </Pressable>
+                                                    );
+                                                })}
+                                            </ScrollView>
+                                        </View>
+                                    )}
+                                </View>
+
+                                {/* Project Price */}
+                                <View className="mb-4">
+                                    <Text className="text-sm font-medium text-gray-700 mb-2">
+                                        Project Price (Optional)
                                     </Text>
                                     <TextInput
                                         className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
                                         placeholder="e.g., 1250.00"
                                         placeholderTextColor="#9CA3AF"
                                         keyboardType="decimal-pad"
-                                        value={formData.finalPrice}
-                                        onChangeText={(text) => setFormData({ ...formData, finalPrice: text })}
+                                        value={formData.price}
+                                        onChangeText={(text) => setFormData({ ...formData, price: text })}
                                     />
                                     <Text className="text-xs text-gray-500 mt-1">
-                                        Leave blank to use the estimated price from the quote
+                                        Agreed upon price in USD
                                     </Text>
                                 </View>
 
@@ -364,11 +330,11 @@ export default function NewProjectScreen() {
                                 {/* Additional Notes */}
                                 <View className="mb-6">
                                     <Text className="text-sm font-medium text-gray-700 mb-2">
-                                        Additional Notes (Optional)
+                                        Project Details (Optional)
                                     </Text>
                                     <TextInput
                                         className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
-                                        placeholder="Any additional information about the project..."
+                                        placeholder="Describe what you need for this project..."
                                         placeholderTextColor="#9CA3AF"
                                         multiline
                                         numberOfLines={4}
@@ -388,19 +354,19 @@ export default function NewProjectScreen() {
                                         <View className="flex-row items-start">
                                             <Text className="text-blue-800 mr-2">•</Text>
                                             <Text className="text-sm text-blue-800 flex-1">
-                                                Your project will be created with a "scheduled" status
+                                                Your project request will be reviewed by our team
                                             </Text>
                                         </View>
                                         <View className="flex-row items-start">
                                             <Text className="text-blue-800 mr-2">•</Text>
                                             <Text className="text-sm text-blue-800 flex-1">
-                                                Our team will assign a technician and contact you to confirm details
+                                                We'll contact you to confirm details and schedule the work
                                             </Text>
                                         </View>
                                         <View className="flex-row items-start">
                                             <Text className="text-blue-800 mr-2">•</Text>
                                             <Text className="text-sm text-blue-800 flex-1">
-                                                You can track project progress from the projects page
+                                                You can track progress from the home page once approved
                                             </Text>
                                         </View>
                                     </View>
@@ -425,7 +391,7 @@ export default function NewProjectScreen() {
                                             <ActivityIndicator size="small" color={TROJAN_NAVY} />
                                         ) : (
                                             <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
-                                                Start Project
+                                                Create Project
                                             </Text>
                                         )}
                                     </Pressable>

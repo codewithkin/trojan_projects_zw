@@ -3,6 +3,90 @@ import { db } from "@trojan_projects_zw/db";
 import { authMiddleware } from "../lib/auth/middleware";
 
 const projectsRoute = new Hono()
+  // POST /api/projects - Create a new project
+  .post("/", authMiddleware, async (c) => {
+    const user = c.get("user");
+
+    if (!user) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    try {
+      const body = await c.req.json();
+      const { serviceId, location, price, scheduledDate, notes } = body;
+
+      if (!serviceId || !location) {
+        return c.json(
+          { error: "Service and location are required" },
+          400
+        );
+      }
+
+      // Verify service exists
+      const service = await db.service.findUnique({
+        where: { id: serviceId },
+      });
+
+      if (!service) {
+        return c.json({ error: "Service not found" }, 404);
+      }
+
+      // Create the project
+      const project = await db.project.create({
+        data: {
+          serviceId,
+          userId: user.id,
+          location,
+          notes: notes || null,
+          finalPrice: price ? price.toString() : null,
+          scheduledDate: scheduledDate ? new Date(scheduledDate) : null,
+          status: "pending",
+        },
+        include: {
+          service: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              category: true,
+              images: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      return c.json(
+        {
+          message: "Project created successfully",
+          project: {
+            id: project.id,
+            status: project.status,
+            finalPrice: project.finalPrice
+              ? Number(project.finalPrice)
+              : null,
+            scheduledDate: project.scheduledDate,
+            location: project.location,
+            notes: project.notes,
+            service: project.service,
+            user: project.user,
+            createdAt: project.createdAt,
+            updatedAt: project.updatedAt,
+          },
+        },
+        201
+      );
+    } catch (error) {
+      console.error("Error creating project:", error);
+      return c.json({ error: "Failed to create project" }, 500);
+    }
+  })
   // GET /api/projects - Get user's projects
   .get("/", authMiddleware, async (c) => {
     const user = c.get("user");
@@ -17,7 +101,7 @@ const projectsRoute = new Hono()
 
     try {
       const isStaff = user.role === "staff" || user.role === "support";
-      const where = isStaff ? {} : { quote: { userId: user.id } };
+      const where = isStaff ? {} : { userId: user.id };
       
       // Get total count
       const totalCount = await db.project.count({ where });
@@ -27,24 +111,20 @@ const projectsRoute = new Hono()
         skip,
         take: limit,
         include: {
-          quote: {
-            include: {
-              service: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
-                  category: true,
-                  images: true,
-                },
-              },
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                },
-              },
+          service: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              category: true,
+              images: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
             },
           },
         },
@@ -62,10 +142,10 @@ const projectsRoute = new Hono()
         technicianPhone: project.technicianPhone,
         userRating: project.userRating,
         userReview: project.userReview,
-        service: project.quote.service,
-        location: project.quote.location,
-        notes: project.quote.notes,
-        user: project.quote.user,
+        service: project.service,
+        location: project.location,
+        notes: project.notes,
+        user: project.user,
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
       }));
@@ -99,25 +179,21 @@ const projectsRoute = new Hono()
       const project = await db.project.findUnique({
         where: { id: projectId },
         include: {
-          quote: {
-            include: {
-              service: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
-                  category: true,
-                  images: true,
-                  price: true,
-                },
-              },
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                },
-              },
+          service: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              category: true,
+              images: true,
+              price: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
             },
           },
         },
@@ -128,7 +204,7 @@ const projectsRoute = new Hono()
       }
 
       const isStaff = user.role === "staff" || user.role === "support";
-      const isOwner = project.quote.userId === user.id;
+      const isOwner = project.userId === user.id;
 
       if (!isStaff && !isOwner) {
         return c.json({ error: "Unauthorized" }, 403);
@@ -146,13 +222,10 @@ const projectsRoute = new Hono()
           technicianPhone: project.technicianPhone,
           userRating: project.userRating,
           userReview: project.userReview,
-          service: {
-            ...project.quote.service,
-            price: Number(project.quote.service.price),
-          },
-          location: project.quote.location,
-          notes: project.quote.notes,
-          user: project.quote.user,
+          service: project.service,
+          location: project.location,
+          notes: project.notes,
+          user: project.user,
           createdAt: project.createdAt,
           updatedAt: project.updatedAt,
         },
@@ -175,12 +248,10 @@ const projectsRoute = new Hono()
     try {
       const project = await db.project.findUnique({
         where: { id: projectId },
-        include: {
-          quote: {
-            select: {
-              userId: true,
-            },
-          },
+        select: {
+          id: true,
+          userId: true,
+          status: true,
         },
       });
 
@@ -189,7 +260,7 @@ const projectsRoute = new Hono()
       }
 
       const isStaff = user.role === "staff" || user.role === "support";
-      const isOwner = project.quote.userId === user.id;
+      const isOwner = project.userId === user.id;
 
       if (!isStaff && !isOwner) {
         return c.json({ error: "Unauthorized" }, 403);
@@ -296,12 +367,10 @@ const projectsRoute = new Hono()
     try {
       const project = await db.project.findUnique({
         where: { id: projectId },
-        include: {
-          quote: {
-            select: {
-              userId: true,
-            },
-          },
+        select: {
+          id: true,
+          userId: true,
+          status: true,
         },
       });
 
@@ -309,7 +378,7 @@ const projectsRoute = new Hono()
         return c.json({ error: "Project not found" }, 404);
       }
 
-      if (project.quote.userId !== user.id) {
+      if (project.userId !== user.id) {
         return c.json({ error: "You can only review your own projects" }, 403);
       }
 

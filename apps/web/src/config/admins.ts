@@ -10,6 +10,7 @@
 export const ADMIN_EMAILS = [
   "admin@trojanprojects.co.zw",
   "manager@trojanprojects.co.zw",
+  "kinzinzombe07@gmail.com",
   "director@trojanprojects.co.zw",
 ] as const;
 
