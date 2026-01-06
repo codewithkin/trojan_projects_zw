@@ -6,10 +6,13 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AppThemeProvider } from "@/contexts/app-theme-context";
 import { AuthProvider } from "@/contexts/auth-context";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 export const unstable_settings = {
   initialRouteName: "splash",
 };
+
+export { ErrorBoundary };
 
 function StackLayout() {
   return (
