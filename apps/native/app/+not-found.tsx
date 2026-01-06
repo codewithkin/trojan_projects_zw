@@ -14,24 +14,24 @@ export default function NotFoundScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "Page Not Found", headerShown: false }} />
-      <View 
+      <View
         className="flex-1 justify-center items-center p-6"
         style={{ backgroundColor: "#F9FAFB" }}
       >
         <View className="items-center max-w-md w-full">
           {/* 404 Number */}
-          <Text 
+          <Text
             className="font-bold mb-2"
-            style={{ 
+            style={{
               color: TROJAN_NAVY,
               fontSize: isTablet ? 72 : 56
             }}
           >
             404
           </Text>
-          <View 
+          <View
             className="rounded-full mb-6"
-            style={{ 
+            style={{
               backgroundColor: TROJAN_GOLD,
               width: isTablet ? 96 : 72,
               height: 4
@@ -39,9 +39,9 @@ export default function NotFoundScreen() {
           />
 
           {/* Icon */}
-          <View 
+          <View
             className="rounded-full items-center justify-center mb-6"
-            style={{ 
+            style={{
               backgroundColor: `${TROJAN_GOLD}20`,
               width: isTablet ? 192 : 144,
               height: isTablet ? 192 : 144
@@ -51,16 +51,16 @@ export default function NotFoundScreen() {
           </View>
 
           {/* Message */}
-          <Text 
+          <Text
             className="font-bold text-center mb-3"
-            style={{ 
+            style={{
               color: TROJAN_NAVY,
               fontSize: isTablet ? 24 : 20
             }}
           >
             Page Not Found
           </Text>
-          <Text 
+          <Text
             className="text-center text-gray-600 mb-8"
             style={{ fontSize: isTablet ? 16 : 14 }}
           >
@@ -70,15 +70,15 @@ export default function NotFoundScreen() {
           {/* Actions */}
           <View className="w-full gap-3">
             <Link href="/(tabs)" asChild>
-              <Button 
+              <Button
                 className="flex-row items-center justify-center gap-2"
-                style={{ 
+                style={{
                   backgroundColor: TROJAN_NAVY,
                   height: isTablet ? 52 : 48
                 }}
               >
                 <Home size={isTablet ? 20 : 18} color="white" />
-                <Text 
+                <Text
                   className="text-white font-semibold"
                   style={{ fontSize: isTablet ? 16 : 14 }}
                 >
@@ -87,18 +87,18 @@ export default function NotFoundScreen() {
               </Button>
             </Link>
             <Link href="/(tabs)/services" asChild>
-              <Button 
+              <Button
                 variant="outline"
                 className="flex-row items-center justify-center gap-2"
-                style={{ 
+                style={{
                   borderColor: TROJAN_NAVY,
                   height: isTablet ? 52 : 48
                 }}
               >
                 <Search size={isTablet ? 20 : 18} color={TROJAN_NAVY} />
-                <Text 
+                <Text
                   className="font-semibold"
-                  style={{ 
+                  style={{
                     color: TROJAN_NAVY,
                     fontSize: isTablet ? 16 : 14
                   }}
