@@ -1,9 +1,9 @@
 import { View, Image, Pressable } from "react-native";
 import { useState } from "react";
-import { Heart, Star } from "lucide-react-native";
+import { Heart, Star, Users } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
-import type { Service } from "@/data/services";
+import type { Service } from "@/types/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -16,10 +16,8 @@ interface ProductCardProps {
 export function ProductCard({ service, onPress }: ProductCardProps) {
     const [isWishlisted, setIsWishlisted] = useState(false);
 
-    // Format price for display
-    const priceDisplay = typeof service.price === 'number'
-        ? `US$${service.price.toLocaleString()}`
-        : service.price;
+    // Use priceFormatted from API if available, otherwise format the numeric price
+    const priceDisplay = service.priceFormatted || `US$${service.price.toLocaleString()}`;
 
     return (
         <Pressable
@@ -108,8 +106,11 @@ export function ProductCard({ service, onPress }: ProductCardProps) {
                         <Text className="text-lg font-bold" style={{ color: TROJAN_NAVY }}>
                             {priceDisplay}
                         </Text>
-                        {service.priceRange && (
-                            <Text className="text-xs text-gray-400">{service.priceRange}</Text>
+                        {service.requestsCount > 0 && (
+                            <View className="flex-row items-center gap-1">
+                                <Users size={10} color="#6B7280" />
+                                <Text className="text-xs text-gray-400">{service.requestsCount} served</Text>
+                            </View>
                         )}
                     </View>
                     <Button

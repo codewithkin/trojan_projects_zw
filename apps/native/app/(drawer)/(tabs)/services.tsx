@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
-import { ScrollView, View, Dimensions, TextInput, TouchableOpacity } from "react-native";
+import { ScrollView, View, Dimensions, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Text } from "@/components/ui/text";
 import { ProductCard } from "@/components/product-card";
-import { FilterBar } from "@/components/filter-bar";
-import { services } from "@/data/services";
+import { ServicesGridSkeleton } from "@/components/skeletons";
+import { useServices } from "@/hooks/use-services";
 import { Ionicons } from "@expo/vector-icons";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -38,6 +38,9 @@ const sortOptions = [
 ];
 
 export default function Services() {
+    // Fetch services from API
+    const { data: services, isLoading, isError, error, refetch } = useServices();
+
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedPriceRange, setSelectedPriceRange] = useState("all");
@@ -45,6 +48,7 @@ export default function Services() {
     const [showFilters, setShowFilters] = useState(false);
 
     const filteredServices = useMemo(() => {
+        if (!services) return [];
         let result = services.filter((service) => {
             // Category filter
             const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
@@ -85,7 +89,7 @@ export default function Services() {
         }
 
         return result;
-    }, [selectedCategory, searchQuery, selectedPriceRange, selectedSort]);
+    }, [services, selectedCategory, searchQuery, selectedPriceRange, selectedSort]);
 
     return (
         <ScrollView className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
@@ -147,9 +151,13 @@ export default function Services() {
 
             {/* Filter Toggle */}
             <View className="px-4 pt-3 flex-row items-center justify-between">
-                <Text className="text-sm text-gray-500">
-                    {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
-                </Text>
+                {!isLoading && !isError && (
+                    <Text className="text-sm text-gray-500">
+                        {filteredServices.length} {filteredServices.length === 1 ? "service" : "services"}
+                    </Text>
+                )}
+                {isLoading && <Text className="text-sm text-gray-500">Loading...</Text>}
+                {isError && <Text className="text-sm text-red-500">Error loading services</Text>}
                 <TouchableOpacity
                     onPress={() => setShowFilters(!showFilters)}
                     className="flex-row items-center"
@@ -238,20 +246,46 @@ export default function Services() {
 
             {/* Product Grid */}
             <View className="px-4 pt-2 pb-8">
-                <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
-                    {filteredServices.map((service) => (
-                        <View key={service.id} style={{ width: CARD_WIDTH, paddingHorizontal: 6, marginBottom: 12 }}>
-                            <ProductCard
-                                service={service}
-                                onPress={() => console.log("View service", service.id)}
-                            />
-                        </View>
-                    ))}
-                </View>
+                {/* Loading State */}
+                {isLoading && (
+                    <ServicesGridSkeleton count={4} />
+                )}
+
+                {/* Error State */}
+                {isError && (
+                    <View className="items-center justify-center py-12">
+                        <Text className="text-5xl mb-3">⚠️</Text>
+                        <Text className="text-lg font-medium text-gray-900">Failed to load services</Text>
+                        <Text className="text-gray-500 mt-1 text-center px-4">
+                            {error?.message || "An error occurred while fetching services"}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={refetch}
+                            className="mt-4 px-6 py-3 rounded-full"
+                            style={{ backgroundColor: TROJAN_GOLD }}
+                        >
+                            <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>Try Again</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                {/* Services Grid */}
+                {!isLoading && !isError && (
+                    <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
+                        {filteredServices.map((service) => (
+                            <View key={service.id} style={{ width: CARD_WIDTH, paddingHorizontal: 6, marginBottom: 12 }}>
+                                <ProductCard
+                                    service={service}
+                                    onPress={() => console.log("View service", service.slug)}
+                                />
+                            </View>
+                        ))}
+                    </View>
+                )}
             </View>
 
             {/* Empty State */}
-            {filteredServices.length === 0 && (
+            {!isLoading && !isError && filteredServices.length === 0 && (
                 <View className="items-center justify-center py-12">
                     <Text className="text-5xl mb-3">🔍</Text>
                     <Text className="text-lg font-medium text-gray-900">No services found</Text>

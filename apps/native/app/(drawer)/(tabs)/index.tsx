@@ -1,11 +1,13 @@
 import { useState, useMemo } from "react";
-import { ScrollView, View, TextInput, Pressable, SafeAreaView, StatusBar, Platform, Dimensions, useWindowDimensions } from "react-native";
+import { ScrollView, View, TextInput, Pressable, SafeAreaView, StatusBar, Platform, Dimensions, useWindowDimensions, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
 import { ServiceCard } from "@/components/service-card";
 import { StatsSection } from "@/components/stats-section";
-import { services, categoryConfig, type ServiceCategory } from "@/data/services";
+import { ServicesGridSkeleton } from "@/components/skeletons";
+import { useServices } from "@/hooks/use-services";
+import { categoryConfig, type ServiceCategory } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -15,6 +17,10 @@ const categories: (ServiceCategory | "all")[] = ["all", "solar", "cctv", "electr
 export default function Home() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+
+  // Fetch services from API
+  const { data: services, isLoading, isError, error, refetch } = useServices();
+
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -25,6 +31,7 @@ export default function Home() {
   const gridColumns = isLargeTablet ? 3 : isTablet ? 2 : 1;
 
   const filteredServices = useMemo(() => {
+    if (!services) return [];
     return services.filter((service) => {
       const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
       const matchesSearch =
@@ -32,12 +39,12 @@ export default function Home() {
         service.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [services, selectedCategory, searchQuery]);
 
-  const featuredServices = useMemo(() => services.filter((s) => s.featured), []);
+  const featuredServices = useMemo(() => services?.filter((s) => s.featured) || [], [services]);
 
-  const handleServicePress = (serviceId: string) => {
-    router.push(`/service/${serviceId}`);
+  const handleServicePress = (serviceSlug: string) => {
+    router.push(`/service/${serviceSlug}`);
   };
 
   return (
@@ -140,7 +147,7 @@ export default function Home() {
           </ScrollView>
 
           {/* Featured Section (only when "all" is selected) */}
-          {selectedCategory === "all" && searchQuery === "" && featuredServices.length > 0 && (
+          {selectedCategory === "all" && searchQuery === "" && !isLoading && !isError && featuredServices.length > 0 && (
             <View style={{ marginBottom: 20 }}>
               <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
                 <View
@@ -167,7 +174,7 @@ export default function Home() {
                   }}>
                     <ServiceCard
                       service={service}
-                      onPress={() => handleServicePress(service.id)}
+                      onPress={() => handleServicePress(service.slug)}
                     />
                   </View>
                 ))}
@@ -193,12 +200,54 @@ export default function Home() {
                   : categoryConfig[selectedCategory].label
                 }
               </Text>
-              <Text style={{ marginLeft: 8, color: "#9CA3AF", fontSize: isTablet ? 16 : 14 }}>
-                ({filteredServices.length})
-              </Text>
+              {!isLoading && !isError && (
+                <Text style={{ marginLeft: 8, color: "#9CA3AF", fontSize: isTablet ? 16 : 14 }}>
+                  ({filteredServices.length})
+                </Text>
+              )}
             </View>
 
-            {filteredServices.length > 0 ? (
+            {/* Loading State */}
+            {isLoading && (
+              <View style={{ paddingHorizontal: 4 }}>
+                <ServicesGridSkeleton count={4} />
+              </View>
+            )}
+
+            {/* Error State */}
+            {isError && (
+              <View style={{
+                alignItems: "center",
+                paddingVertical: isTablet ? 60 : 40,
+                backgroundColor: "white",
+                borderRadius: 16
+              }}>
+                <Ionicons name="warning-outline" size={isTablet ? 64 : 48} color="#EF4444" />
+                <Text style={{ fontSize: isTablet ? 20 : 16, fontWeight: "600", color: TROJAN_NAVY, marginTop: 12 }}>
+                  Failed to load services
+                </Text>
+                <Text style={{ fontSize: isTablet ? 16 : 14, color: "#9CA3AF", marginTop: 4, textAlign: "center" }}>
+                  {error?.message || "An error occurred"}
+                </Text>
+                <Pressable
+                  onPress={refetch}
+                  style={{
+                    marginTop: 16,
+                    backgroundColor: TROJAN_GOLD,
+                    paddingHorizontal: isTablet ? 28 : 20,
+                    paddingVertical: isTablet ? 14 : 10,
+                    borderRadius: 20,
+                  }}
+                >
+                  <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: isTablet ? 16 : 14 }}>
+                    Try Again
+                  </Text>
+                </Pressable>
+              </View>
+            )}
+
+            {/* Services List */}
+            {!isLoading && !isError && filteredServices.length > 0 ? (
               <View style={{
                 flexDirection: isTablet ? "row" : "column",
                 flexWrap: "wrap",
@@ -210,12 +259,12 @@ export default function Home() {
                   }}>
                     <ServiceCard
                       service={service}
-                      onPress={() => handleServicePress(service.id)}
+                      onPress={() => handleServicePress(service.slug)}
                     />
                   </View>
                 ))}
               </View>
-            ) : (
+            ) : !isLoading && !isError && (
               <View style={{
                 alignItems: "center",
                 paddingVertical: isTablet ? 60 : 40,
