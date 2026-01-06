@@ -37,11 +37,11 @@ export function SiteFooter() {
                     <div>
                         <h4 className="font-semibold text-gray-900 mb-4">Services</h4>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/?category=solar" className="hover:text-gray-900">Solar Power Systems</Link></li>
-                            <li><Link href="/?category=cctv" className="hover:text-gray-900">CCTV & Security</Link></li>
-                            <li><Link href="/?category=electrical" className="hover:text-gray-900">Electrical Services</Link></li>
-                            <li><Link href="/?category=water" className="hover:text-gray-900">Water Solutions</Link></li>
-                            <li><Link href="/?category=welding" className="hover:text-gray-900">Welding & Fabrication</Link></li>
+                            <li><Link href="/projects?category=solar" className="hover:text-gray-900">Solar Power Systems</Link></li>
+                            <li><Link href="/projects?category=cctv" className="hover:text-gray-900">CCTV & Security</Link></li>
+                            <li><Link href="/projects?category=electrical" className="hover:text-gray-900">Electrical Services</Link></li>
+                            <li><Link href="/projects?category=water" className="hover:text-gray-900">Water Solutions</Link></li>
+                            <li><Link href="/projects?category=welding" className="hover:text-gray-900">Welding & Fabrication</Link></li>
                         </ul>
                     </div>
 
@@ -49,10 +49,10 @@ export function SiteFooter() {
                     <div>
                         <h4 className="font-semibold text-gray-900 mb-4">Quick Links</h4>
                         <ul className="space-y-2 text-sm text-gray-600">
-                            <li><Link href="/" className="hover:text-gray-900">Browse Services</Link></li>
-                            <li><Link href="/projects" className="hover:text-gray-900">My Projects</Link></li>
-                            <li><Link href="/profile" className="hover:text-gray-900">My Account</Link></li>
-                            <li><Link href="/login" className="hover:text-gray-900">Sign In</Link></li>
+                            <li><Link href="/" className="hover:text-gray-900">Home</Link></li>
+                            <li><Link href="/projects" className="hover:text-gray-900">Browse Services</Link></li>
+                            <li><Link href="/about" className="hover:text-gray-900">About Us</Link></li>
+                            <li><Link href="/chat" className="hover:text-gray-900">Contact Us</Link></li>
                         </ul>
                     </div>
 
