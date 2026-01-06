@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 
 interface AuthModalProps {
@@ -36,27 +36,30 @@ export function AuthModal({ open, onOpenChange, onSuccess, message }: AuthModalP
 
         try {
             if (isSignUp) {
-                const { error } = await authClient.signUp.email({
+                const response = await signUp({
                     email,
                     password,
                     name,
                 });
 
-                if (error) {
-                    toast.error(error.message || "Sign up failed");
+                if (!response.success) {
+                    toast.error(response.error || "Sign up failed");
                 } else {
-                    toast.success("Account created! Please check your email for verification.");
+                    toast.success("Account created successfully!");
                     setIsSignUp(false);
                     resetForm();
+                    onOpenChange(false);
+                    onSuccess?.();
+                    router.refresh();
                 }
             } else {
-                const { error } = await authClient.signIn.email({
+                const response = await signIn({
                     email,
                     password,
                 });
 
-                if (error) {
-                    toast.error(error.message || "Sign in failed");
+                if (!response.success) {
+                    toast.error(response.error || "Sign in failed");
                 } else {
                     toast.success("Signed in successfully!");
                     resetForm();

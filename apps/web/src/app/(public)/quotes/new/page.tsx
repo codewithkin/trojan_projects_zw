@@ -19,7 +19,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -34,7 +34,7 @@ interface Service {
 
 export default function NewQuotePage() {
     const router = useRouter();
-    const { data: session } = authClient.useSession();
+    const { user } = useSession();
     const [loading, setLoading] = useState(false);
     const [services, setServices] = useState<Service[]>([]);
     const [showAuthModal, setShowAuthModal] = useState(false);
@@ -65,7 +65,7 @@ export default function NewQuotePage() {
         e.preventDefault();
 
         // Check auth before submitting
-        if (!session?.user) {
+        if (!user) {
             setShowAuthModal(true);
             return;
         }

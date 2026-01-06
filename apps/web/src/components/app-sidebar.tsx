@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSession, signOut } from "@/lib/auth-client";
+import { signOut } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { getNavigationForRole } from "@/config/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,9 +28,10 @@ interface AppSidebarProps {
 
 export function AppSidebar({ collapsed = false }: AppSidebarProps) {
     const pathname = usePathname();
-    const { data: session } = useSession();
+    const router = useRouter();
+    const { user } = useSession();
 
-    const userRole = session?.user?.role || "user";
+    const userRole = user?.role || "user";
     const navigation = getNavigationForRole(userRole);
 
     const isActive = (href: string) => {
@@ -39,10 +41,10 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
 
     const handleSignOut = async () => {
         await signOut();
-        window.location.href = "/";
+        router.push("/");
     };
 
-    const userInitials = session?.user?.name
+    const userInitials = user?.name
         ?.split(" ")
         .map((n) => n[0])
         .join("")
@@ -119,7 +121,7 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
                                 )}
                             >
                                 <Avatar className="h-9 w-9">
-                                    <AvatarImage src={session?.user?.image || undefined} />
+                                    <AvatarImage src={user?.image || undefined} />
                                     <AvatarFallback style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
                                         {userInitials}
                                     </AvatarFallback>
@@ -128,7 +130,7 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
                                     <>
                                         <div className="flex-1 text-left">
                                             <p className="text-sm font-medium text-gray-900 truncate">
-                                                {session?.user?.name || "User"}
+                                                {user?.name || "User"}
                                             </p>
                                             <p className="text-xs text-gray-500 capitalize">{userRole}</p>
                                         </div>
@@ -139,7 +141,7 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuLabel>
-                                {session?.user?.email || "Admin"}
+                                {user?.email || "Admin"}
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem

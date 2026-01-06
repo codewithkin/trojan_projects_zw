@@ -42,7 +42,7 @@ export default function SignUpPage() {
 
         try {
             const response = await signUp({ name, email, password });
-            
+
             if (response.success) {
                 toast.success("Account created successfully!");
                 router.push("/user-onboarding");

@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ServiceDetailSkeleton } from "@/components/skeletons";
 import { useService, useServices, useLikeService, useRequestService } from "@/hooks/use-services";
-import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -48,7 +48,7 @@ export default function ServiceDetailPage() {
     const { data: allServices } = useServices();
     const likeMutation = useLikeService();
     const requestMutation = useRequestService();
-    const { data: session } = authClient.useSession();
+    const { user } = useSession();
 
     const [selectedImage, setSelectedImage] = useState(0);
     const [showAuthModal, setShowAuthModal] = useState(false);

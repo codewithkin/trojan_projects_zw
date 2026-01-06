@@ -17,7 +17,7 @@ import {
     HelpCircle,
 } from "lucide-react";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { signOut } from "@/lib/auth-client";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -46,7 +46,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const handleSignOut = async () => {
-        await authClient.signOut();
+        await signOut();
         router.push("/login");
     };
 
@@ -103,8 +103,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                     key={item.name}
                                     href={item.href}
                                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${active
-                                            ? "font-semibold shadow-sm"
-                                            : "text-gray-600 hover:bg-gray-50"
+                                        ? "font-semibold shadow-sm"
+                                        : "text-gray-600 hover:bg-gray-50"
                                         }`}
                                     style={
                                         active

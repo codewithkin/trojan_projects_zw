@@ -16,7 +16,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -39,7 +39,7 @@ interface Quote {
 
 export default function NewProjectPage() {
     const router = useRouter();
-    const { data: session } = authClient.useSession();
+    const { user } = useSession();
     const [loading, setLoading] = useState(false);
     const [fetchingQuotes, setFetchingQuotes] = useState(true);
     const [approvedQuotes, setApprovedQuotes] = useState<Quote[]>([]);
@@ -53,12 +53,12 @@ export default function NewProjectPage() {
 
     useEffect(() => {
         // Only fetch if authenticated
-        if (session?.user) {
+        if (user) {
             fetchApprovedQuotes();
         } else {
             setFetchingQuotes(false);
         }
-    }, [session]);
+    }, [user]);
 
     const fetchApprovedQuotes = async () => {
         try {
@@ -86,7 +86,7 @@ export default function NewProjectPage() {
         e.preventDefault();
 
         // Check auth before submitting
-        if (!session?.user) {
+        if (!user) {
             setShowAuthModal(true);
             return;
         }
@@ -130,7 +130,7 @@ export default function NewProjectPage() {
     const selectedQuote = approvedQuotes.find((q) => q.id === formData.quoteId);
 
     // If not logged in, show auth prompt
-    if (!session?.user) {
+    if (!user) {
         return (
             <>
                 <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

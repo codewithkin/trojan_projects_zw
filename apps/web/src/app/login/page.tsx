@@ -41,7 +41,7 @@ export default function LoginPage() {
 
     try {
       const response = await signIn({ email, password });
-      
+
       if (response.success) {
         toast.success("Welcome back!");
         router.push("/");

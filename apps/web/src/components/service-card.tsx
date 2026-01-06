@@ -7,7 +7,7 @@ import { Star, Heart, Users } from "lucide-react";
 import { useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { type Service } from "@/types/services";
-import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { AuthModal } from "@/components/auth-modal";
 import { useLikeService } from "@/hooks/use-services";
 
@@ -21,7 +21,7 @@ interface ServiceCardProps {
 export function ServiceCard({ service }: ServiceCardProps) {
     const [imageError, setImageError] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
-    const { data: session } = authClient.useSession();
+    const { user } = useSession();
     const likeMutation = useLikeService();
     const router = useRouter();
 
@@ -29,7 +29,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!session?.user) {
+        if (!user) {
             setShowAuthModal(true);
             return;
         }

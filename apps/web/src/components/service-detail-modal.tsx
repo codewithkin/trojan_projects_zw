@@ -7,7 +7,7 @@ import { type Service, categoryConfig } from "@/data/services";
 import Image from "next/image";
 import { X, Star, Check, Heart, ShoppingCart } from "lucide-react";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -23,7 +23,7 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
     const [selectedImage, setSelectedImage] = useState(0);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
-    const { data: session } = authClient.useSession();
+    const { user } = useSession();
 
     if (!service) return null;
 
@@ -220,7 +220,7 @@ export function ServiceDetailModal({ service, open, onClose }: ServiceDetailModa
                                 className="flex-1 rounded-full font-semibold"
                                 style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
                                 onClick={() => {
-                                    if (!session?.user) {
+                                    if (!user) {
                                         setShowAuthModal(true);
                                     } else {
                                         // TODO: Implement service request flow
