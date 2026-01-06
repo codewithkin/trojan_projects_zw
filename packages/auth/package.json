@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@trojan_projects_zw/config": "workspace:*",
+    "@types/nodemailer": "^7.0.4",
     "typescript": "catalog:"
   }
 }

@@ -17,7 +17,8 @@ const transporter = nodemailer.createTransport({
 export async function sendVerificationEmail({
   to,
   url,
-  token,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  token: _token,
 }: {
   to: string;
   url: string;
