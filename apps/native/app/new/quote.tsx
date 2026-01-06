@@ -124,7 +124,7 @@ export default function NewQuoteScreen() {
                     <Pressable
                         onPress={() => router.back()}
                         className="flex-row items-center mb-4 px-3 py-2 rounded-lg"
-                        style={{ backgroundColor: TROJAN_GOLD, width: 'fit-content' }}
+                        style={{ backgroundColor: TROJAN_GOLD }}
                     >
                         <ArrowLeft size={20} color={TROJAN_NAVY} />
                         <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
@@ -175,7 +175,7 @@ export default function NewQuoteScreen() {
                     <View className="p-4">
                         <Pressable
                             onPress={() => router.back()}
-                            className="flex-row items-center mb-6 px-3 py-2 rounded-lg w-fit"
+                            className="flex-row items-center mb-6 px-3 py-2 rounded-lg"
                             style={{ backgroundColor: TROJAN_GOLD }}
                         >
                             <ArrowLeft size={20} color={TROJAN_NAVY} />
@@ -205,16 +205,38 @@ export default function NewQuoteScreen() {
                                     <ChevronDown size={20} color="#6B7280" />
                                 </Pressable>
                                 {showServicePicker && (
-                                    <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-64">
+                                    <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-80">
                                         <ScrollView nestedScrollEnabled>
-                                            {Object.entries(groupedServices).map(([category, categoryServices]) => (
-                                                <View key={category}>
-                                                    <View className="px-3 py-2 bg-gray-50 border-b border-gray-100">
-                                                        <Text className="text-xs font-semibold text-gray-600 uppercase">
-                                                            {category}
-                                                        </Text>
-                                                    </View>
-                                                    {categoryServices.map((service) => (
+                                            {services.length > 0 ? (
+                                                Object.entries(groupedServices).length > 0 ? (
+                                                    Object.entries(groupedServices).map(([category, categoryServices]) => (
+                                                        <View key={category}>
+                                                            <View className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+                                                                <Text className="text-xs font-semibold text-gray-600 uppercase">
+                                                                    {category}
+                                                                </Text>
+                                                            </View>
+                                                            {categoryServices.map((service) => (
+                                                                <Pressable
+                                                                    key={service.id}
+                                                                    onPress={() => {
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            serviceId: service.id,
+                                                                            serviceName: service.name,
+                                                                        });
+                                                                        setShowServicePicker(false);
+                                                                    }}
+                                                                    className="p-3 border-b border-gray-100"
+                                                                >
+                                                                    <Text className="text-gray-900">{service.name}</Text>
+                                                                </Pressable>
+                                                            ))}
+                                                        </View>
+                                                    ))
+                                                ) : (
+                                                    // Fallback flat list if grouping doesn't work
+                                                    services.map((service) => (
                                                         <Pressable
                                                             key={service.id}
                                                             onPress={() => {
@@ -225,13 +247,19 @@ export default function NewQuoteScreen() {
                                                                 });
                                                                 setShowServicePicker(false);
                                                             }}
-                                                            className="p-3 border-b border-gray-100"
+                                                            className="p-3 border-b border-gray-100 flex-row items-center justify-between"
                                                         >
-                                                            <Text className="text-gray-900">{service.name}</Text>
+                                                            <View>
+                                                                <Text className="text-gray-900 font-medium">{service.name}</Text>\n                                                                <Text className="text-gray-500 text-xs mt-1">{service.category}</Text>
+                                                            </View>
                                                         </Pressable>
-                                                    ))}
+                                                    ))
+                                                )
+                                            ) : (
+                                                <View className="p-4 items-center">
+                                                    <Text className="text-gray-500">No services available</Text>
                                                 </View>
-                                            ))}
+                                            )}
                                         </ScrollView>
                                     </View>
                                 )}
@@ -325,8 +353,9 @@ export default function NewQuoteScreen() {
                             </View>
                         </>
                     )}
-                </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 }
