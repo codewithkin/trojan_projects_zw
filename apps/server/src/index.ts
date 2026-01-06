@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
 import preferencesRoute from "./routes/preferences";
+import servicesRoute from "./routes/services";
 
 const app = new Hono();
 
@@ -40,6 +41,7 @@ app.use(
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.route("/api/preferences", preferencesRoute);
+app.route("/api/services", servicesRoute);
 
 app.get("/", (c) => {
   return c.text("OK");
