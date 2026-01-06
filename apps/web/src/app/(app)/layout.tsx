@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { hasAdminAccess } from "@/config/admins";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
 import { cn } from "@/lib/utils";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-    const { data: session, isPending } = useSession();
+    const { user, session, isPending } = useSession();
     const router = useRouter();
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -18,17 +18,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         if (isPending) return;
 
         // If not logged in, redirect to login
-        if (!session) {
+        if (!user) {
             router.push("/login");
             return;
         }
 
         // If logged in but not admin/staff, redirect to home
-        if (!hasAdminAccess(session.user)) {
+        if (!hasAdminAccess(user)) {
             router.push("/");
             return;
         }
-    }, [session, isPending, router]);
+    }, [user, isPending, router]);
 
     // Show loading while checking auth
     if (isPending) {
@@ -43,7 +43,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
 
     // Don't render content if not authorized
-    if (!session || !hasAdminAccess(session.user)) {
+    if (!user || !hasAdminAccess(user)) {
         return null;
     }
 
