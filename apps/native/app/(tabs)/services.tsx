@@ -126,7 +126,7 @@ export default function Services() {
                     <>
                         {/* Hero Section */}
                         <View
-                            className="px-4 py-6"
+                            className="px-4 py-6 mt-12"
                             style={{ backgroundColor: TROJAN_NAVY }}
                         >
                             <Text className="text-2xl font-bold text-white">
@@ -326,8 +326,8 @@ export default function Services() {
                         {/* Empty State */}
                         {!isLoading && !error && filteredServices.length === 0 && (
                             <View className="items-center justify-center py-12">
-                                <Text className="text-5xl mb-3">🔍</Text>
-                                <Text className="text-lg font-medium text-gray-900">No services found</Text>
+                                <Ionicons name="search-outline" size={64} color="#D1D5DB" />
+                                <Text className="text-lg font-medium text-gray-900 mt-4">No services found</Text>
                                 <Text className="text-gray-500 mt-1">Try adjusting your filters</Text>
                             </View>
                         )}

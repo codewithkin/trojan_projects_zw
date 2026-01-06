@@ -344,7 +344,7 @@ export default function Home() {
 
       {/* Floating Action Button for New Project Request */}
       <Pressable
-        onPress={() => router.push("/projects/new")}
+        onPress={() => router.push("/new/project")}
         style={{
           position: "absolute",
           bottom: isTablet ? 32 : 24,

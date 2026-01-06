@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import Feather from '@expo/vector-icons/Feather';
 import { Tabs } from "expo-router";
 import { Platform, View, useWindowDimensions } from "react-native";
 
@@ -59,7 +59,7 @@ export default function TabLayout() {
                 paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Ionicons name={focused ? "home" : "home-outline"} size={isTablet ? 28 : 24} color={color} />
+              <Feather name="home" size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
@@ -77,7 +77,7 @@ export default function TabLayout() {
                 paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Ionicons name={focused ? "grid" : "grid-outline"} size={isTablet ? 28 : 24} color={color} />
+              <Feather name="grid" size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
@@ -95,7 +95,7 @@ export default function TabLayout() {
                 paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Ionicons name={focused ? "briefcase" : "briefcase-outline"} size={isTablet ? 28 : 24} color={color} />
+              <Feather name="briefcase" size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
@@ -113,7 +113,7 @@ export default function TabLayout() {
                 paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Ionicons name={focused ? "chatbubbles" : "chatbubbles-outline"} size={isTablet ? 28 : 24} color={color} />
+              <Feather name="message-circle" size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}

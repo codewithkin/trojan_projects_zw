@@ -100,12 +100,9 @@ export default function Chat() {
     return (
         <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
             {/* Header */}
-            <View className="px-4 pt-6 pb-4" style={{ backgroundColor: TROJAN_NAVY }}>
-                <View className="flex-row items-center justify-between mb-4">
+            <View className="px-4 pt-16 pb-4" style={{ backgroundColor: TROJAN_NAVY }}>
+                <View className="mb-4">
                     <Text className="text-2xl font-bold text-white">Chats</Text>
-                    <Pressable className="p-2">
-                        <Ionicons name="ellipsis-vertical" size={22} color="white" />
-                    </Pressable>
                 </View>
 
                 {/* Search Bar */}
