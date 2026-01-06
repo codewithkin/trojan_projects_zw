@@ -1,30 +1,10 @@
 import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
 import { env } from "@trojan_projects_zw/env/native";
-import * as SecureStore from "expo-secure-store";
-import Constants from "expo-constants";
-
-const scheme = Constants.expoConfig?.scheme as string;
-const COOKIE_KEY = `${scheme}_better-auth.session_token`;
-
-/**
- * Retrieves the session cookie from SecureStore.
- * Uses the same storage key pattern as better-auth expo client.
- *
- * @returns Promise with the session cookie value or null
- */
-async function getSessionCookie(): Promise<string | null> {
-  try {
-    const cookie = await SecureStore.getItemAsync(COOKIE_KEY);
-    return cookie;
-  } catch (error) {
-    console.error("Error retrieving session cookie:", error);
-    return null;
-  }
-}
+import { getToken } from "./auth-storage";
 
 /**
  * Axios instance configured for authenticated requests.
- * Uses request interceptor to add session cookie to headers.
+ * Uses request interceptor to add auth token to headers.
  */
 const api = axios.create({
   baseURL: env.EXPO_PUBLIC_API_URL,
@@ -33,13 +13,13 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add session cookie to every request
+// Request interceptor to add auth token to every request
 api.interceptors.request.use(
   async (config) => {
-    const sessionCookie = await getSessionCookie();
-    if (sessionCookie) {
-      // Set the cookie header for authentication
-      config.headers.Cookie = `better-auth.session_token=${sessionCookie}`;
+    const token = await getToken();
+    if (token) {
+      // Set the Authorization header with Bearer token
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
