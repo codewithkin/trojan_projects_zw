@@ -52,7 +52,7 @@ export function AuthModal({ visible, onClose, onSuccess, message }: AuthModalPro
         setLoading(true);
         try {
             const response = await signIn({ email, password });
-            
+
             if (response.success) {
                 resetForm();
                 onClose();
@@ -81,7 +81,7 @@ export function AuthModal({ visible, onClose, onSuccess, message }: AuthModalPro
         setLoading(true);
         try {
             const response = await signUp({ name, email, password });
-            
+
             if (response.success) {
                 resetForm();
                 onClose();
