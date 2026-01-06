@@ -19,9 +19,6 @@ COPY turbo.json ./
 COPY packages/db/prisma/schema ./packages/db/prisma/schema
 COPY packages/db/prisma.config.ts ./packages/db/
 
-# Copy .env file for Prisma to find DATABASE_URL
-COPY apps/server/.env ./apps/server/
-
 # Install all dependencies (triggers postinstall for prisma generate)
 RUN bun install --frozen-lockfile
 
