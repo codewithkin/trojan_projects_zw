@@ -126,12 +126,12 @@ export default function ServiceDetailPage() {
             setShowAuthModal(true);
             return;
         }
-        // For now, use a default location - this could open a modal for location input
-        requestMutation.mutate({ slug, location: "To be confirmed" });
+        // Navigate to quote form with this service pre-selected
+        router.push(`/quotes/new?service=${slug}`);
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <>
             {/* Breadcrumb - Responsive */}
             <div className="bg-white border-b">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
@@ -140,7 +140,7 @@ export default function ServiceDetailPage() {
                             Home
                         </Link>
                         <span className="text-gray-400">/</span>
-                        <Link href="/" className="text-gray-500 hover:text-gray-700 hidden sm:inline">
+                        <Link href="/services" className="text-gray-500 hover:text-gray-700 hidden sm:inline">
                             Services
                         </Link>
                         <span className="text-gray-400 hidden sm:inline">/</span>
@@ -438,7 +438,7 @@ export default function ServiceDetailPage() {
                                 disabled={requestMutation.isPending}
                             >
                                 <ShoppingCart size={20} className="mr-2" />
-                                {requestMutation.isPending ? "Requesting..." : "Request This Service"}
+                                Request This Service
                             </Button>
                             <div className="grid grid-cols-2 gap-3">
                                 <Button variant="outline" size="lg" className="rounded-full">
@@ -500,6 +500,6 @@ export default function ServiceDetailPage() {
 
             {/* Auth Modal */}
             <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
-        </div>
+        </>
     );
 }

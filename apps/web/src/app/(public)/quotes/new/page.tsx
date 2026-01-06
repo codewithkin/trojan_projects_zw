@@ -19,6 +19,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -32,8 +34,10 @@ interface Service {
 
 export default function NewQuotePage() {
     const router = useRouter();
+    const { data: session } = authClient.useSession();
     const [loading, setLoading] = useState(false);
     const [services, setServices] = useState<Service[]>([]);
+    const [showAuthModal, setShowAuthModal] = useState(false);
     const [formData, setFormData] = useState({
         serviceId: "",
         location: "",
@@ -59,6 +63,12 @@ export default function NewQuotePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Check auth before submitting
+        if (!session?.user) {
+            setShowAuthModal(true);
+            return;
+        }
 
         if (!formData.serviceId || !formData.location) {
             toast.error("Please select a service and enter your location");
@@ -102,7 +112,7 @@ export default function NewQuotePage() {
     }, {} as Record<string, Service[]>);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <>
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="mb-8">
@@ -232,6 +242,9 @@ export default function NewQuotePage() {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+
+            {/* Auth Modal */}
+            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+        </>
     );
 }

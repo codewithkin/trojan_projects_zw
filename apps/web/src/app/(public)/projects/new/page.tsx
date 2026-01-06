@@ -16,6 +16,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { AuthModal } from "@/components/auth-modal";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -37,9 +39,11 @@ interface Quote {
 
 export default function NewProjectPage() {
     const router = useRouter();
+    const { data: session } = authClient.useSession();
     const [loading, setLoading] = useState(false);
     const [fetchingQuotes, setFetchingQuotes] = useState(true);
     const [approvedQuotes, setApprovedQuotes] = useState<Quote[]>([]);
+    const [showAuthModal, setShowAuthModal] = useState(false);
     const [formData, setFormData] = useState({
         quoteId: "",
         finalPrice: "",
@@ -48,8 +52,13 @@ export default function NewProjectPage() {
     });
 
     useEffect(() => {
-        fetchApprovedQuotes();
-    }, []);
+        // Only fetch if authenticated
+        if (session?.user) {
+            fetchApprovedQuotes();
+        } else {
+            setFetchingQuotes(false);
+        }
+    }, [session]);
 
     const fetchApprovedQuotes = async () => {
         try {
@@ -75,6 +84,12 @@ export default function NewProjectPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Check auth before submitting
+        if (!session?.user) {
+            setShowAuthModal(true);
+            return;
+        }
 
         if (!formData.quoteId) {
             toast.error("Please select an approved quote");
@@ -114,8 +129,38 @@ export default function NewProjectPage() {
 
     const selectedQuote = approvedQuotes.find((q) => q.id === formData.quoteId);
 
+    // If not logged in, show auth prompt
+    if (!session?.user) {
+        return (
+            <>
+                <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="text-center py-8">
+                                <p className="text-5xl mb-3">🔒</p>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                    Sign In Required
+                                </h3>
+                                <p className="text-gray-500 mb-4">
+                                    Please sign in to create a new project
+                                </p>
+                                <Button
+                                    onClick={() => setShowAuthModal(true)}
+                                    style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                                >
+                                    Sign In
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+            </>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-gray-50">
+        <>
             <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="mb-8">
@@ -327,6 +372,9 @@ export default function NewProjectPage() {
                     </>
                 )}
             </div>
-        </div>
+            
+            {/* Auth Modal */}
+            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+        </>
     );
 }

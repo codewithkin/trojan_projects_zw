@@ -44,12 +44,6 @@ const ratingFilters = [
     { id: "4.5-plus", label: "4.5+ Stars", minRating: 4.5 },
 ];
 
-// Helper to extract numeric price from string like "US$3,950.00"
-const extractPrice = (priceStr: string): number => {
-    const match = priceStr.replace(/[,\s]/g, "").match(/[\d.]+/);
-    return match ? parseFloat(match[0]) : 0;
-};
-
 export default function ServicesPage() {
     const searchParams = useSearchParams();
     const categoryParam = searchParams.get("category");
@@ -154,7 +148,7 @@ export default function ServicesPage() {
     }, [services, selectedCategory, searchQuery, selectedPriceRange, selectedSort, selectedRating, featuredOnly, customMinPrice, customMaxPrice]);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <>
             {/* Hero Section */}
             <section className="py-12" style={{ backgroundColor: TROJAN_NAVY }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -423,6 +417,6 @@ export default function ServicesPage() {
                     )}
                 </div>
             </section>
-        </div>
+        </>
     );
 }
