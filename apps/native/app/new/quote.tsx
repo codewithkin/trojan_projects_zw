@@ -18,6 +18,7 @@ import { env } from "@trojan_projects_zw/env/native";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Text as StyledText } from "@/components/ui/text";
+import { zimbabweLocations } from "@/data/onboarding";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -36,6 +37,7 @@ export default function NewQuoteScreen() {
     const [fetchingServices, setFetchingServices] = useState(true);
     const [services, setServices] = useState<Service[]>([]);
     const [showServicePicker, setShowServicePicker] = useState(false);
+    const [showLocationPicker, setShowLocationPicker] = useState(false);
     const [formData, setFormData] = useState({
         serviceId: "",
         serviceName: "",
@@ -274,13 +276,38 @@ export default function NewQuoteScreen() {
                                     <Text className="text-sm font-medium text-gray-700 mb-2">
                                         Project Location *
                                     </Text>
-                                    <TextInput
-                                        className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
-                                        placeholder="e.g., Borrowdale, Harare"
-                                        placeholderTextColor="#9CA3AF"
-                                        value={formData.location}
-                                        onChangeText={(text) => setFormData({ ...formData, location: text })}
-                                    />
+                                    <Pressable
+                                        onPress={() => setShowLocationPicker(!showLocationPicker)}
+                                        className="border border-gray-300 rounded-lg p-3 flex-row items-center justify-between bg-white"
+                                    >
+                                        <Text
+                                            className={formData.location ? "text-gray-900" : "text-gray-400"}
+                                        >
+                                            {formData.location || "Select your location"}
+                                        </Text>
+                                        <ChevronDown size={20} color="#6B7280" />
+                                    </Pressable>
+                                    {showLocationPicker && (
+                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-64">
+                                            <ScrollView nestedScrollEnabled>
+                                                {zimbabweLocations.map((location) => (
+                                                    <Pressable
+                                                        key={location}
+                                                        onPress={() => {
+                                                            setFormData({
+                                                                ...formData,
+                                                                location: location,
+                                                            });
+                                                            setShowLocationPicker(false);
+                                                        }}
+                                                        className="p-3 border-b border-gray-100"
+                                                    >
+                                                        <Text className="text-gray-900">{location}</Text>
+                                                    </Pressable>
+                                                ))}
+                                            </ScrollView>
+                                        </View>
+                                    )}
                                 </View>
 
                                 {/* Project Description */}
