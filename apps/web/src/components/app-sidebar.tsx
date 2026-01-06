@@ -3,13 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ChevronDown, LogOut, User } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession, signOut } from "@/lib/auth-client";
-import { getNavigationForRole, type NavSection } from "@/config/navigation";
+import { getNavigationForRole } from "@/config/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -139,14 +138,9 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                                <Link href="/profile" className="flex items-center gap-2">
-                                    <User size={16} />
-                                    Profile
-                                </Link>
-                            </DropdownMenuItem>
+                            <DropdownMenuLabel>
+                                {session?.user?.email || "Admin"}
+                            </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 className="text-red-600 focus:text-red-600"

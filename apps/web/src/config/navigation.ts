@@ -1,21 +1,8 @@
 import {
   LayoutDashboard,
-  Package,
-  Users,
   ShoppingCart,
-  Settings,
-  FileText,
-  BarChart3,
-  MessageSquare,
-  UserCheck,
-  Wrench,
-  ClipboardList,
-  HeadphonesIcon,
-  HelpCircle,
-  Search,
-  TrendingUp,
-  Calendar,
   Bell,
+  UserPlus,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,108 +21,24 @@ export interface NavSection {
 
 /**
  * Navigation items for Admin users
- * Full access to all management features
+ * Simplified to just orders, notifications, and invitations
  */
 export const adminNavigation: NavSection[] = [
   {
-    title: "Overview",
+    title: "Admin",
     items: [
-      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Business overview and KPIs" },
-      { title: "Analytics", href: "/analytics", icon: BarChart3, description: "Revenue trends and insights" },
-      { title: "Notifications", href: "/notifications", icon: Bell, description: "System notifications" },
-    ],
-  },
-  {
-    title: "Management",
-    items: [
+      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Overview" },
       { title: "Orders", href: "/orders", icon: ShoppingCart, description: "Manage customer orders" },
-      { title: "Customers", href: "/customers", icon: Users, description: "Customer database" },
-      { title: "Services", href: "/services-management", icon: Package, description: "Service catalog management" },
-      { title: "Staff", href: "/staff", icon: UserCheck, description: "Team management" },
-    ],
-  },
-  {
-    title: "Reports",
-    items: [
-      { title: "Reports", href: "/reports", icon: FileText, description: "Generate and export reports" },
-    ],
-  },
-  {
-    title: "Settings",
-    items: [
-      { title: "Settings", href: "/settings", icon: Settings, description: "System configuration" },
-    ],
-  },
-];
-
-/**
- * Navigation items for Staff users
- * Access to assigned projects and tasks
- */
-export const staffNavigation: NavSection[] = [
-  {
-    title: "Overview",
-    items: [
-      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Your work overview" },
-      { title: "Calendar", href: "/calendar", icon: Calendar, description: "Schedule and appointments" },
-      { title: "Notifications", href: "/notifications", icon: Bell, description: "Your notifications" },
-    ],
-  },
-  {
-    title: "Work",
-    items: [
-      { title: "My Projects", href: "/my-work", icon: ClipboardList, description: "Assigned projects" },
-      { title: "Services", href: "/services", icon: Package, description: "Service catalog reference" },
-    ],
-  },
-  {
-    title: "Performance",
-    items: [
-      { title: "My Stats", href: "/my-stats", icon: TrendingUp, description: "Your performance metrics" },
-    ],
-  },
-];
-
-/**
- * Navigation items for Support users
- * Access to customer support and inquiries
- */
-export const supportNavigation: NavSection[] = [
-  {
-    title: "Overview",
-    items: [
-      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Support overview" },
-      { title: "Notifications", href: "/notifications", icon: Bell, description: "Your notifications" },
-    ],
-  },
-  {
-    title: "Support",
-    items: [
-      { title: "Tickets", href: "/tickets", icon: HeadphonesIcon, description: "Customer support tickets" },
-      { title: "Chat", href: "/support-chat", icon: MessageSquare, description: "Live chat support" },
-      { title: "Customer Lookup", href: "/customer-lookup", icon: Search, description: "Find customer information" },
-    ],
-  },
-  {
-    title: "Resources",
-    items: [
-      { title: "Services", href: "/services", icon: Package, description: "Service information" },
-      { title: "FAQ", href: "/faq", icon: HelpCircle, description: "Frequently asked questions" },
+      { title: "Notifications", href: "/notifications", icon: Bell, description: "System notifications" },
+      { title: "Invite Users", href: "/dashboard#invite", icon: UserPlus, description: "Invite team members" },
     ],
   },
 ];
 
 /**
  * Get navigation based on user role
+ * Staff and support use mobile app, so only admin navigation exists
  */
 export function getNavigationForRole(role: string | null | undefined): NavSection[] {
-  switch (role) {
-    case "staff":
-      return staffNavigation;
-    case "support":
-      return supportNavigation;
-    default:
-      // Admin is default for admin emails
-      return adminNavigation;
-  }
+  return adminNavigation;
 }
