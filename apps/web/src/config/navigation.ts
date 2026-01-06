@@ -15,6 +15,7 @@ import {
   Search,
   TrendingUp,
   Calendar,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,6 +42,7 @@ export const adminNavigation: NavSection[] = [
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Business overview and KPIs" },
       { title: "Analytics", href: "/analytics", icon: BarChart3, description: "Revenue trends and insights" },
+      { title: "Notifications", href: "/notifications", icon: Bell, description: "System notifications" },
     ],
   },
   {
@@ -76,6 +78,7 @@ export const staffNavigation: NavSection[] = [
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Your work overview" },
       { title: "Calendar", href: "/calendar", icon: Calendar, description: "Schedule and appointments" },
+      { title: "Notifications", href: "/notifications", icon: Bell, description: "Your notifications" },
     ],
   },
   {
@@ -102,6 +105,7 @@ export const supportNavigation: NavSection[] = [
     title: "Overview",
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Support overview" },
+      { title: "Notifications", href: "/notifications", icon: Bell, description: "Your notifications" },
     ],
   },
   {
