@@ -87,7 +87,7 @@ export default function ChatPage() {
                     </p>
                 </div>
 
-                    {/* Chat Container */}
+                {/* Chat Container */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden max-w-full">
                     {/* Chat Messages */}
                     <div className="h-96 md:h-[500px] overflow-y-auto p-4 md:p-6 space-y-4">

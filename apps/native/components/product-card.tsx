@@ -17,8 +17,8 @@ export function ProductCard({ service, onPress }: ProductCardProps) {
     const [isWishlisted, setIsWishlisted] = useState(false);
 
     // Format price for display
-    const priceDisplay = typeof service.price === 'number' 
-        ? `US$${service.price.toLocaleString()}` 
+    const priceDisplay = typeof service.price === 'number'
+        ? `US$${service.price.toLocaleString()}`
         : service.price;
 
     return (
