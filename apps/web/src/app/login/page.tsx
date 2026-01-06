@@ -31,7 +31,7 @@ export default function LoginPage() {
       {
         onSuccess: () => {
           toast.success("Welcome back!");
-          router.push("/dashboard");
+          router.push("/");
         },
         onError: (error) => {
           if (error.error.status === 403) {
@@ -53,7 +53,7 @@ export default function LoginPage() {
     // Social sign-in redirects, so we don't catch errors here
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/",
     });
     // Loading state will persist during redirect
   };
