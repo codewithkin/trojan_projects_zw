@@ -9,6 +9,8 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { ArrowLeft, ChevronDown, Lock } from "lucide-react-native";
@@ -111,18 +113,22 @@ export default function NewQuoteScreen() {
     // If not authenticated, show auth prompt
     if (!isAuthenticated) {
         return (
-            <View className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
-                <View className="p-4 border-b border-gray-100 bg-white">
+            <SafeAreaView
+                style={{
+                    flex: 1,
+                    backgroundColor: "#F9FAFB",
+                    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+                }}
+            >
+                <View className="p-4">
                     <Pressable
                         onPress={() => router.back()}
-                        className="flex-row items-center mb-4"
+                        className="flex-row items-center mb-4 px-3 py-2 rounded-lg"
+                        style={{ backgroundColor: TROJAN_GOLD, width: 'fit-content' }}
                     >
-                        <ArrowLeft size={20} color="#6B7280" />
-                        <Text className="ml-2 text-gray-600">Back</Text>
+                        <ArrowLeft size={20} color={TROJAN_NAVY} />
+                        <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
                     </Pressable>
-                    <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                        Request a Quote
-                    </Text>
                 </View>
                 <View className="flex-1 items-center justify-center p-6">
                     <View className="bg-white rounded-2xl p-8 items-center w-full max-w-sm shadow-sm">
@@ -149,35 +155,32 @@ export default function NewQuoteScreen() {
                         </Button>
                     </View>
                 </View>
-            </View>
+            </SafeAreaView>
         );
     }
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1"
-            style={{ backgroundColor: "#F9FAFB" }}
+        <SafeAreaView
+            style={{
+                flex: 1,
+                backgroundColor: "#F9FAFB",
+                paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+            }}
         >
-            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-                {/* Header */}
-                <View className="p-4 border-b border-gray-100 bg-white">
-                    <Pressable
-                        onPress={() => router.back()}
-                        className="flex-row items-center mb-4"
-                    >
-                        <ArrowLeft size={20} color="#6B7280" />
-                        <Text className="ml-2 text-gray-600">Back</Text>
-                    </Pressable>
-                    <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                        Request a Quote
-                    </Text>
-                    <Text className="text-gray-500 mt-1">
-                        Tell us about your project and we'll provide a detailed estimate
-                    </Text>
-                </View>
-
-                <View className="p-4">
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                className="flex-1"
+            >
+                <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                    <View className="p-4">
+                        <Pressable
+                            onPress={() => router.back()}
+                            className="flex-row items-center mb-6 px-3 py-2 rounded-lg w-fit"
+                            style={{ backgroundColor: TROJAN_GOLD }}
+                        >
+                            <ArrowLeft size={20} color={TROJAN_NAVY} />
+                            <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
+                        </Pressable>
                     {fetchingServices ? (
                         <View className="items-center justify-center py-12">
                             <ActivityIndicator size="large" color={TROJAN_GOLD} />
