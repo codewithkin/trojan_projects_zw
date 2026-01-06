@@ -1,16 +1,13 @@
 import { useState, useMemo } from "react";
-import { ScrollView, View, Dimensions, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { ScrollView, View, TextInput, TouchableOpacity, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text } from "@/components/ui/text";
 import { ProductCard } from "@/components/product-card";
-import { ServicesGridSkeleton } from "@/components/skeletons";
+import { ServicesGridSkeleton, ServicesListSkeleton } from "@/components/skeletons";
 import { useServices } from "@/hooks/use-services";
 import { Ionicons } from "@expo/vector-icons";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
-
-const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 48) / 2; // 2 columns with padding
 
 const categories = [
     { id: "all", label: "All" },
@@ -40,6 +37,8 @@ const sortOptions = [
 export default function Services() {
     // Fetch services from API
     const { data: services, isLoading, isError, error, refetch } = useServices();
+    const { width } = useWindowDimensions();
+    const isTablet = width >= 768;
 
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
@@ -106,14 +105,15 @@ export default function Services() {
                 </Text>
 
                 {/* Search Bar */}
-                <View className="bg-white rounded-full px-4 py-3 mt-4 flex-row items-center">
-                    <Ionicons name="search" size={20} color="#9CA3AF" />
+                <View className="bg-white rounded-full px-4 mt-4 flex-row items-center" style={{ height: 44 }}>
+                    <Ionicons name="search" size={18} color="#9CA3AF" />
                     <TextInput
                         placeholder="Search services, brands..."
                         value={searchQuery}
                         onChangeText={setSearchQuery}
-                        className="flex-1 ml-2 text-base"
+                        className="flex-1 ml-2"
                         placeholderTextColor="#9CA3AF"
+                        style={{ fontSize: 14 }}
                     />
                 </View>
             </View>
@@ -248,7 +248,11 @@ export default function Services() {
             <View className="px-4 pt-2 pb-8">
                 {/* Loading State */}
                 {isLoading && (
-                    <ServicesGridSkeleton count={4} />
+                    isTablet ? (
+                        <ServicesGridSkeleton count={6} />
+                    ) : (
+                        <ServicesListSkeleton count={4} />
+                    )
                 )}
 
                 {/* Error State */}
@@ -271,16 +275,30 @@ export default function Services() {
 
                 {/* Services Grid */}
                 {!isLoading && !isError && (
-                    <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
-                        {filteredServices.map((service) => (
-                            <View key={service.id} style={{ width: CARD_WIDTH, paddingHorizontal: 6, marginBottom: 12 }}>
+                    isTablet ? (
+                        // Tablet: 2-column grid
+                        <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
+                            {filteredServices.map((service) => (
+                                <View key={service.id} style={{ width: "50%", paddingHorizontal: 6, marginBottom: 12 }}>
+                                    <ProductCard
+                                        service={service}
+                                        onPress={() => console.log("View service", service.slug)}
+                                    />
+                                </View>
+                            ))}
+                        </View>
+                    ) : (
+                        // Mobile: Full-width list
+                        <View style={{ gap: 12 }}>
+                            {filteredServices.map((service) => (
                                 <ProductCard
+                                    key={service.id}
                                     service={service}
                                     onPress={() => console.log("View service", service.slug)}
                                 />
-                            </View>
-                        ))}
-                    </View>
+                            ))}
+                        </View>
+                    )
                 )}
             </View>
 
