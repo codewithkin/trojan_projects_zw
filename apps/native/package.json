@@ -47,6 +47,7 @@
     "expo-web-browser": "^15.0.10",
     "heroui-native": "^1.0.0-beta.9",
     "lucide-react-native": "^0.562.0",
+    "mmkv": "^1.0.4",
     "moti": "^0.30.0",
     "nodemailer": "^7.0.12",
     "react": "19.1.0",
