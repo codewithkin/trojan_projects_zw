@@ -65,9 +65,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="services"
+        options={{
+          title: "Services",
+          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+            <View
+              style={{
+                backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
+                borderRadius: isTablet ? 16 : 12,
+                paddingHorizontal: isTablet ? 24 : 16,
+                paddingVertical: isTablet ? 10 : 8,
+              }}
+            >
+              <Ionicons name={focused ? "grid" : "grid-outline"} size={isTablet ? 28 : 24} color={color} />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="projects"
         options={{
-          title: "Projects",
+          title: "My Projects",
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
             <View
               style={{
@@ -83,9 +101,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="chat"
         options={{
-          title: "Profile",
+          title: "Chat",
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
             <View
               style={{
@@ -95,7 +113,7 @@ export default function TabLayout() {
                 paddingVertical: isTablet ? 10 : 8,
               }}
             >
-              <Ionicons name={focused ? "person" : "person-outline"} size={isTablet ? 28 : 24} color={color} />
+              <Ionicons name={focused ? "chatbubbles" : "chatbubbles-outline"} size={isTablet ? 28 : 24} color={color} />
             </View>
           ),
         }}
