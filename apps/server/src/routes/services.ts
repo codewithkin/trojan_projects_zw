@@ -7,6 +7,9 @@ const servicesRoute = new Hono()
   .get("/", async (c) => {
     const category = c.req.query("category");
     const featured = c.req.query("featured");
+    const page = parseInt(c.req.query("page") || "1");
+    const limit = parseInt(c.req.query("limit") || "10");
+    const skip = (page - 1) * limit;
 
     try {
       const where: Record<string, unknown> = {};
@@ -19,9 +22,14 @@ const servicesRoute = new Hono()
         where.featured = true;
       }
 
+      // Get total count for pagination
+      const totalCount = await db.service.count({ where });
+
       const services = await db.service.findMany({
         where,
         orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
         include: {
           ratings: {
             select: {
@@ -70,7 +78,16 @@ const servicesRoute = new Hono()
         };
       });
 
-      return c.json({ services: transformedServices });
+      return c.json({ 
+        services: transformedServices,
+        pagination: {
+          page,
+          limit,
+          total: totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+          hasMore: page < Math.ceil(totalCount / limit),
+        }
+      });
     } catch (error) {
       console.error("Error fetching services:", error);
       return c.json({ error: "Failed to fetch services" }, 500);
