@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (user) {
             return Promise.resolve(true);
         }
-        
+
         return new Promise((resolve) => {
             setAuthMessage(message || "Please sign in to continue");
             setAuthResolve(() => resolve);
