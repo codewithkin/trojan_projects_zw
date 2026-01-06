@@ -14,7 +14,7 @@ import { useRouter } from "expo-router";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { Ionicons } from "@expo/vector-icons";
-import { authClient } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -51,23 +51,17 @@ export function AuthModal({ visible, onClose, onSuccess, message }: AuthModalPro
 
         setLoading(true);
         try {
-            await authClient.signIn.email(
-                { email, password },
-                {
-                    onSuccess: () => {
-                        resetForm();
-                        onClose();
-                        onSuccess?.();
-                    },
-                    onError: (err) => {
-                        if (err.error.status === 403) {
-                            setError("Please verify your email address first");
-                        } else {
-                            setError(err.error.message || "Sign in failed");
-                        }
-                    },
-                }
-            );
+            const response = await signIn({ email, password });
+            
+            if (response.success) {
+                resetForm();
+                onClose();
+                onSuccess?.();
+            } else {
+                setError(response.error || "Sign in failed");
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Sign in failed");
         } finally {
             setLoading(false);
         }
@@ -86,35 +80,17 @@ export function AuthModal({ visible, onClose, onSuccess, message }: AuthModalPro
 
         setLoading(true);
         try {
-            await authClient.signUp.email(
-                { name, email, password },
-                {
-                    onSuccess: () => {
-                        resetForm();
-                        onClose();
-                        onSuccess?.();
-                    },
-                    onError: (err) => {
-                        setError(err.error.message || "Sign up failed");
-                    },
-                }
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleGoogleAuth = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            await authClient.signIn.social({
-                provider: "google",
-            });
-            onClose();
-            onSuccess?.();
-        } catch {
-            setError("Google authentication failed");
+            const response = await signUp({ name, email, password });
+            
+            if (response.success) {
+                resetForm();
+                onClose();
+                onSuccess?.();
+            } else {
+                setError(response.error || "Sign up failed");
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Sign up failed");
         } finally {
             setLoading(false);
         }
@@ -189,23 +165,6 @@ export function AuthModal({ visible, onClose, onSuccess, message }: AuthModalPro
                                     ? "Sign in to continue"
                                     : "Sign up to get started"}
                             </Text>
-
-                            {/* Google Button */}
-                            <Button
-                                variant="outline"
-                                className="w-full mb-4"
-                                onPress={handleGoogleAuth}
-                                disabled={loading}
-                            >
-                                <Text className="font-medium">Continue with Google</Text>
-                            </Button>
-
-                            {/* Divider */}
-                            <View className="flex-row items-center my-4">
-                                <View className="flex-1 h-px bg-gray-200" />
-                                <Text className="px-3 text-gray-400 text-sm">OR</Text>
-                                <View className="flex-1 h-px bg-gray-200" />
-                            </View>
 
                             {/* Error */}
                             {error && (
