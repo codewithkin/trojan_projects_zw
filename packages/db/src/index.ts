@@ -11,3 +11,7 @@ const prisma = new PrismaClient({ adapter });
 
 export { prisma as db };
 export default prisma;
+
+// Export Prisma enums and types
+export * from "../prisma/generated/enums";
+export type { Service, ServiceRating, ServiceLike, ServiceRequest } from "../prisma/generated/client";
