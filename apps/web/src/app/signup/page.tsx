@@ -25,7 +25,7 @@ export default function SignUpPage() {
 
     // Log session on mount and when it changes
     useEffect(() => {
-      console.log("📝 Sign Up Page - User Session:", session);
+        console.log("📝 Sign Up Page - User Session:", session);
     }, [session]);
 
     const handleEmailSignUp = async (e: React.FormEvent) => {
