@@ -7,13 +7,13 @@ import { HeroBanner } from "@/components/hero-banner";
 import { useServices } from "@/hooks/use-services";
 import { ServicesGridSkeleton } from "@/components/skeletons";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
 } from "@/components/ui/pagination";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -25,17 +25,17 @@ export default function ServicesPage() {
     const itemsPerPage = 10;
 
     // Fetch services from API with pagination
-    const { data: services, isLoading, isError } = useServices({ 
+    const { data: services, isLoading, isError } = useServices({
         category: selectedCategory,
         page: currentPage,
-        limit: itemsPerPage 
+        limit: itemsPerPage
     });
 
     // Fetch services from API with pagination
-    const { data: services, isLoading, isError } = useServices({ 
+    const { data: services, isLoading, isError } = useServices({
         category: selectedCategory,
         page: currentPage,
-        limit: itemsPerPage 
+        limit: itemsPerPage
     });
 
     // Filter and sort services
@@ -132,12 +132,12 @@ export default function ServicesPage() {
                                 <Pagination>
                                     <PaginationContent>
                                         <PaginationItem>
-                                            <PaginationPrevious 
+                                            <PaginationPrevious
                                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                                 className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                                             />
                                         </PaginationItem>
-                                        
+
                                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                                             <PaginationItem key={page}>
                                                 <PaginationLink
@@ -149,9 +149,9 @@ export default function ServicesPage() {
                                                 </PaginationLink>
                                             </PaginationItem>
                                         ))}
-                                        
+
                                         <PaginationItem>
-                                            <PaginationNext 
+                                            <PaginationNext
                                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                                 className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                                             />
