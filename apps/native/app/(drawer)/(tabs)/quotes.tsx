@@ -1,9 +1,12 @@
-import { useState } from "react";
-import { ScrollView, View, Pressable, Modal, TextInput, KeyboardAvoidingView, Platform } from "react-native";
-import { Plus, Clock, CheckCircle2, XCircle, FileText, DollarSign, Calendar, X, ChevronDown } from "lucide-react-native";
+import { useState, useEffect, useCallback } from "react";
+import { ScrollView, View, Pressable, Modal, TextInput, KeyboardAvoidingView, Platform, RefreshControl, ActivityIndicator, Alert } from "react-native";
+import { Plus, Clock, CheckCircle2, XCircle, FileText, DollarSign, Calendar, X, ChevronDown, ArrowRight } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "expo-router";
+import { authClient } from "@/lib/auth-client";
+import { env } from "@trojan_projects_zw/env/native";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -12,58 +15,38 @@ type QuoteStatus = "pending" | "approved" | "rejected";
 
 interface Quote {
     id: string;
-    service: string;
-    description: string;
-    estimatedPrice: string;
     status: QuoteStatus;
-    requestDate: string;
-    responseDate?: string;
+    location: string;
+    notes: string | null;
+    estimatedPrice: number | null;
+    staffNotes: string | null;
+    service: {
+        id: string;
+        name: string;
+        slug: string;
+        category: string;
+        images: string[];
+    };
+    hasProject: boolean;
+    project: {
+        id: string;
+        status: string;
+    } | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
-const userQuotes: Quote[] = [
-    {
-        id: "1",
-        service: "3.5 KVA Solar System",
-        description: "Complete solar installation for 3-bedroom house",
-        estimatedPrice: "US$1,800 - US$2,200",
-        status: "pending",
-        requestDate: "Dec 18, 2024",
-    },
-    {
-        id: "2",
-        service: "CCTV 4-Camera System",
-        description: "Office security surveillance with night vision",
-        estimatedPrice: "US$580",
-        status: "approved",
-        requestDate: "Dec 10, 2024",
-        responseDate: "Dec 12, 2024",
-    },
-    {
-        id: "3",
-        service: "Electrical Wiring",
-        description: "Full house rewiring for old property",
-        estimatedPrice: "US$950",
-        status: "rejected",
-        requestDate: "Dec 5, 2024",
-        responseDate: "Dec 6, 2024",
-    },
-];
+interface Service {
+    id: string;
+    name: string;
+    slug: string;
+}
 
 const statusFilters: { label: string; value: QuoteStatus | "all" }[] = [
     { label: "All", value: "all" },
     { label: "Pending", value: "pending" },
     { label: "Approved", value: "approved" },
     { label: "Rejected", value: "rejected" },
-];
-
-const serviceOptions = [
-    "Solar Power System",
-    "CCTV & Security",
-    "Electrical Installation",
-    "Borehole Drilling",
-    "Water Pump System",
-    "Welding & Fabrication",
-    "Other",
 ];
 
 const getStatusConfig = (status: QuoteStatus) => {
@@ -78,30 +61,179 @@ const getStatusConfig = (status: QuoteStatus) => {
 };
 
 export default function Quotes() {
+    const router = useRouter();
+    const { data: session } = authClient.useSession();
     const [selectedFilter, setSelectedFilter] = useState<QuoteStatus | "all">("all");
     const [showModal, setShowModal] = useState(false);
     const [showServicePicker, setShowServicePicker] = useState(false);
+    const [quotes, setQuotes] = useState<Quote[]>([]);
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [promotingId, setPromotingId] = useState<string | null>(null);
     const [newQuote, setNewQuote] = useState({
-        service: "",
-        description: "",
+        serviceId: "",
+        serviceName: "",
+        notes: "",
         location: "",
-        phone: "",
     });
 
-    const filteredQuotes = userQuotes.filter((quote) => {
+    const isStaff = (session?.user as { role?: string } | undefined)?.role === "staff" || (session?.user as { role?: string } | undefined)?.role === "support";
+
+    const fetchQuotes = useCallback(async () => {
+        try {
+            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/quotes`, {
+                credentials: "include",
+            });
+            const data = await response.json();
+            if (data.quotes) {
+                setQuotes(data.quotes);
+            }
+        } catch (error) {
+            console.error("Error fetching quotes:", error);
+        }
+    }, []);
+
+    const fetchServices = useCallback(async () => {
+        try {
+            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/services`);
+            const data = await response.json();
+            if (data.services) {
+                setServices(data.services.map((s: Service) => ({ id: s.id, name: s.name, slug: s.slug })));
+            }
+        } catch (error) {
+            console.error("Error fetching services:", error);
+        }
+    }, []);
+
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+            await Promise.all([fetchQuotes(), fetchServices()]);
+            setLoading(false);
+        };
+        loadData();
+    }, [fetchQuotes, fetchServices]);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchQuotes();
+        setRefreshing(false);
+    };
+
+    const filteredQuotes = quotes.filter((quote) => {
         if (selectedFilter === "all") return true;
         return quote.status === selectedFilter;
     });
 
-    const handleSubmitQuote = () => {
-        console.log("Submit quote:", newQuote);
-        setShowModal(false);
-        setNewQuote({ service: "", description: "", location: "", phone: "" });
+    const handleSubmitQuote = async () => {
+        if (!newQuote.serviceId || !newQuote.location) {
+            Alert.alert("Error", "Please select a service and enter your location");
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/quotes`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    serviceId: newQuote.serviceId,
+                    location: newQuote.location,
+                    notes: newQuote.notes || null,
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                Alert.alert("Success", "Quote request submitted successfully!");
+                setShowModal(false);
+                setNewQuote({ serviceId: "", serviceName: "", notes: "", location: "" });
+                await fetchQuotes();
+            } else {
+                Alert.alert("Error", data.error || "Failed to submit quote");
+            }
+        } catch (error) {
+            Alert.alert("Error", "Failed to submit quote. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
     };
+
+    const handlePromoteToProject = async (quoteId: string) => {
+        setPromotingId(quoteId);
+        try {
+            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/quotes/${quoteId}/promote`, {
+                method: "POST",
+                credentials: "include",
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                Alert.alert("Success", "Quote promoted to project successfully!");
+                await fetchQuotes();
+                // Navigate to projects tab
+                router.push("/(drawer)/(tabs)/projects");
+            } else {
+                Alert.alert("Error", data.error || "Failed to promote quote");
+            }
+        } catch (error) {
+            Alert.alert("Error", "Failed to promote quote. Please try again.");
+        } finally {
+            setPromotingId(null);
+        }
+    };
+
+    const handleStaffAction = async (quoteId: string, action: "approved" | "rejected", estimatedPrice?: number) => {
+        try {
+            const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/quotes/${quoteId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({
+                    status: action,
+                    estimatedPrice: estimatedPrice || null,
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                Alert.alert("Success", `Quote ${action} successfully!`);
+                await fetchQuotes();
+            } else {
+                Alert.alert("Error", data.error || "Failed to update quote");
+            }
+        } catch (error) {
+            Alert.alert("Error", "Failed to update quote. Please try again.");
+        }
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        });
+    };
+
+    if (loading) {
+        return (
+            <View className="flex-1 items-center justify-center" style={{ backgroundColor: "#F9FAFB" }}>
+                <ActivityIndicator size="large" color={TROJAN_GOLD} />
+            </View>
+        );
+    }
 
     return (
         <View className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
-            <ScrollView className="flex-1">
+            <ScrollView
+                className="flex-1"
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={TROJAN_GOLD} />
+                }
+            >
                 {/* Header */}
                 <View className="p-4 flex-row items-center justify-between">
                     <View>
@@ -109,21 +241,23 @@ export default function Quotes() {
                             Quotes
                         </Text>
                         <Text className="text-gray-500 mt-1">
-                            Manage your quote requests
+                            {isStaff ? "Manage quote requests" : "Your quote requests"}
                         </Text>
                     </View>
-                    <Button
-                        className="rounded-full"
-                        style={{ backgroundColor: TROJAN_GOLD }}
-                        onPress={() => setShowModal(true)}
-                    >
-                        <View className="flex-row items-center">
-                            <Plus size={18} color={TROJAN_NAVY} />
-                            <Text className="font-semibold ml-1" style={{ color: TROJAN_NAVY }}>
-                                New
-                            </Text>
-                        </View>
-                    </Button>
+                    {!isStaff && (
+                        <Button
+                            className="rounded-full"
+                            style={{ backgroundColor: TROJAN_GOLD }}
+                            onPress={() => setShowModal(true)}
+                        >
+                            <View className="flex-row items-center">
+                                <Plus size={18} color={TROJAN_NAVY} />
+                                <Text className="font-semibold ml-1" style={{ color: TROJAN_NAVY }}>
+                                    New
+                                </Text>
+                            </View>
+                        </Button>
+                    )}
                 </View>
 
                 {/* Stats Cards */}
@@ -134,7 +268,7 @@ export default function Quotes() {
                             <Text className="text-gray-500 ml-2 text-sm">Total</Text>
                         </View>
                         <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                            {userQuotes.length}
+                            {quotes.length}
                         </Text>
                     </View>
                     <View className="flex-1 bg-white rounded-xl border border-gray-100 p-4">
@@ -143,7 +277,7 @@ export default function Quotes() {
                             <Text className="text-gray-500 ml-2 text-sm">Pending</Text>
                         </View>
                         <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                            {userQuotes.filter((q) => q.status === "pending").length}
+                            {quotes.filter((q) => q.status === "pending").length}
                         </Text>
                     </View>
                     <View className="flex-1 bg-white rounded-xl border border-gray-100 p-4">
@@ -152,7 +286,7 @@ export default function Quotes() {
                             <Text className="text-gray-500 ml-2 text-sm">Approved</Text>
                         </View>
                         <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
-                            {userQuotes.filter((q) => q.status === "approved").length}
+                            {quotes.filter((q) => q.status === "approved").length}
                         </Text>
                     </View>
                 </View>
@@ -168,8 +302,8 @@ export default function Quotes() {
                             key={filter.value}
                             onPress={() => setSelectedFilter(filter.value)}
                             className={`mr-2 px-4 py-2 rounded-full border ${selectedFilter === filter.value
-                                    ? "border-transparent"
-                                    : "border-gray-200 bg-white"
+                                ? "border-transparent"
+                                : "border-gray-200 bg-white"
                                 }`}
                             style={
                                 selectedFilter === filter.value
@@ -200,10 +334,10 @@ export default function Quotes() {
                                     <View className="flex-row items-start justify-between mb-3">
                                         <View className="flex-1">
                                             <Text className="text-base font-semibold text-gray-900">
-                                                {quote.service}
+                                                {quote.service.name}
                                             </Text>
                                             <Text className="text-sm text-gray-500 mt-1" numberOfLines={2}>
-                                                {quote.description}
+                                                {quote.notes || quote.location}
                                             </Text>
                                         </View>
                                         <View
@@ -225,27 +359,109 @@ export default function Quotes() {
                                         <View className="flex-row items-center">
                                             <DollarSign size={16} color="#6B7280" />
                                             <Text className="text-sm font-medium text-gray-700 ml-1">
-                                                {quote.estimatedPrice}
+                                                {quote.estimatedPrice
+                                                    ? `US$${quote.estimatedPrice.toFixed(2)}`
+                                                    : "Awaiting quote"}
                                             </Text>
                                         </View>
                                         <View className="flex-row items-center">
                                             <Calendar size={14} color="#9CA3AF" />
                                             <Text className="text-xs text-gray-500 ml-1">
-                                                {quote.requestDate}
+                                                {formatDate(quote.createdAt)}
                                             </Text>
                                         </View>
                                     </View>
 
-                                    {/* Action */}
-                                    {quote.status === "approved" && (
+                                    {/* Action Buttons */}
+                                    {quote.status === "pending" && !isStaff && (
+                                        <Button
+                                            className="w-full mt-2"
+                                            disabled
+                                            style={{ backgroundColor: "#E5E7EB" }}
+                                        >
+                                            <View className="flex-row items-center">
+                                                <Clock size={16} color="#9CA3AF" />
+                                                <Text className="font-semibold ml-2" style={{ color: "#9CA3AF" }}>
+                                                    Waiting for approval
+                                                </Text>
+                                            </View>
+                                        </Button>
+                                    )}
+
+                                    {quote.status === "pending" && isStaff && (
+                                        <View className="flex-row gap-2 mt-2">
+                                            <Button
+                                                className="flex-1"
+                                                style={{ backgroundColor: "#16A34A" }}
+                                                onPress={() => {
+                                                    Alert.alert(
+                                                        "Approve Quote",
+                                                        "Are you sure you want to approve this quote?",
+                                                        [
+                                                            { text: "Cancel", style: "cancel" },
+                                                            {
+                                                                text: "Approve",
+                                                                onPress: () => handleStaffAction(quote.id, "approved"),
+                                                            },
+                                                        ]
+                                                    );
+                                                }}
+                                            >
+                                                <Text className="font-semibold text-white">Approve</Text>
+                                            </Button>
+                                            <Button
+                                                className="flex-1"
+                                                style={{ backgroundColor: "#DC2626" }}
+                                                onPress={() => handleStaffAction(quote.id, "rejected")}
+                                            >
+                                                <Text className="font-semibold text-white">Reject</Text>
+                                            </Button>
+                                        </View>
+                                    )}
+
+                                    {quote.status === "approved" && !quote.hasProject && !isStaff && (
                                         <Button
                                             className="w-full mt-2"
                                             style={{ backgroundColor: TROJAN_GOLD }}
+                                            onPress={() => handlePromoteToProject(quote.id)}
+                                            disabled={promotingId === quote.id}
                                         >
-                                            <Text className="font-semibold" style={{ color: TROJAN_NAVY }}>
-                                                Start Project
-                                            </Text>
+                                            <View className="flex-row items-center">
+                                                {promotingId === quote.id ? (
+                                                    <ActivityIndicator size="small" color={TROJAN_NAVY} />
+                                                ) : (
+                                                    <>
+                                                        <ArrowRight size={16} color={TROJAN_NAVY} />
+                                                        <Text className="font-semibold ml-2" style={{ color: TROJAN_NAVY }}>
+                                                            Start Project
+                                                        </Text>
+                                                    </>
+                                                )}
+                                            </View>
                                         </Button>
+                                    )}
+
+                                    {quote.status === "approved" && quote.hasProject && (
+                                        <Button
+                                            className="w-full mt-2"
+                                            style={{ backgroundColor: `${TROJAN_NAVY}10` }}
+                                            onPress={() => router.push("/(drawer)/(tabs)/projects")}
+                                        >
+                                            <View className="flex-row items-center">
+                                                <CheckCircle2 size={16} color={TROJAN_NAVY} />
+                                                <Text className="font-semibold ml-2" style={{ color: TROJAN_NAVY }}>
+                                                    View Project
+                                                </Text>
+                                            </View>
+                                        </Button>
+                                    )}
+
+                                    {quote.status === "rejected" && (
+                                        <View className="mt-2 p-3 rounded-lg" style={{ backgroundColor: "#FEE2E2" }}>
+                                            <Text className="text-sm text-red-700">
+                                                {quote.staffNotes || "This quote was not approved."}
+                                            </Text>
+                                        </View>
                                     )}
                                 </CardContent>
                             </Card>
@@ -312,25 +528,31 @@ export default function Quotes() {
                                     onPress={() => setShowServicePicker(!showServicePicker)}
                                     className="border border-gray-300 rounded-lg p-3 flex-row items-center justify-between"
                                 >
-                                    <Text className={newQuote.service ? "text-gray-900" : "text-gray-400"}>
-                                        {newQuote.service || "Select a service"}
+                                    <Text className={newQuote.serviceName ? "text-gray-900" : "text-gray-400"}>
+                                        {newQuote.serviceName || "Select a service"}
                                     </Text>
                                     <ChevronDown size={20} color="#6B7280" />
                                 </Pressable>
                                 {showServicePicker && (
-                                    <View className="border border-gray-200 rounded-lg mt-2 bg-white">
-                                        {serviceOptions.map((service) => (
-                                            <Pressable
-                                                key={service}
-                                                onPress={() => {
-                                                    setNewQuote({ ...newQuote, service });
-                                                    setShowServicePicker(false);
-                                                }}
-                                                className="p-3 border-b border-gray-100"
-                                            >
-                                                <Text className="text-gray-900">{service}</Text>
-                                            </Pressable>
-                                        ))}
+                                    <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-48">
+                                        <ScrollView nestedScrollEnabled>
+                                            {services.map((service) => (
+                                                <Pressable
+                                                    key={service.id}
+                                                    onPress={() => {
+                                                        setNewQuote({
+                                                            ...newQuote,
+                                                            serviceId: service.id,
+                                                            serviceName: service.name,
+                                                        });
+                                                        setShowServicePicker(false);
+                                                    }}
+                                                    className="p-3 border-b border-gray-100"
+                                                >
+                                                    <Text className="text-gray-900">{service.name}</Text>
+                                                </Pressable>
+                                            ))}
+                                        </ScrollView>
                                     </View>
                                 )}
                             </View>
@@ -338,7 +560,7 @@ export default function Quotes() {
                             {/* Description */}
                             <View className="mb-4">
                                 <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Project Description *
+                                    Project Description
                                 </Text>
                                 <TextInput
                                     className="border border-gray-300 rounded-lg p-3 text-gray-900"
@@ -347,14 +569,14 @@ export default function Quotes() {
                                     multiline
                                     numberOfLines={4}
                                     textAlignVertical="top"
-                                    value={newQuote.description}
-                                    onChangeText={(text) => setNewQuote({ ...newQuote, description: text })}
+                                    value={newQuote.notes}
+                                    onChangeText={(text) => setNewQuote({ ...newQuote, notes: text })}
                                     style={{ minHeight: 100 }}
                                 />
                             </View>
 
                             {/* Location */}
-                            <View className="mb-4">
+                            <View className="mb-6">
                                 <Text className="text-sm font-medium text-gray-700 mb-2">
                                     Location *
                                 </Text>
@@ -367,30 +589,20 @@ export default function Quotes() {
                                 />
                             </View>
 
-                            {/* Phone */}
-                            <View className="mb-6">
-                                <Text className="text-sm font-medium text-gray-700 mb-2">
-                                    Phone Number *
-                                </Text>
-                                <TextInput
-                                    className="border border-gray-300 rounded-lg p-3 text-gray-900"
-                                    placeholder="+263 77 123 4567"
-                                    placeholderTextColor="#9CA3AF"
-                                    keyboardType="phone-pad"
-                                    value={newQuote.phone}
-                                    onChangeText={(text) => setNewQuote({ ...newQuote, phone: text })}
-                                />
-                            </View>
-
                             {/* Submit Button */}
                             <Button
                                 className="w-full mb-4"
                                 style={{ backgroundColor: TROJAN_GOLD }}
                                 onPress={handleSubmitQuote}
+                                disabled={submitting}
                             >
-                                <Text className="font-semibold text-base" style={{ color: TROJAN_NAVY }}>
-                                    Submit Quote Request
-                                </Text>
+                                {submitting ? (
+                                    <ActivityIndicator size="small" color={TROJAN_NAVY} />
+                                ) : (
+                                    <Text className="font-semibold text-base" style={{ color: TROJAN_NAVY }}>
+                                        Submit Quote Request
+                                    </Text>
+                                )}
                             </Button>
                         </ScrollView>
                     </View>
