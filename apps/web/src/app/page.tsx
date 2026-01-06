@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, Plus, AlertCircle } from "lucide-react";
+import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, Plus, AlertCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/site-header";
@@ -13,6 +13,7 @@ import { FAQSection } from "@/components/faq-section";
 import { ServicesGridSkeleton } from "@/components/skeletons";
 import { useServices } from "@/hooks/use-services";
 import Link from "next/link";
+import Image from "next/image";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -47,21 +48,120 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       <SiteHeader />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 lg:py-24" style={{ backgroundColor: "#F0F9FF" }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1
-              className="text-4xl md:text-5xl font-bold leading-tight mb-4"
-              style={{ color: TROJAN_NAVY }}
-            >
-              Find Professional Services
-              <br />
-              <span style={{ color: TROJAN_GOLD }}>You Can Trust</span>
-            </h1>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Browse our range of expert solar, electrical, security, and more services for your home and business.
-            </p>
+      {/* Hero Section - Bento Grid Style */}
+      <section className="relative overflow-hidden py-12 lg:py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Content */}
+            <div className="order-2 lg:order-1">
+              {/* Version Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 text-sm text-gray-600 mb-6">
+                <Settings size={14} className="text-gray-400" />
+                <span>Professional Services</span>
+              </div>
+
+              <h1
+                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+                style={{ color: TROJAN_NAVY }}
+              >
+                Welcome to
+                <br />
+                <span className="italic" style={{ color: TROJAN_GOLD }}>quality</span> solutions
+              </h1>
+
+              <p className="text-lg text-gray-600 mb-8 max-w-lg">
+                Step into our world of professional engineering services, where expertise meets innovation, and every project brings lasting results.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-3">
+                <Link href="/projects">
+                  <Button
+                    size="lg"
+                    className="rounded-full px-6"
+                    style={{ backgroundColor: TROJAN_NAVY, color: "white" }}
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="rounded-full px-6 border-gray-300"
+                  >
+                    Learn More
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Bento Grid */}
+            <div className="order-1 lg:order-2">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {/* Main Image Card */}
+                <div className="col-span-1 row-span-2">
+                  <div className="relative h-full min-h-[280px] rounded-2xl overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100">
+                    <Image
+                      src="https://picsum.photos/seed/trojanmobile/400/600"
+                      alt="Mobile app preview"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+
+                {/* Stats Card 1 */}
+                <div className="bg-gray-50 rounded-2xl p-5 sm:p-6 flex flex-col justify-center">
+                  <span className="text-3xl sm:text-4xl font-bold" style={{ color: TROJAN_NAVY }}>500+</span>
+                  <span className="text-sm text-gray-500 mt-1">Projects Completed</span>
+                </div>
+
+                {/* Stats Card 2 with Avatars */}
+                <div className="bg-gray-50 rounded-2xl p-5 sm:p-6">
+                  <span className="text-3xl sm:text-4xl font-bold" style={{ color: TROJAN_NAVY }}>2k+</span>
+                  <span className="text-sm text-gray-500 mt-1 block">Happy Customers</span>
+                  {/* Avatar Stack */}
+                  <div className="flex -space-x-2 mt-3">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
+                        <Image
+                          src={`https://picsum.photos/seed/user${i}/100/100`}
+                          alt={`Customer ${i}`}
+                          width={28}
+                          height={28}
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Stats Card 3 */}
+                <div className="col-span-2 bg-gray-50 rounded-2xl p-5 sm:p-6 flex items-center justify-between">
+                  <div>
+                    <span className="text-3xl sm:text-4xl font-bold" style={{ color: TROJAN_NAVY }}>10+</span>
+                    <span className="text-sm text-gray-500 mt-1 block">Years Experience</span>
+                  </div>
+                  <div className="flex gap-2">
+                    {["Solar", "CCTV", "Electrical"].map((service) => (
+                      <span key={service} className="px-3 py-1 bg-white rounded-full text-xs text-gray-600 border border-gray-200">
+                        {service}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Partner Logos */}
+          <div className="mt-16 pt-8 border-t border-gray-100">
+            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 opacity-60">
+              {["SunPower", "Hikvision", "Dahua", "JA Solar", "Growatt"].map((brand) => (
+                <span key={brand} className="text-lg font-semibold text-gray-400">{brand}</span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
