@@ -12,7 +12,7 @@
   "frontend": ["next", "native-uniwind"],
   "addons": ["turborepo"],
   "examples": [],
-  "auth": "better-auth",
+  "auth": "custom",
   "payments": "none",
   "packageManager": "bun",
   "dbSetup": "prisma-postgres",
