@@ -48,7 +48,7 @@ export const adminNavigation: NavSection[] = [
     items: [
       { title: "Orders", href: "/orders", icon: ShoppingCart, description: "Manage customer orders" },
       { title: "Customers", href: "/customers", icon: Users, description: "Customer database" },
-      { title: "Services", href: "/services", icon: Package, description: "Service catalog management" },
+      { title: "Services", href: "/services-management", icon: Package, description: "Service catalog management" },
       { title: "Staff", href: "/staff", icon: UserCheck, description: "Team management" },
     ],
   },
