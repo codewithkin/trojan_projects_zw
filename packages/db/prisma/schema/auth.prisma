@@ -1,9 +1,18 @@
+enum UserRole {
+  user
+  staff
+  support
+
+  @@map("user_role")
+}
+
 model User {
   id            String          @id
   name          String
   email         String
   emailVerified Boolean         @default(false)
   image         String?
+  role          UserRole        @default(user)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   sessions      Session[]
