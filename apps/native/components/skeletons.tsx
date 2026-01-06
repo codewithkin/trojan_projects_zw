@@ -101,6 +101,19 @@ export function ServicesGridSkeleton({ count = 4 }: { count?: number }) {
     );
 }
 
+// Full-width skeleton for single column layouts
+export function ServicesListSkeleton({ count = 4 }: { count?: number }) {
+    return (
+        <View style={{ gap: 16 }}>
+            {Array.from({ length: count }).map((_, i) => (
+                <View key={i} style={{ width: "100%" }}>
+                    <ServiceCardSkeleton />
+                </View>
+            ))}
+        </View>
+    );
+}
+
 export function ServiceDetailSkeleton() {
     return (
         <View style={styles.detailContainer}>
@@ -144,9 +157,10 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         borderWidth: 1,
         borderColor: "#F3F4F6",
+        width: "100%",
     },
     content: {
-        padding: 12,
+        padding: 16,
     },
     titleRow: {
         marginBottom: 4,
@@ -158,17 +172,15 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        marginTop: 8,
+        marginTop: 12,
     },
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
-        paddingHorizontal: 8,
+        gap: 12,
     },
     gridItem: {
         width: (width - 48) / 2,
-        marginHorizontal: 8,
-        marginBottom: 16,
     },
     detailContainer: {
         flex: 1,

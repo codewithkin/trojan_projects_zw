@@ -3,7 +3,6 @@ import { env } from "@trojan_projects_zw/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import type { ServerWebSocket } from "bun";
 
 import preferencesRoute from "./routes/preferences";
 import servicesRoute from "./routes/services";
@@ -66,7 +65,7 @@ interface WebSocketData {
 }
 
 // Start server with WebSocket support
-const server = Bun.serve({
+const server = Bun.serve<WebSocketData>({
   port: 3000,
   fetch(req, server) {
     const url = new URL(req.url);
@@ -97,13 +96,13 @@ const server = Bun.serve({
     return app.fetch(req, { env });
   },
   websocket: {
-    open(ws: ServerWebSocket<WebSocketData>) {
-      const { roomId, userName, userRole } = ws.data;
+    open(ws) {
+      const { roomId, userName } = ws.data;
       
       // Subscribe to the room topic
       ws.subscribe(roomId);
       
-      console.log(`WebSocket opened: ${userName} (${userRole}) joined room ${roomId}`);
+      console.log(`WebSocket opened: ${userName} joined room ${roomId}`);
       
       // Notify others in the room
       const joinMessage: ChatMessage = {
@@ -118,7 +117,7 @@ const server = Bun.serve({
       ws.publish(roomId, JSON.stringify(joinMessage));
     },
     
-    message(ws: ServerWebSocket<WebSocketData>, message: string | Buffer) {
+    message(ws, message) {
       const { roomId, userId } = ws.data;
       
       try {
@@ -142,8 +141,8 @@ const server = Bun.serve({
       }
     },
     
-    close(ws: ServerWebSocket<WebSocketData>) {
-      const { roomId, userName, userRole } = ws.data;
+    close(ws) {
+      const { roomId, userName } = ws.data;
       
       console.log(`WebSocket closed: ${userName} left room ${roomId}`);
       
