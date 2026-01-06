@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, View, useWindowDimensions } from "react-native";
+import { Pressable, View, useWindowDimensions, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
+import { Eye, EyeOff } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +32,7 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
     setIsLoading(true);
     try {
       const response = await signIn({ email, password });
-      
+
       if (response.success) {
         router.push("/dashboard");
       } else {
@@ -44,21 +46,30 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   };
 
   return (
-    <View className="flex-1 items-center justify-center p-4">
-      <View className="w-full" style={{ maxWidth: isTablet ? 500 : 400 }}>
-        {/* Card container with white background */}
-        <View
-          style={{
-            backgroundColor: "#ffffff",
-            borderRadius: isTablet ? 16 : 8,
-            padding: isTablet ? 40 : 24,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 12,
-            elevation: 5,
-          }}
-        >
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+    >
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="flex-1 items-center justify-center p-4">
+          <View className="w-full" style={{ maxWidth: isTablet ? 500 : 400 }}>
+            {/* Card container with white background */}
+            <View
+              style={{
+                backgroundColor: "#ffffff",
+                borderRadius: isTablet ? 16 : 8,
+                padding: isTablet ? 40 : 24,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+                elevation: 5,
+              }}
+            >
           {/* Header */}
           <Text
             className="font-bold text-center mb-2"
@@ -118,15 +129,32 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
                 </Text>
               </Pressable>
             </View>
-            <Input
-              placeholder="••••••••"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              editable={!isLoading}
-              className="px-3"
-              style={{ height: isTablet ? 48 : 40, fontSize: isTablet ? 16 : 14 }}
-            />
+            <View className="flex-row items-center">
+              <Input
+                placeholder="••••••••"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                editable={!isLoading}
+                className="px-3 flex-1"
+                style={{ height: isTablet ? 48 : 40, fontSize: isTablet ? 16 : 14, paddingRight: 44 }}
+              />
+              <Pressable
+                onPress={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  height: "100%",
+                  justifyContent: "center",
+                }}
+              >
+                {showPassword ? (
+                  <EyeOff size={20} color={TROJAN_NAVY} />
+                ) : (
+                  <Eye size={20} color={TROJAN_NAVY} />
+                )}
+              </Pressable>
+            </View>
           </View>
 
           {/* Sign In Button */}
@@ -152,9 +180,11 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
               </Text>
             </Pressable>
           </View>
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
