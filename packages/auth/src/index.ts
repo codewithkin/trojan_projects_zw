@@ -11,30 +11,7 @@ export const auth = betterAuth({
   }),
 
   trustedOrigins: [
-    env.CORS_ORIGIN, 
-    "http://localhost:3001", // Web dev
-    "http://10.255.235.15:3001", // Web on network
-    "mybettertapp://", 
-    "exp://", 
-    "exp://10.255.235.15:8081", // Expo on network with IP
-    "trojan_projects_zw://",
-    "trojan-projects-zw://",
-    "http://localhost:8081", // Expo dev server
-    "http://10.255.235.15:8081", // Expo on network
-    // Allow any origin for native apps in development
-    (origin) => {
-      if (!origin) return true;
-      // Allow expo and custom scheme origins
-      if (origin.startsWith("exp://") || 
-          origin.startsWith("trojan_projects_zw://") || 
-          origin.startsWith("trojan-projects-zw://") ||
-          origin.startsWith("http://localhost") ||
-          origin.startsWith("http://10.255.235.15") ||
-          origin.startsWith("http://192.168.")) {
-        return true;
-      }
-      return false;
-    }
+    "*", // Allow all origins
   ],
   socialProviders: {
     google: {
