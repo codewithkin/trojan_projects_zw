@@ -1,5 +1,12 @@
 // Services offered by Trojan Projects
 // This will be replaced with admin-created services from the database
+//
+// NOTE: When integrating with the backend:
+// - Service IDs should come from the database
+// - Images should be served from S3 or CDN
+// - Price should be fetched in real-time for accuracy
+// - Categories can be extended based on business needs
+// - Filtering logic is implemented in /projects page
 
 import { Sun, Camera, Zap, Droplets, Wrench } from "lucide-react";
 
