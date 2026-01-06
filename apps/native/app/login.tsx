@@ -7,12 +7,12 @@ import {
     Pressable,
     ScrollView,
     View,
-    ImageBackground,
+    Image,
     StatusBar,
     useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Sun, Zap, Shield } from "lucide-react-native";
+import { Sun, Shield } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,18 +108,15 @@ export default function LoginScreen() {
                         >
                             {/* Logo */}
                             <View className="flex-row items-center mb-6">
-                                <View
+                                <Image
+                                    source={require("@/assets/images/logo.png")}
                                     style={{
                                         width: isTablet ? 56 : 48,
                                         height: isTablet ? 56 : 48,
                                         borderRadius: isTablet ? 16 : 12,
-                                        backgroundColor: TROJAN_GOLD,
-                                        alignItems: "center",
-                                        justifyContent: "center",
                                     }}
-                                >
-                                    <Zap size={isTablet ? 32 : 28} color={TROJAN_NAVY} />
-                                </View>
+                                    resizeMode="contain"
+                                />
                                 <Text
                                     style={{
                                         color: "#fff",
@@ -154,8 +151,13 @@ export default function LoginScreen() {
                                 Professional engineering services for solar, security, and electrical systems.
                             </Text>
 
-                            {/* Features */}
-                            <View className="flex-row mt-6" style={{ gap: isTablet ? 16 : 12 }}>
+                            {/* Features - Scrollable */}
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={{ marginTop: isTablet ? 24 : 16 }}
+                                contentContainerStyle={{ gap: isTablet ? 16 : 12 }}
+                            >
                                 {features.map((feature) => {
                                     const Icon = feature.icon;
                                     return (
@@ -183,7 +185,7 @@ export default function LoginScreen() {
                                         </View>
                                     );
                                 })}
-                            </View>
+                            </ScrollView>
                         </MotiView>
                     </View>
 

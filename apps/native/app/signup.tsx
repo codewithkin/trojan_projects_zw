@@ -6,12 +6,13 @@ import {
     Pressable,
     ScrollView,
     View,
+    Image,
     StatusBar,
     useWindowDimensions,
 } from "react-native";
 import { MotiView } from "moti";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Sun, Zap, Shield, CheckCircle } from "lucide-react-native";
+import { CheckCircle } from "lucide-react-native";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,18 +109,15 @@ export default function SignUpScreen() {
                         >
                             {/* Logo */}
                             <View className="flex-row items-center mb-5">
-                                <View
+                                <Image
+                                    source={require("@/assets/images/logo.png")}
                                     style={{
                                         width: isTablet ? 52 : 44,
                                         height: isTablet ? 52 : 44,
                                         borderRadius: isTablet ? 14 : 12,
-                                        backgroundColor: TROJAN_GOLD,
-                                        alignItems: "center",
-                                        justifyContent: "center",
                                     }}
-                                >
-                                    <Zap size={isTablet ? 30 : 26} color={TROJAN_NAVY} />
-                                </View>
+                                    resizeMode="contain"
+                                />
                                 <Text
                                     style={{
                                         color: "#fff",
