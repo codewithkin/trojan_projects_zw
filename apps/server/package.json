@@ -10,11 +10,9 @@
     "start": "bun run dist/index.mjs"
   },
   "dependencies": {
-    "@trojan_projects_zw/auth": "workspace:*",
     "@trojan_projects_zw/db": "workspace:*",
     "@trojan_projects_zw/env": "workspace:*",
     "@types/ws": "^8.18.1",
-    "better-auth": "catalog:",
     "dotenv": "catalog:",
     "hono": "^4.8.2",
     "ws": "^8.19.0",

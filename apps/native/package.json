@@ -12,7 +12,6 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@better-auth/expo": "catalog:",
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^5",
@@ -22,7 +21,6 @@
     "@rn-primitives/slot": "^1.2.0",
     "@trojan_projects_zw/env": "workspace:*",
     "axios": "^1.13.2",
-    "better-auth": "catalog:",
     "dotenv": "catalog:",
     "expo": "^54.0.23",
     "expo-camera": "^17.0.10",
