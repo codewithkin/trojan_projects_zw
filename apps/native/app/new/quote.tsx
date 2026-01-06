@@ -11,8 +11,11 @@ import {
     Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { ArrowLeft, ChevronDown } from "lucide-react-native";
+import { ArrowLeft, ChevronDown, Lock } from "lucide-react-native";
 import { env } from "@trojan_projects_zw/env/native";
+import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
+import { Text as StyledText } from "@/components/ui/text";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -26,6 +29,7 @@ interface Service {
 
 export default function NewQuoteScreen() {
     const router = useRouter();
+    const { isAuthenticated, requireAuth } = useAuth();
     const [loading, setLoading] = useState(false);
     const [fetchingServices, setFetchingServices] = useState(true);
     const [services, setServices] = useState<Service[]>([]);
@@ -57,6 +61,10 @@ export default function NewQuoteScreen() {
     };
 
     const handleSubmit = async () => {
+        // Check auth first
+        const isAuthed = await requireAuth("Please sign in to request a quote");
+        if (!isAuthed) return;
+
         if (!formData.serviceId || !formData.location) {
             Alert.alert("Error", "Please select a service and enter your location");
             return;
@@ -99,6 +107,51 @@ export default function NewQuoteScreen() {
         acc[service.category].push(service);
         return acc;
     }, {} as Record<string, Service[]>);
+
+    // If not authenticated, show auth prompt
+    if (!isAuthenticated) {
+        return (
+            <View className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
+                <View className="p-4 border-b border-gray-100 bg-white">
+                    <Pressable
+                        onPress={() => router.back()}
+                        className="flex-row items-center mb-4"
+                    >
+                        <ArrowLeft size={20} color="#6B7280" />
+                        <Text className="ml-2 text-gray-600">Back</Text>
+                    </Pressable>
+                    <Text className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
+                        Request a Quote
+                    </Text>
+                </View>
+                <View className="flex-1 items-center justify-center p-6">
+                    <View className="bg-white rounded-2xl p-8 items-center w-full max-w-sm shadow-sm">
+                        <View 
+                            className="w-16 h-16 rounded-full items-center justify-center mb-4"
+                            style={{ backgroundColor: `${TROJAN_GOLD}20` }}
+                        >
+                            <Lock size={32} color={TROJAN_NAVY} />
+                        </View>
+                        <StyledText className="text-xl font-bold text-center mb-2" style={{ color: TROJAN_NAVY }}>
+                            Sign In Required
+                        </StyledText>
+                        <StyledText className="text-gray-500 text-center mb-6">
+                            Please sign in to request a quote
+                        </StyledText>
+                        <Button
+                            onPress={() => requireAuth("Sign in to request a quote")}
+                            className="w-full"
+                            style={{ backgroundColor: TROJAN_GOLD }}
+                        >
+                            <StyledText className="font-semibold" style={{ color: TROJAN_NAVY }}>
+                                Sign In
+                            </StyledText>
+                        </Button>
+                    </View>
+                </View>
+            </View>
+        );
+    }
 
     return (
         <KeyboardAvoidingView

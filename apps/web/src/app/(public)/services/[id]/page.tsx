@@ -499,7 +499,11 @@ export default function ServiceDetailPage() {
             </div>
 
             {/* Auth Modal */}
-            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+            <AuthModal 
+                open={showAuthModal} 
+                onOpenChange={setShowAuthModal}
+                message="Sign in to like this service or request a quote"
+            />
         </>
     );
 }

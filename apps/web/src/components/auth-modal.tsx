@@ -12,15 +12,23 @@ import { toast } from "sonner";
 interface AuthModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onSuccess?: () => void;
+    message?: string;
 }
 
-export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+export function AuthModal({ open, onOpenChange, onSuccess, message }: AuthModalProps) {
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
+    const resetForm = () => {
+        setEmail("");
+        setPassword("");
+        setName("");
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,9 +47,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 } else {
                     toast.success("Account created! Please check your email for verification.");
                     setIsSignUp(false);
-                    setEmail("");
-                    setPassword("");
-                    setName("");
+                    resetForm();
                 }
             } else {
                 const { error } = await authClient.signIn.email({
@@ -53,7 +59,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     toast.error(error.message || "Sign in failed");
                 } else {
                     toast.success("Signed in successfully!");
+                    resetForm();
                     onOpenChange(false);
+                    onSuccess?.();
                     router.refresh();
                 }
             }
@@ -70,9 +78,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 <DialogHeader>
                     <DialogTitle>{isSignUp ? "Create an Account" : "Sign In"}</DialogTitle>
                     <DialogDescription>
-                        {isSignUp
+                        {message || (isSignUp
                             ? "Create an account to save favorites and access exclusive features"
-                            : "Sign in to your account to continue"}
+                            : "Sign in to your account to continue")}
                     </DialogDescription>
                 </DialogHeader>
 

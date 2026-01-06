@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Heart, Star, Users } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/auth-context";
 import type { Service } from "@/types/services";
 
 const TROJAN_NAVY = "#0F1B4D";
@@ -14,10 +15,25 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ service, onPress }: ProductCardProps) {
+    const { requireAuth } = useAuth();
     const [isWishlisted, setIsWishlisted] = useState(false);
+    const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 
     // Use priceFormatted from API if available, otherwise format the numeric price
     const priceDisplay = service.priceFormatted || `US$${service.price.toLocaleString()}`;
+
+    const handleWishlist = async () => {
+        const isAuthed = await requireAuth("Sign in to save services to your wishlist");
+        if (!isAuthed) return;
+
+        setIsWishlistLoading(true);
+        try {
+            // TODO: Implement actual wishlist API call
+            setIsWishlisted(!isWishlisted);
+        } finally {
+            setIsWishlistLoading(false);
+        }
+    };
 
     return (
         <Pressable
@@ -35,9 +51,10 @@ export function ProductCard({ service, onPress }: ProductCardProps) {
 
                 {/* Wishlist Button */}
                 <Pressable
-                    onPress={() => setIsWishlisted(!isWishlisted)}
+                    onPress={handleWishlist}
+                    disabled={isWishlistLoading}
                     className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white items-center justify-center"
-                    style={{ elevation: 3 }}
+                    style={{ elevation: 3, opacity: isWishlistLoading ? 0.5 : 1 }}
                 >
                     <Heart
                         size={16}

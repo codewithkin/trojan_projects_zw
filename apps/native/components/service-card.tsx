@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Service } from "@/types/services";
 import { categoryConfig } from "@/data/services";
+import { useAuth } from "@/contexts/auth-context";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -13,7 +15,17 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service, onPress, onWishlist }: ServiceCardProps) {
+    const { requireAuth } = useAuth();
+    const [isWishlisted, setIsWishlisted] = useState(false);
     const category = categoryConfig[service.category];
+
+    const handleWishlist = async () => {
+        const isAuthed = await requireAuth("Sign in to save services to your wishlist");
+        if (!isAuthed) return;
+
+        setIsWishlisted(!isWishlisted);
+        onWishlist?.();
+    };
 
     const renderStars = () => {
         const stars = [];
@@ -48,9 +60,13 @@ export function ServiceCard({ service, onPress, onWishlist }: ServiceCardProps) 
                 {/* Wishlist Button */}
                 <TouchableOpacity
                     style={styles.wishlistButton}
-                    onPress={onWishlist}
+                    onPress={handleWishlist}
                 >
-                    <Ionicons name="heart-outline" size={18} color="#666" />
+                    <Ionicons 
+                        name={isWishlisted ? "heart" : "heart-outline"} 
+                        size={18} 
+                        color={isWishlisted ? "#DC2626" : "#666"} 
+                    />
                 </TouchableOpacity>
 
                 {/* Featured Badge */}

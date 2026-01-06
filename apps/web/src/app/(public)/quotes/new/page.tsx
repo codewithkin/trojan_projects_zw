@@ -244,7 +244,11 @@ export default function NewQuotePage() {
             </div>
 
             {/* Auth Modal */}
-            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+            <AuthModal 
+                open={showAuthModal} 
+                onOpenChange={setShowAuthModal}
+                message="Sign in to request a quote"
+            />
         </>
     );
 }
