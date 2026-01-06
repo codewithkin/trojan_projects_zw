@@ -118,15 +118,9 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* Hide deprecated tabs */}
+      {/* Hide deprecated profile tab */}
       <Tabs.Screen
-        name="services"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="quotes"
+        name="profile"
         options={{
           href: null,
         }}
