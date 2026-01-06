@@ -137,14 +137,16 @@ export default function NewProjectScreen() {
                 }}
             >
                 <View className="p-4">
-                    <Pressable
-                        onPress={() => router.back()}
-                        className="flex-row items-center mb-4 px-3 py-2 rounded-lg"
-                        style={{ backgroundColor: TROJAN_GOLD }}
-                    >
-                        <ArrowLeft size={20} color={TROJAN_NAVY} />
-                        <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
-                    </Pressable>
+                    <View className="flex-row">
+                        <Pressable
+                            onPress={() => router.back()}
+                            className="flex-row items-center mb-4 px-3 py-2 rounded-lg self-start"
+                            style={{ backgroundColor: TROJAN_GOLD }}
+                        >
+                            <ArrowLeft size={20} color={TROJAN_NAVY} />
+                            <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
+                        </Pressable>
+                    </View>
                 </View>
                 <View className="flex-1 items-center justify-center p-6">
                     <View className="bg-white rounded-2xl p-8 items-center w-full max-w-sm shadow-sm">
@@ -189,14 +191,16 @@ export default function NewProjectScreen() {
             >
                 <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                     <View className="p-4">
-                        <Pressable
-                            onPress={() => router.back()}
-                            className="flex-row items-center mb-6 px-3 py-2 rounded-lg"
-                            style={{ backgroundColor: TROJAN_GOLD }}
-                        >
-                            <ArrowLeft size={20} color={TROJAN_NAVY} />
-                            <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
-                        </Pressable>
+                        <View className="mb-6">
+                            <Pressable
+                                onPress={() => router.back()}
+                                className="flex-row items-center px-3 py-2 rounded-lg self-start"
+                                style={{ backgroundColor: TROJAN_GOLD }}
+                            >
+                                <ArrowLeft size={20} color={TROJAN_NAVY} />
+                                <Text className="ml-2 font-semibold" style={{ color: TROJAN_NAVY }}>Back</Text>
+                            </Pressable>
+                        </View>
                         {fetchingQuotes ? (
                             <View className="items-center justify-center py-12">
                                 <ActivityIndicator size="large" color={TROJAN_GOLD} />
