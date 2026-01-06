@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
 import { ServiceCard } from "@/components/service-card";
 import { StatsSection } from "@/components/stats-section";
-import { ServicesGridSkeleton } from "@/components/skeletons";
+import { ServicesGridSkeleton, ServicesListSkeleton } from "@/components/skeletons";
 import { useServices } from "@/hooks/use-services";
 import { categoryConfig, type ServiceCategory } from "@/data/services";
 
@@ -209,8 +209,12 @@ export default function Home() {
 
             {/* Loading State */}
             {isLoading && (
-              <View style={{ paddingHorizontal: 4 }}>
-                <ServicesGridSkeleton count={4} />
+              <View>
+                {isTablet ? (
+                  <ServicesGridSkeleton count={4} />
+                ) : (
+                  <ServicesListSkeleton count={4} />
+                )}
               </View>
             )}
 
@@ -347,10 +351,11 @@ export default function Home() {
           right: isTablet ? 32 : 24,
           flexDirection: "row",
           alignItems: "center",
+          justifyContent: "center",
           backgroundColor: TROJAN_GOLD,
-          paddingVertical: isTablet ? 16 : 14,
-          paddingHorizontal: isTablet ? 24 : 18,
-          borderRadius: isTablet ? 32 : 28,
+          width: isTablet ? 160 : 56,
+          height: 56,
+          borderRadius: isTablet ? 28 : 28,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.3,
@@ -358,7 +363,7 @@ export default function Home() {
           elevation: 8,
         }}
       >
-        <Ionicons name="add" size={isTablet ? 26 : 22} color={TROJAN_NAVY} />
+        <Ionicons name="add" size={isTablet ? 26 : 24} color={TROJAN_NAVY} />
         {isTablet && (
           <Text style={{ marginLeft: 8, color: TROJAN_NAVY, fontWeight: "700", fontSize: 16 }}>
             New Project
