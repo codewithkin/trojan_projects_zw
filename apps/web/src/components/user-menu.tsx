@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authClient } from "@/lib/auth-client";
+import { signOut } from "@/lib/auth-client";
+import { useSession } from "@/hooks/use-session";
 import { hasAdminAccess } from "@/config/admins";
 
 import { Button } from "./ui/button";
@@ -21,13 +22,13 @@ const TROJAN_GOLD = "#FFC107";
 
 export default function UserMenu() {
   const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+  const { user, isPending } = useSession();
 
   if (isPending) {
     return <Skeleton className="h-9 w-24" />;
   }
 
-  if (!session) {
+  if (!user) {
     return (
       <div className="flex items-center gap-2">
         <Link href="/login">
@@ -42,7 +43,7 @@ export default function UserMenu() {
     );
   }
 
-  const isAdmin = hasAdminAccess(session.user);
+  const isAdmin = hasAdminAccess(user);
 
   return (
     <div className="flex items-center gap-3">
@@ -62,23 +63,18 @@ export default function UserMenu() {
       )}
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="outline" />}>
-          {session.user.name}
+          {user.name}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-card">
           <DropdownMenuGroup>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
+            <DropdownMenuItem>{user.email}</DropdownMenuItem>
             <DropdownMenuItem
               variant="destructive"
-              onClick={() => {
-                authClient.signOut({
-                  fetchOptions: {
-                    onSuccess: () => {
-                      router.push("/");
-                    },
-                  },
-                });
+              onClick={async () => {
+                await signOut();
+                router.push("/");
               }}
             >
               Sign Out
