@@ -122,7 +122,7 @@ export default function Home() {
   const handleAcceptProject = async (projectId: string) => {
     try {
       setAcceptingId(projectId);
-      await patch(`/api/projects/${projectId}`, { status: "starting" });
+      await patch(`/api/projects/${projectId}/status`, { status: "starting" });
       // Remove from list after accepting
       setPendingProjects((prev) => prev.filter((p) => p.id !== projectId));
       // Navigate to the project chat or detail
