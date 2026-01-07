@@ -94,6 +94,16 @@ const quotesRoute = new Hono()
         return c.json({ error: "Service ID and location are required" }, 400);
       }
 
+      // Determine the user ID (from auth or request body)
+      const quoteUserId = user?.id || userId;
+      
+      if (!quoteUserId) {
+        return c.json(
+          { error: "User ID is required. Please log in or provide userId." },
+          400
+        );
+      }
+
       // Verify service exists
       const service = await db.service.findUnique({
         where: { id: serviceId },
@@ -106,7 +116,7 @@ const quotesRoute = new Hono()
       const quote = await db.quote.create({
         data: {
           serviceId,
-          userId: user?.id || userId,
+          userId: quoteUserId,
           location,
           notes: notes || null,
         },

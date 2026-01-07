@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Text as StyledText } from "@/components/ui/text";
 import { zimbabweLocations } from "@/data/onboarding";
 import { categoryConfig, type ServiceCategory } from "@/data/services";
+import { getToken } from "@/lib/auth-storage";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -43,7 +44,7 @@ interface Service {
 
 export default function NewQuoteScreen() {
     const router = useRouter();
-    const { isAuthenticated, requireAuth } = useAuth();
+    const { user, isAuthenticated, requireAuth } = useAuth();
     const [loading, setLoading] = useState(false);
     const [fetchingServices, setFetchingServices] = useState(true);
     const [services, setServices] = useState<Service[]>([]);
@@ -132,12 +133,21 @@ export default function NewQuoteScreen() {
 
         setLoading(true);
         try {
+            const token = await getToken();
+            const headers: HeadersInit = {
+                "Content-Type": "application/json",
+            };
+
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+
             const response = await fetch(`${env.EXPO_PUBLIC_API_URL}/api/quotes`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
+                headers,
                 body: JSON.stringify({
                     serviceId: formData.serviceId,
+                    userId: user?.id,
                     location: formData.location,
                     notes: formData.notes || null,
                 }),

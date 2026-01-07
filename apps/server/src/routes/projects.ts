@@ -18,9 +18,25 @@ const projectsRoute = new Hono()
       const body = await c.req.json();
       const { serviceId, location, price, scheduledDate, notes, userId } = body;
 
+      console.log("Creating project - Auth user:", user?.id);
+      console.log("Creating project - Request userId:", userId);
+      console.log("Creating project - Request body:", { serviceId, location, price, scheduledDate, notes });
+
       if (!serviceId || !location) {
         return c.json(
           { error: "Service and location are required" },
+          400
+        );
+      }
+
+      // Determine the user ID (from auth or request body)
+      const projectUserId = user?.id || userId;
+      
+      console.log("Creating project - Final userId:", projectUserId);
+      
+      if (!projectUserId) {
+        return c.json(
+          { error: "User ID is required. Please log in or provide userId." },
           400
         );
       }
@@ -38,7 +54,7 @@ const projectsRoute = new Hono()
       const project = await db.project.create({
         data: {
           serviceId,
-          userId: user?.id || userId,
+          userId: projectUserId,
           location,
           notes: notes || null,
           finalPrice: price ? price.toString() : null,

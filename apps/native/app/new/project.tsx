@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Text as StyledText } from "@/components/ui/text";
 import { zimbabweLocations } from "@/data/onboarding";
+import { getToken } from "@/lib/auth-storage";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -120,14 +121,23 @@ export default function NewProjectScreen() {
 
         setLoading(true);
         try {
+            const token = await getToken();
+            const headers: HeadersInit = {
+                "Content-Type": "application/json",
+            };
+
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+
             const response = await fetch(
                 `${env.EXPO_PUBLIC_API_URL}/api/projects`,
                 {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
+                    headers,
                     body: JSON.stringify({
                         serviceId: formData.serviceId,
+                        userId: user?.id,
                         location: formData.location,
                         price: formData.price ? parseFloat(formData.price) : null,
                         scheduledDate: formData.scheduledDate || null,
