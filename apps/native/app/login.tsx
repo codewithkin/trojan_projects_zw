@@ -63,6 +63,9 @@ export default function LoginScreen() {
                     setError(response.error || "Sign in failed");
                 }
             }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "Sign in failed. Please try again.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

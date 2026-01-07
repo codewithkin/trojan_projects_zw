@@ -64,6 +64,9 @@ export default function SignUpScreen() {
             } else {
                 setError(response.error || "Sign up failed");
             }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "Sign up failed. Please try again.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
