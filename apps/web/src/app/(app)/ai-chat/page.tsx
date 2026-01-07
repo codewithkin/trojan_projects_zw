@@ -300,26 +300,33 @@ export default function AIChatPage() {
     setShowHistory(false);
   };
 
+  // Get message count for stats display
+  const messageCount = messages.filter(m => m.role === "user").length;
+
   return (
-    <div className="flex flex-col h-[calc(100vh-7rem)] bg-gradient-to-b from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-7rem)] md:h-[calc(100vh-7rem)] bg-gradient-to-b from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Chat Header */}
       <div
-        className="flex items-center justify-between px-6 py-4 border-b border-gray-200"
+        className="flex items-center justify-between px-3 md:px-6 py-3 md:py-4 border-b border-gray-200"
         style={{ backgroundColor: `${TROJAN_NAVY}08` }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center"
+            className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0"
             style={{ backgroundColor: TROJAN_GOLD }}
           >
-            <Bot size={22} style={{ color: TROJAN_NAVY }} />
+            <Bot size={20} className="md:hidden" style={{ color: TROJAN_NAVY }} />
+            <Bot size={22} className="hidden md:block" style={{ color: TROJAN_NAVY }} />
           </div>
-          <div>
-            <h2 className="font-semibold" style={{ color: TROJAN_NAVY }}>
+          <div className="min-w-0">
+            <h2 className="font-semibold text-sm md:text-base truncate" style={{ color: TROJAN_NAVY }}>
               Trojan Business Insights
             </h2>
-            <p className="text-xs text-gray-500">
+            <p className="text-[10px] md:text-xs text-gray-500 hidden sm:block">
               AI-powered analytics • Ask me anything about your business
+            </p>
+            <p className="text-[10px] text-gray-500 sm:hidden">
+              {messageCount > 0 ? `${messageCount} questions asked` : "AI Business Analytics"}
             </p>
           </div>
         </div>
@@ -328,10 +335,11 @@ export default function AIChatPage() {
             variant="outline"
             size="sm"
             onClick={resetChat}
-            className="gap-2"
+            className="gap-1 md:gap-2 text-xs md:text-sm shrink-0 ml-2"
           >
             <RotateCcw size={14} />
-            New Chat
+            <span className="hidden sm:inline">New Chat</span>
+            <span className="sm:hidden">New</span>
           </Button>
         )}
       </div>
@@ -360,27 +368,27 @@ export default function AIChatPage() {
             </p>
             
             {/* Quick Stats Cards */}
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
-                <TrendingUp size={16} className="text-green-600" />
-                <span className="text-sm text-green-700">Real-time data</span>
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-6 md:mb-8">
+              <div className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-green-50 border border-green-200 rounded-full">
+                <TrendingUp size={14} className="md:w-4 md:h-4 text-green-600" />
+                <span className="text-xs md:text-sm text-green-700">Real-time data</span>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full">
-                <Zap size={16} className="text-blue-600" />
-                <span className="text-sm text-blue-700">Instant insights</span>
+              <div className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-blue-50 border border-blue-200 rounded-full">
+                <Zap size={14} className="md:w-4 md:h-4 text-blue-600" />
+                <span className="text-xs md:text-sm text-blue-700">Instant insights</span>
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 max-w-3xl px-2">
               {suggestedPrompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => sendMessage(prompt.text)}
                   disabled={isLoading}
-                  className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group disabled:opacity-50"
+                  className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group disabled:opacity-50"
                 >
-                  <span className="text-xl">{prompt.icon}</span>
-                  <span className="text-sm text-gray-700 group-hover:text-gray-900">
+                  <span className="text-lg md:text-xl">{prompt.icon}</span>
+                  <span className="text-xs md:text-sm text-gray-700 group-hover:text-gray-900 line-clamp-2">
                     {prompt.text}
                   </span>
                 </button>
@@ -389,7 +397,7 @@ export default function AIChatPage() {
           </div>
         ) : (
           // Messages list with follow-up suggestions
-          <div className="py-6 space-y-6">
+          <div className="py-4 md:py-6 space-y-4 md:space-y-6">
             {messages.map((message, index) => (
               <div key={message.id}>
                 <MessageBubble
@@ -403,13 +411,12 @@ export default function AIChatPage() {
                  !message.isStreaming && 
                  index === messages.length - 1 && 
                  !isLoading && (
-                  <div className="flex flex-wrap gap-2 mt-4 ml-11">
+                  <div className="flex flex-wrap gap-2 mt-3 md:mt-4 ml-10 md:ml-11">
                     {quickFollowUps.map((followUp, i) => (
                       <button
                         key={i}
                         onClick={() => sendMessage(followUp)}
-                        className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
-                      >
+                        className="px-2.5 md:px-3 py-1 md:py-1.5 text-[11px] md:text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
                         {followUp}
                       </button>
                     ))}
@@ -423,8 +430,8 @@ export default function AIChatPage() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 p-4 bg-white">
-        <div className="flex gap-3 items-end max-w-4xl mx-auto">
+      <div className="border-t border-gray-200 p-2 md:p-4 bg-white">
+        <div className="flex gap-2 md:gap-3 items-end max-w-4xl mx-auto">
           <div className="flex-1 relative">
             <Textarea
               ref={textareaRef}
@@ -433,7 +440,7 @@ export default function AIChatPage() {
               onKeyDown={handleKeyDown}
               placeholder={isLoading ? "AI is responding..." : "Ask about your business..."}
               disabled={isLoading}
-              className="resize-none min-h-[52px] max-h-[200px] pr-12 rounded-xl border-gray-200 focus:border-gray-300 focus:ring-0"
+              className="resize-none min-h-[44px] md:min-h-[52px] max-h-[150px] md:max-h-[200px] pr-4 text-sm md:text-base rounded-xl border-gray-200 focus:border-gray-300 focus:ring-0"
               rows={1}
             />
           </div>
@@ -441,29 +448,34 @@ export default function AIChatPage() {
             // Stop generation button
             <Button
               onClick={stopGeneration}
-              className="h-[52px] w-[52px] rounded-xl shrink-0 bg-red-500 hover:bg-red-600 text-white"
+              className="h-11 w-11 md:h-[52px] md:w-[52px] rounded-xl shrink-0 bg-red-500 hover:bg-red-600 text-white"
               title="Stop generation (Esc)"
             >
-              <AlertCircle size={20} />
+              <Square size={18} className="md:hidden" />
+              <Square size={20} className="hidden md:block" />
             </Button>
           ) : (
             // Send button
             <Button
               onClick={() => sendMessage()}
               disabled={!inputValue.trim()}
-              className="h-[52px] w-[52px] rounded-xl shrink-0"
+              className="h-11 w-11 md:h-[52px] md:w-[52px] rounded-xl shrink-0"
               style={{
                 backgroundColor: inputValue.trim() ? TROJAN_GOLD : "#E5E7EB",
                 color: inputValue.trim() ? TROJAN_NAVY : "#9CA3AF",
               }}
               title="Send message (Enter)"
             >
-              <Send size={20} />
+              <Send size={18} className="md:hidden" />
+              <Send size={20} className="hidden md:block" />
             </Button>
           )}
         </div>
-        <p className="text-xs text-gray-400 text-center mt-3">
-          AI can make mistakes. Verify important information independently. Press <kbd className="px-1 py-0.5 bg-gray-100 rounded text-[10px]">Enter</kbd> to send, <kbd className="px-1 py-0.5 bg-gray-100 rounded text-[10px]">Shift+Enter</kbd> for new line.
+        <p className="hidden sm:block text-xs text-gray-400 text-center mt-2 md:mt-3">
+          AI can make mistakes. Verify important information. <kbd className="px-1 py-0.5 bg-gray-100 rounded text-[10px]">Enter</kbd> to send, <kbd className="px-1 py-0.5 bg-gray-100 rounded text-[10px]">Shift+Enter</kbd> for new line.
+        </p>
+        <p className="sm:hidden text-[10px] text-gray-400 text-center mt-1.5">
+          AI can make mistakes. Verify important information.
         </p>
       </div>
     </div>
