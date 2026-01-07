@@ -17,6 +17,9 @@ export interface Service {
   likesCount: number;
   requestsCount: number;
   createdAt: string;
+  // Optimistic update fields
+  userLiked?: boolean;
+  likeCount?: number;
 }
 
 export interface ServiceDetail extends Service {

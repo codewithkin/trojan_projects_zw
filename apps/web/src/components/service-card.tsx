@@ -25,6 +25,9 @@ export function ServiceCard({ service }: ServiceCardProps) {
     const likeMutation = useLikeService();
     const router = useRouter();
 
+    // Use optimistic userLiked field, fallback to likesCount check
+    const isLiked = service.userLiked ?? (service.likesCount > 0);
+
     const handleWishlistClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -75,7 +78,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
                         >
                             <Heart
                                 size={18}
-                                className={service.likesCount > 0 ? "fill-red-500 text-red-500" : "text-gray-400"}
+                                className={isLiked ? "fill-red-500 text-red-500" : "text-gray-400"}
                             />
                         </button>
 

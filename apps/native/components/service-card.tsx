@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Service } from "@/types/services";
 import { categoryConfig } from "@/data/services";
 import { useAuth } from "@/contexts/auth-context";
+import { useLikeService, useServiceLikeStore } from "@/hooks/use-services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -15,15 +16,28 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service, onPress, onWishlist }: ServiceCardProps) {
-    const { requireAuth } = useAuth();
-    const [isWishlisted, setIsWishlisted] = useState(false);
+    const { requireAuth, session } = useAuth();
+    const likeMutation = useLikeService();
+    const { isLiked, getLikeCount, initFromServer } = useServiceLikeStore();
+
+    // Initialize like state from service data
+    useEffect(() => {
+        if (session?.user) {
+            const userLiked = service.likedBy?.includes(session.user.id) || false;
+            initFromServer(service.slug, userLiked, service.likesCount || 0);
+        }
+    }, [service.slug, service.likedBy, service.likesCount, session?.user?.id]);
+
     const category = categoryConfig[service.category];
+    const isWishlisted = isLiked(service.slug);
+    const likeCount = getLikeCount(service.slug, service.likesCount || 0);
 
     const handleWishlist = async () => {
         const isAuthed = await requireAuth("Sign in to save services to your wishlist");
         if (!isAuthed) return;
 
-        setIsWishlisted(!isWishlisted);
+        // Optimistic update happens in the mutation hook
+        likeMutation.mutate(service.slug);
         onWishlist?.();
     };
 
