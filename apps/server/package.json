@@ -10,9 +10,12 @@
     "start": "bun run dist/index.mjs"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.7",
+    "@mastra/core": "^0.24.9",
     "@trojan_projects_zw/db": "workspace:*",
     "@trojan_projects_zw/env": "workspace:*",
     "@types/ws": "^8.18.1",
+    "ai": "^6.0.14",
     "dotenv": "catalog:",
     "hono": "^4.8.2",
     "nodemailer": "^7.0.12",

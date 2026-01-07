@@ -17,6 +17,8 @@ export const env = createEnv({
     SMTP_SECURE: z.string().optional(),
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
+    // AI/Mastra configuration
+    OPENAI_API_KEY: z.string().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
