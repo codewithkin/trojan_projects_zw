@@ -26,6 +26,7 @@ interface AppHeaderProps {
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/projects": "Projects",
+    "/ai-chat": "AI Insights",
     "/notifications": "Notifications",
     "/settings": "Settings",
 };
