@@ -11,7 +11,7 @@ import { signIn } from "@/lib/auth-client";
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
+function SignIn() {
   const router = useRouter();
   const { width: screenWidth } = useWindowDimensions();
   const isTablet = screenWidth >= 768;
@@ -81,7 +81,7 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
                 className="text-center text-muted-foreground"
                 style={{ fontSize: isTablet ? 16 : 14, marginBottom: isTablet ? 32 : 24 }}
               >
-                Sign in to your Trojan Projects account
+                Staff & Admin Access Only
               </Text>
 
               {/* Error Message */}
@@ -160,7 +160,7 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
               {/* Sign In Button */}
               <Button
                 className="w-full font-semibold"
-                style={{ backgroundColor: TROJAN_GOLD, height: isTablet ? 48 : 40, marginBottom: isTablet ? 20 : 16 }}
+                style={{ backgroundColor: TROJAN_GOLD, height: isTablet ? 48 : 40 }}
                 onPress={handleEmailSignIn}
                 disabled={isLoading}
               >
@@ -168,18 +168,6 @@ function SignIn({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Text>
               </Button>
-
-              {/* Sign Up Link */}
-              <View className="flex-row justify-center">
-                <Text className="text-muted-foreground" style={{ fontSize: isTablet ? 15 : 14 }}>
-                  Don&apos;t have an account?{" "}
-                </Text>
-                <Pressable onPress={onSwitchToSignUp}>
-                  <Text className="font-semibold" style={{ color: TROJAN_NAVY, fontSize: isTablet ? 15 : 14 }}>
-                    Sign up
-                  </Text>
-                </Pressable>
-              </View>
             </View>
           </View>
         </View>
