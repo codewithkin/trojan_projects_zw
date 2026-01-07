@@ -23,6 +23,9 @@ function StackLayout() {
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="signup" options={{ headerShown: false }} />
+      <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
+      <Stack.Screen name="reset-password" options={{ headerShown: false }} />
+      <Stack.Screen name="change-password" options={{ headerShown: false }} />
       <Stack.Screen name="user-onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="new" options={{ headerShown: false }} />
       <Stack.Screen name="service" options={{ headerShown: false }} />
