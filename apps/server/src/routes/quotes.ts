@@ -42,30 +42,47 @@ const quotesRoute = new Hono()
               email: true,
             },
           },
-          project: {
-            select: {
-              id: true,
-              status: true,
-            },
-          },
         },
         orderBy: { createdAt: "desc" },
       });
 
-      const transformedQuotes = quotes.map((quote) => ({
-        id: quote.id,
-        status: quote.status,
-        location: quote.location,
-        notes: quote.notes,
-        estimatedPrice: quote.estimatedPrice ? Number(quote.estimatedPrice) : null,
-        staffNotes: quote.staffNotes,
-        service: quote.service,
-        user: quote.user,
-        hasProject: !!quote.project,
-        project: quote.project,
-        createdAt: quote.createdAt,
-        updatedAt: quote.updatedAt,
-      }));
+      // Get quote IDs to check for associated projects
+      const quoteIds = quotes.map(q => q.id);
+      const projects = await db.project.findMany({
+        where: {
+          quoteId: {
+            in: quoteIds,
+          },
+        },
+        select: {
+          id: true,
+          quoteId: true,
+          status: true,
+        },
+      });
+
+      // Create a map of quoteId -> project
+      const projectMap = new Map(
+        projects.map(p => [p.quoteId, { id: p.id, status: p.status }])
+      );
+
+      const transformedQuotes = quotes.map((quote) => {
+        const project = projectMap.get(quote.id);
+        return {
+          id: quote.id,
+          status: quote.status,
+          location: quote.location,
+          notes: quote.notes,
+          estimatedPrice: quote.estimatedPrice ? Number(quote.estimatedPrice) : null,
+          staffNotes: quote.staffNotes,
+          service: quote.service,
+          user: quote.user,
+          hasProject: !!project,
+          project: project || null,
+          createdAt: quote.createdAt,
+          updatedAt: quote.updatedAt,
+        };
+      });
 
       return c.json({ 
         quotes: transformedQuotes,
