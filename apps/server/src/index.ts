@@ -2,6 +2,7 @@ import { env } from "@trojan_projects_zw/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { db } from "@trojan_projects_zw/db";
 
 import authRoute from "./routes/auth";
 import preferencesRoute from "./routes/preferences";
@@ -13,6 +14,9 @@ import usersRoute from "./routes/users";
 import uploadRoute from "./routes/upload";
 import notificationsRoute from "./routes/notifications";
 import pushRoute from "./routes/push";
+import chatRoute from "./routes/chat";
+import { pushNewMessage } from "./lib/push-notifications";
+import { notifyNewMessage } from "./lib/notifications";
 
 const app = new Hono();
 
@@ -43,13 +47,14 @@ app.route("/api/users", usersRoute);
 app.route("/api/upload", uploadRoute);
 app.route("/api/notifications", notificationsRoute);
 app.route("/api/push", pushRoute);
+app.route("/api/chat", chatRoute);
 
 app.get("/", (c) => {
   return c.text("OK");
 });
 
 interface ChatMessage {
-  type: "message" | "join" | "leave" | "typing";
+  type: "message" | "join" | "leave" | "typing" | "system";
   roomId: string;
   userId: string;
   userName: string;
@@ -63,6 +68,31 @@ interface WebSocketData {
   userId: string;
   userName: string;
   userRole: string;
+}
+
+// Track active users per room for presence awareness
+const roomActiveUsers = new Map<string, Set<string>>();
+
+function getActiveUsersInRoom(roomId: string): string[] {
+  const users = roomActiveUsers.get(roomId);
+  return users ? Array.from(users) : [];
+}
+
+function addUserToRoom(roomId: string, userId: string) {
+  if (!roomActiveUsers.has(roomId)) {
+    roomActiveUsers.set(roomId, new Set());
+  }
+  roomActiveUsers.get(roomId)!.add(userId);
+}
+
+function removeUserFromRoom(roomId: string, userId: string) {
+  const users = roomActiveUsers.get(roomId);
+  if (users) {
+    users.delete(userId);
+    if (users.size === 0) {
+      roomActiveUsers.delete(roomId);
+    }
+  }
 }
 
 // Start server with WebSocket support
@@ -97,13 +127,41 @@ const server = Bun.serve<WebSocketData>({
     return app.fetch(req, { env });
   },
   websocket: {
-    open(ws) {
-      const { roomId, userName } = ws.data;
+    async open(ws) {
+      const { roomId, userId, userName, userRole } = ws.data;
       
       // Subscribe to the room topic
       ws.subscribe(roomId);
       
+      // Track active user
+      addUserToRoom(roomId, userId);
+      
       console.log(`WebSocket opened: ${userName} joined room ${roomId}`);
+      
+      // Check if this is a staff member joining
+      const isStaff = ["staff", "support", "admin"].includes(userRole);
+      
+      // Save join message to database if staff is joining
+      if (isStaff) {
+        try {
+          // Check if room exists and add system message
+          const room = await db.chatRoom.findUnique({ where: { id: roomId } });
+          if (room) {
+            await db.chatMessage.create({
+              data: {
+                roomId,
+                userId,
+                userName,
+                userRole,
+                content: `${userName} joined the chat`,
+                type: "join",
+              },
+            });
+          }
+        } catch (error) {
+          console.error("Error saving join message:", error);
+        }
+      }
       
       // Notify others in the room
       const joinMessage: ChatMessage = {
@@ -118,8 +176,8 @@ const server = Bun.serve<WebSocketData>({
       ws.publish(roomId, JSON.stringify(joinMessage));
     },
     
-    message(ws, message) {
-      const { roomId, userId } = ws.data;
+    async message(ws, message) {
+      const { roomId, userId, userName, userRole } = ws.data;
       
       try {
         const data: ChatMessage = JSON.parse(message.toString());
@@ -135,6 +193,59 @@ const server = Bun.serve<WebSocketData>({
           data.timestamp = new Date().toISOString();
         }
         
+        // Save message to database (only for actual messages, not typing indicators)
+        if (data.type === "message" && data.content) {
+          try {
+            // Check if room exists
+            const room = await db.chatRoom.findUnique({
+              where: { id: roomId },
+              include: { members: true },
+            });
+            
+            if (room) {
+              // Save the message
+              await db.chatMessage.create({
+                data: {
+                  roomId,
+                  userId,
+                  userName,
+                  userRole,
+                  content: data.content,
+                  type: "message",
+                },
+              });
+              
+              // Get active users in the room to exclude from push notifications
+              const activeUserIds = getActiveUsersInRoom(roomId);
+              
+              // Get project info for notification
+              const project = await db.project.findFirst({
+                where: { id: room.projectId },
+                include: { service: { select: { name: true } } },
+              });
+              
+              // Send push notifications to staff not in the chat
+              await pushNewMessage(
+                roomId,
+                project?.service.name || "Chat",
+                userName,
+                data.content,
+                activeUserIds
+              );
+              
+              // Create dashboard notification for new message
+              await notifyNewMessage(
+                roomId,
+                userName,
+                data.content,
+                project?.service.name || "Chat"
+              );
+            }
+          } catch (error) {
+            console.error("Error saving message to database:", error);
+          }
+        }
+        
         // Broadcast to all subscribers in the room (including sender)
         ws.publish(roomId, JSON.stringify(data));
       } catch (error) {
@@ -143,7 +254,10 @@ const server = Bun.serve<WebSocketData>({
     },
     
     close(ws) {
-      const { roomId, userName } = ws.data;
+      const { roomId, userId, userName } = ws.data;
+      
+      // Remove user from active tracking
+      removeUserFromRoom(roomId, userId);
       
       console.log(`WebSocket closed: ${userName} left room ${roomId}`);
       
