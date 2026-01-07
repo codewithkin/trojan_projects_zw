@@ -388,6 +388,55 @@ const projectsRoute = new Hono()
               },
               user.name
             );
+            
+            // Create a chat room for this project
+            try {
+              // Check if chat room already exists for this project
+              const existingRoom = await db.chatRoom.findFirst({
+                where: { projectId: updatedProject.id },
+              });
+              
+              if (!existingRoom) {
+                // Create new chat room
+                const chatRoom = await db.chatRoom.create({
+                  data: {
+                    projectId: updatedProject.id,
+                  },
+                });
+                
+                // Add the project owner (customer) to the chat
+                await db.chatMember.create({
+                  data: {
+                    roomId: chatRoom.id,
+                    userId: updatedProject.userId,
+                  },
+                });
+                
+                // Add the staff member who accepted the project
+                await db.chatMember.create({
+                  data: {
+                    roomId: chatRoom.id,
+                    userId: user.id,
+                  },
+                });
+                
+                // Add a system message that the project was accepted
+                await db.chatMessage.create({
+                  data: {
+                    roomId: chatRoom.id,
+                    userId: user.id,
+                    userName: user.name,
+                    userRole: user.role,
+                    content: `${user.name} accepted the project and joined the chat`,
+                    type: "system",
+                  },
+                });
+                
+                console.log(`Created chat room ${chatRoom.id} for project ${updatedProject.id}`);
+              }
+            } catch (chatError) {
+              console.error("Failed to create chat room:", chatError);
+            }
           } else {
             await notifyProjectStatusUpdate({
               id: updatedProject.id,
