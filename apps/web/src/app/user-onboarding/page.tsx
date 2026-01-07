@@ -85,8 +85,8 @@ export default function UserOnboarding() {
 
         console.log("Saving preferences:", preferences);
 
-        // Redirect to dashboard
-        router.push("/dashboard");
+        // Redirect to home page
+        router.push("/");
     };
 
     const getIcon = (iconName: string) => {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     ArrowLeft,
     Search,
@@ -69,6 +70,7 @@ interface OrderItem {
 }
 
 export default function CreateOrderPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [customerSearch, setCustomerSearch] = useState("");
@@ -80,6 +82,11 @@ export default function CreateOrderPage() {
     const [notes, setNotes] = useState("");
     const [discount, setDiscount] = useState(0);
     const [showNewCustomerDialog, setShowNewCustomerDialog] = useState(false);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const filteredCustomers = customers.filter(
         (c) =>
@@ -171,10 +178,10 @@ export default function CreateOrderPage() {
                     <div key={s.num} className="flex items-center">
                         <div
                             className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${step > s.num
-                                    ? "bg-green-500 text-white"
-                                    : step === s.num
-                                        ? "text-white"
-                                        : "bg-gray-200 text-gray-500"
+                                ? "bg-green-500 text-white"
+                                : step === s.num
+                                    ? "text-white"
+                                    : "bg-gray-200 text-gray-500"
                                 }`}
                             style={step === s.num ? { backgroundColor: TROJAN_NAVY } : {}}
                         >
@@ -223,8 +230,8 @@ export default function CreateOrderPage() {
                                         key={customer.id}
                                         onClick={() => setSelectedCustomer(customer)}
                                         className={`p-4 rounded-lg border cursor-pointer transition-colors ${selectedCustomer?.id === customer.id
-                                                ? "border-2"
-                                                : "hover:bg-gray-50"
+                                            ? "border-2"
+                                            : "hover:bg-gray-50"
                                             }`}
                                         style={
                                             selectedCustomer?.id === customer.id

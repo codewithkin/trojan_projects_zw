@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     ArrowLeft,
     Loader2,
@@ -64,6 +65,7 @@ const categories = [
 ];
 
 export default function NewServicePage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
@@ -87,6 +89,11 @@ export default function NewServicePage() {
     const [newSpecValue, setNewSpecValue] = useState("");
     const [uploadingImages, setUploadingImages] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

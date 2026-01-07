@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     Bell,
     CheckCircle,
@@ -133,6 +134,7 @@ const formatTimeAgo = (dateString: string) => {
 };
 
 export default function NotificationsPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -161,8 +163,15 @@ export default function NotificationsPage() {
     }, []);
 
     useEffect(() => {
-        fetchNotifications();
-    }, [fetchNotifications]);
+        if (!isLoading && isAuthorized) {
+            fetchNotifications();
+        }
+    }, [isLoading, isAuthorized, fetchNotifications]);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const handleRefresh = () => {
         setRefreshing(true);

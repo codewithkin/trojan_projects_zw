@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     MoreHorizontal,
     Eye,
@@ -83,6 +84,7 @@ const getStatusBadge = (status: ProjectStatus) => {
 };
 
 export default function AdminProjectsPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("all");
@@ -110,6 +112,17 @@ export default function AdminProjectsPage() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!isLoading && isAuthorized) {
+            fetchProjects();
+        }
+    }, [isLoading, isAuthorized]);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     useEffect(() => {
         fetchProjects();

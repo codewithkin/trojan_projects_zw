@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     ArrowLeft,
     Save,
@@ -98,6 +99,7 @@ const paymentStatusOptions = [
 ];
 
 export default function EditOrderPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const params = useParams();
     const router = useRouter();
     const orderId = params.id as string;
@@ -115,6 +117,11 @@ export default function EditOrderPage() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const handleChange = (field: string, value: string) => {
         setFormData({ ...formData, [field]: value });

@@ -33,7 +33,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
         });
 
         if (response.success) {
-          router.push("/dashboard");
+          router.push("/user-onboarding");
           toast.success("Sign up successful");
         } else {
           toast.error(response.error || "Sign up failed");

@@ -9,8 +9,7 @@ const TROJAN_GOLD = "#FFC107";
 
 export default function ChatPage() {
     const handleDownload = () => {
-        // For now, just alert. You can update this to link to actual app stores
-        alert("App download links coming soon! Check back later.");
+        window.open("https://expo.dev/accounts/codewithkin/projects/trojan_projects_zw/builds/aea75725-4970-45c4-a493-6b539f5d1710", "_blank");
     };
 
     return (

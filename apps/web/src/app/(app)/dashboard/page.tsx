@@ -15,6 +15,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -42,6 +43,7 @@ interface RecentProject {
 }
 
 export default function DashboardPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const [stats, setStats] = useState<ProjectStats | null>(null);
     const [recentProjects, setRecentProjects] = useState<RecentProject[]>([]);
     const [loading, setLoading] = useState(true);
@@ -57,8 +59,15 @@ export default function DashboardPage() {
     const [inviting, setInviting] = useState(false);
 
     useEffect(() => {
-        fetchStats();
-    }, []);
+        if (!isLoading && isAuthorized) {
+            fetchStats();
+        }
+    }, [isLoading, isAuthorized]);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const fetchStats = async () => {
         try {

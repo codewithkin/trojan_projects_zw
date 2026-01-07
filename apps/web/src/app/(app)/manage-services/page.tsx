@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     Package,
     Plus,
@@ -94,6 +95,7 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function ServicesPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -105,8 +107,15 @@ export default function ServicesPage() {
     const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
-        fetchServices();
-    }, []);
+        if (!isLoading && isAuthorized) {
+            fetchServices();
+        }
+    }, [isLoading, isAuthorized]);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const fetchServices = async () => {
         setLoading(true);

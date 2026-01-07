@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     ArrowLeft,
     Package,
@@ -126,11 +127,17 @@ const paymentColors: Record<string, { bg: string; text: string }> = {
 };
 
 export default function OrderDetailPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const params = useParams();
     const router = useRouter();
     const [status, setStatus] = useState(orderData.status);
     const [showNoteDialog, setShowNoteDialog] = useState(false);
     const [newNote, setNewNote] = useState("");
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const getStatusIcon = (status: string) => {
         switch (status) {

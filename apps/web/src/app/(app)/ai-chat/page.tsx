@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import Image from "next/image";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import { Send, User, Loader2, RotateCcw, Copy, Check, TrendingUp, Zap, Square, BarChart3, Clock, DollarSign, Star, Wrench, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,6 +72,7 @@ const deserializeMessages = (data: { id: string; role: "user" | "assistant"; con
     }));
 
 export default function AIChatPage() {
+    const { isAuthorized, isLoading: isCheckingAuth } = useAdminGuard();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -120,6 +122,11 @@ export default function AIChatPage() {
     useEffect(() => {
         textareaRef.current?.focus();
     }, []);
+
+    // Don't render if not authorized
+    if (isCheckingAuth || !isAuthorized) {
+        return null;
+    }
 
     const copyToClipboard = async (text: string, id: string) => {
         try {

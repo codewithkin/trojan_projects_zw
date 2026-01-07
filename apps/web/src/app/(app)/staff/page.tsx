@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import {
     Users,
     UserPlus,
@@ -67,6 +68,7 @@ interface TeamStats {
 }
 
 export default function StaffPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
     const [stats, setStats] = useState<TeamStats | null>(null);
     const [loading, setLoading] = useState(true);
@@ -86,8 +88,15 @@ export default function StaffPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        fetchStaffData();
-    }, []);
+        if (!isLoading && isAuthorized) {
+            fetchStaffData();
+        }
+    }, [isLoading, isAuthorized]);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const fetchStaffData = async () => {
         setLoading(true);

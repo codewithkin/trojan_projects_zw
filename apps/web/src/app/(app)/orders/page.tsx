@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import { ColumnDef } from "@tanstack/react-table";
 import {
     Plus,
@@ -237,7 +238,13 @@ const columns: ColumnDef<Order>[] = [
 ];
 
 export default function OrdersPage() {
+    const { isAuthorized, isLoading } = useAdminGuard();
     const [activeTab, setActiveTab] = useState("all");
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const filteredOrders = activeTab === "all"
         ? mockOrders
