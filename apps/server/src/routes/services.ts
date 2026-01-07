@@ -45,6 +45,8 @@ const servicesRoute = new Hono()
             select: {
               requests: true,
               likes: true,
+              projects: true,
+              quotes: true,
             },
           },
         },
@@ -74,6 +76,8 @@ const servicesRoute = new Hono()
           reviewCount: ratings.length,
           likesCount: service._count.likes,
           requestsCount: service._count.requests,
+          projectsCount: service._count.projects,
+          quotesCount: service._count.quotes,
           createdAt: service.createdAt,
         };
       });
@@ -91,6 +95,205 @@ const servicesRoute = new Hono()
     } catch (error) {
       console.error("Error fetching services:", error);
       return c.json({ error: "Failed to fetch services" }, 500);
+    }
+  })
+  // POST /api/services - Create a new service (admin only)
+  .post("/", authMiddleware, async (c) => {
+    const user = c.get("user");
+    
+    if (!user || user.role !== "admin") {
+      return c.json({ error: "Unauthorized - Admin only" }, 403);
+    }
+
+    try {
+      const body = await c.req.json();
+      const { name, description, price, priceRange, category, featured, images, brands, supports, specifications } = body;
+
+      if (!name || !description || !price || !category) {
+        return c.json({ error: "Name, description, price, and category are required" }, 400);
+      }
+
+      // Validate category
+      const validCategories = ["solar", "cctv", "electrical", "water", "welding"];
+      if (!validCategories.includes(category)) {
+        return c.json({ error: `Category must be one of: ${validCategories.join(", ")}` }, 400);
+      }
+
+      // Generate slug from name
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      // Check if slug exists
+      const existingService = await db.service.findUnique({
+        where: { slug },
+      });
+
+      if (existingService) {
+        return c.json({ error: "A service with a similar name already exists" }, 409);
+      }
+
+      const service = await db.service.create({
+        data: {
+          name,
+          slug,
+          description,
+          price,
+          priceRange: priceRange || null,
+          category,
+          featured: featured ?? false,
+          images: images || [],
+          brands: brands || [],
+          supports: supports || [],
+          specifications: specifications || null,
+        },
+      });
+
+      return c.json({
+        success: true,
+        service: {
+          id: service.id,
+          slug: service.slug,
+          name: service.name,
+          price: Number(service.price),
+          category: service.category,
+          featured: service.featured,
+          createdAt: service.createdAt,
+        },
+      }, 201);
+    } catch (error) {
+      console.error("Error creating service:", error);
+      return c.json({ error: "Failed to create service" }, 500);
+    }
+  })
+  // PUT /api/services/:id - Update a service (admin only)
+  .put("/:id", authMiddleware, async (c) => {
+    const user = c.get("user");
+    
+    if (!user || user.role !== "admin") {
+      return c.json({ error: "Unauthorized - Admin only" }, 403);
+    }
+
+    const id = c.req.param("id");
+
+    try {
+      const existingService = await db.service.findUnique({
+        where: { id },
+      });
+
+      if (!existingService) {
+        return c.json({ error: "Service not found" }, 404);
+      }
+
+      const body = await c.req.json();
+      const { name, description, price, priceRange, category, featured, images, brands, supports, specifications } = body;
+
+      // If name is changing, update slug
+      let slug = existingService.slug;
+      if (name && name !== existingService.name) {
+        slug = name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+
+        // Check if new slug conflicts with another service
+        const slugConflict = await db.service.findFirst({
+          where: { slug, id: { not: id } },
+        });
+
+        if (slugConflict) {
+          return c.json({ error: "A service with a similar name already exists" }, 409);
+        }
+      }
+
+      // Validate category if provided
+      if (category) {
+        const validCategories = ["solar", "cctv", "electrical", "water", "welding"];
+        if (!validCategories.includes(category)) {
+          return c.json({ error: `Category must be one of: ${validCategories.join(", ")}` }, 400);
+        }
+      }
+
+      const service = await db.service.update({
+        where: { id },
+        data: {
+          ...(name && { name, slug }),
+          ...(description && { description }),
+          ...(price && { price }),
+          ...(priceRange !== undefined && { priceRange }),
+          ...(category && { category }),
+          ...(featured !== undefined && { featured }),
+          ...(images && { images }),
+          ...(brands && { brands }),
+          ...(supports && { supports }),
+          ...(specifications !== undefined && { specifications }),
+        },
+      });
+
+      return c.json({
+        success: true,
+        service: {
+          id: service.id,
+          slug: service.slug,
+          name: service.name,
+          price: Number(service.price),
+          category: service.category,
+          featured: service.featured,
+          updatedAt: service.updatedAt,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating service:", error);
+      return c.json({ error: "Failed to update service" }, 500);
+    }
+  })
+  // DELETE /api/services/:id - Delete a service (admin only)
+  .delete("/:id", authMiddleware, async (c) => {
+    const user = c.get("user");
+    
+    if (!user || user.role !== "admin") {
+      return c.json({ error: "Unauthorized - Admin only" }, 403);
+    }
+
+    const id = c.req.param("id");
+
+    try {
+      const existingService = await db.service.findUnique({
+        where: { id },
+        include: {
+          _count: {
+            select: {
+              projects: true,
+              quotes: true,
+            },
+          },
+        },
+      });
+
+      if (!existingService) {
+        return c.json({ error: "Service not found" }, 404);
+      }
+
+      // Warn if service has associated data
+      if (existingService._count.projects > 0 || existingService._count.quotes > 0) {
+        return c.json({
+          error: "Cannot delete service with existing projects or quotes. Consider marking it as unfeatured instead.",
+          details: {
+            projects: existingService._count.projects,
+            quotes: existingService._count.quotes,
+          },
+        }, 400);
+      }
+
+      await db.service.delete({
+        where: { id },
+      });
+
+      return c.json({ success: true, message: "Service deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      return c.json({ error: "Failed to delete service" }, 500);
     }
   })
   // GET /api/services/:slug - Get single service by slug (public)
