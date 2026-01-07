@@ -81,7 +81,7 @@ export default function ChatRoom() {
             try {
                 const message: ChatMessage = JSON.parse(event.data);
                 setMessages((prev) => [...prev, { ...message, id: message.timestamp + Math.random() }]);
-                
+
                 // Check if staff has joined (they are no longer waiting)
                 const staffRoles = ["staff", "support", "admin"];
                 if (message.type === "join" && staffRoles.includes(message.userRole)) {
@@ -90,7 +90,7 @@ export default function ChatRoom() {
                 if (message.type === "system" && message.content?.includes("joined the chat")) {
                     setIsWaitingForStaff(false);
                 }
-                
+
                 // Scroll to bottom on new message
                 setTimeout(() => {
                     flatListRef.current?.scrollToEnd({ animated: true });

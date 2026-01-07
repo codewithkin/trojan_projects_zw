@@ -1,23 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     Bell,
     CheckCircle,
     AlertCircle,
     Info,
-    Ticket,
     Package,
     Users,
     Settings,
     CheckCheck,
     Trash2,
-    Filter,
+    FileText,
+    MessageSquare,
+    Loader2,
+    RefreshCcw,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     DropdownMenu,
@@ -27,150 +28,146 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getStoredToken } from "@/lib/auth-client";
+import { env } from "@trojan_projects_zw/env/web";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-type NotificationType = "order" | "ticket" | "system" | "user" | "alert";
+// Map notification types from backend
+type NotificationType =
+    | "user_created"
+    | "user_invited"
+    | "role_updated"
+    | "project_created"
+    | "project_updated"
+    | "project_accepted"
+    | "project_completed"
+    | "quote_created"
+    | "quote_approved"
+    | "quote_rejected"
+    | "message_received"
+    | "system";
+
+type UICategory = "user" | "project" | "quote" | "message" | "system";
 
 interface Notification {
     id: string;
     type: NotificationType;
     title: string;
     message: string;
-    timestamp: string;
+    data: Record<string, unknown> | null;
     read: boolean;
-    link?: string;
+    createdAt: string;
 }
 
-const mockNotifications: Notification[] = [
-    {
-        id: "1",
-        type: "order",
-        title: "New Order Received",
-        message: "John Mukamuri placed an order for 5kW Solar Installation worth $3,500",
-        timestamp: "5 minutes ago",
-        read: false,
-        link: "/orders/ORD001",
-    },
-    {
-        id: "2",
-        type: "ticket",
-        title: "Urgent Ticket Assigned",
-        message: "Ticket #TKT-2024-0045 about billing issue has been assigned to you",
-        timestamp: "15 minutes ago",
-        read: false,
-        link: "/tickets/TKT-2024-0045",
-    },
-    {
-        id: "3",
-        type: "alert",
-        title: "Low Stock Alert",
-        message: "Solar Panel 400W inventory is running low (5 units remaining)",
-        timestamp: "1 hour ago",
-        read: false,
-    },
-    {
-        id: "4",
-        type: "user",
-        title: "New Staff Member Joined",
-        message: "Tatenda Chiweshe has joined the Solar Installation team",
-        timestamp: "2 hours ago",
-        read: true,
-        link: "/staff/8",
-    },
-    {
-        id: "5",
-        type: "order",
-        title: "Order Completed",
-        message: "Order #ORD-2024-0089 for Mary Chigumba has been marked as completed",
-        timestamp: "3 hours ago",
-        read: true,
-        link: "/orders/ORD-2024-0089",
-    },
-    {
-        id: "6",
-        type: "system",
-        title: "System Update Scheduled",
-        message: "System maintenance scheduled for tonight at 11:00 PM CAT",
-        timestamp: "5 hours ago",
-        read: true,
-    },
-    {
-        id: "7",
-        type: "ticket",
-        title: "Ticket Resolved",
-        message: "Ticket #TKT-2024-0039 has been resolved and closed",
-        timestamp: "6 hours ago",
-        read: true,
-        link: "/tickets/TKT-2024-0039",
-    },
-    {
-        id: "8",
-        type: "order",
-        title: "Payment Received",
-        message: "Payment of $1,200 received for Order #ORD-2024-0092",
-        timestamp: "Yesterday",
-        read: true,
-        link: "/orders/ORD-2024-0092",
-    },
-    {
-        id: "9",
-        type: "alert",
-        title: "Customer Feedback",
-        message: "Peter Moyo left a 5-star review for their solar installation",
-        timestamp: "Yesterday",
-        read: true,
-        link: "/customers/3",
-    },
-    {
-        id: "10",
-        type: "system",
-        title: "Weekly Report Ready",
-        message: "Your weekly performance report is ready for review",
-        timestamp: "2 days ago",
-        read: true,
-        link: "/reports",
-    },
-];
+interface NotificationsResponse {
+    notifications: Notification[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+        hasMore: boolean;
+    };
+}
+
+const getNotificationCategory = (type: NotificationType): UICategory => {
+    if (type.startsWith("user_") || type === "role_updated") return "user";
+    if (type.startsWith("project_")) return "project";
+    if (type.startsWith("quote_")) return "quote";
+    if (type === "message_received") return "message";
+    return "system";
+};
 
 const getNotificationIcon = (type: NotificationType) => {
-    switch (type) {
-        case "order":
+    const category = getNotificationCategory(type);
+    switch (category) {
+        case "project":
             return <Package className="h-5 w-5 text-blue-500" />;
-        case "ticket":
-            return <Ticket className="h-5 w-5 text-purple-500" />;
+        case "quote":
+            return <FileText className="h-5 w-5 text-purple-500" />;
+        case "message":
+            return <MessageSquare className="h-5 w-5 text-green-500" />;
+        case "user":
+            return <Users className="h-5 w-5 text-amber-500" />;
         case "system":
             return <Settings className="h-5 w-5 text-gray-500" />;
-        case "user":
-            return <Users className="h-5 w-5 text-green-500" />;
-        case "alert":
-            return <AlertCircle className="h-5 w-5 text-yellow-500" />;
         default:
             return <Info className="h-5 w-5 text-gray-500" />;
     }
 };
 
 const getNotificationBadgeColor = (type: NotificationType) => {
-    switch (type) {
-        case "order":
+    const category = getNotificationCategory(type);
+    switch (category) {
+        case "project":
             return "bg-blue-100 text-blue-700";
-        case "ticket":
+        case "quote":
             return "bg-purple-100 text-purple-700";
+        case "message":
+            return "bg-green-100 text-green-700";
+        case "user":
+            return "bg-amber-100 text-amber-700";
         case "system":
             return "bg-gray-100 text-gray-700";
-        case "user":
-            return "bg-green-100 text-green-700";
-        case "alert":
-            return "bg-yellow-100 text-yellow-700";
         default:
             return "bg-gray-100 text-gray-700";
     }
 };
 
+const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString();
+};
+
 export default function NotificationsPage() {
-    const [notifications, setNotifications] = useState(mockNotifications);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [activeTab, setActiveTab] = useState("all");
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchNotifications = useCallback(async () => {
+        try {
+            const token = getStoredToken();
+            const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/notifications?limit=100`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) throw new Error("Failed to fetch notifications");
+            const data: NotificationsResponse = await response.json();
+            setNotifications(data.notifications);
+            setError(null);
+        } catch (err) {
+            console.error("Error fetching notifications:", err);
+            setError("Failed to load notifications");
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications]);
+
+    const handleRefresh = () => {
+        setRefreshing(true);
+        fetchNotifications();
+    };
 
     const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -178,34 +175,91 @@ export default function NotificationsPage() {
         switch (activeTab) {
             case "unread":
                 return notifications.filter((n) => !n.read);
-            case "orders":
-                return notifications.filter((n) => n.type === "order");
-            case "tickets":
-                return notifications.filter((n) => n.type === "ticket");
+            case "projects":
+                return notifications.filter((n) => getNotificationCategory(n.type) === "project");
+            case "quotes":
+                return notifications.filter((n) => getNotificationCategory(n.type) === "quote");
+            case "users":
+                return notifications.filter((n) => getNotificationCategory(n.type) === "user");
             case "system":
-                return notifications.filter((n) => n.type === "system" || n.type === "alert");
+                return notifications.filter((n) =>
+                    getNotificationCategory(n.type) === "system" ||
+                    getNotificationCategory(n.type) === "message"
+                );
             default:
                 return notifications;
         }
     };
 
-    const markAsRead = (id: string) => {
-        setNotifications(
-            notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
+    const markAsRead = async (id: string) => {
+        try {
+            const token = getStoredToken();
+            await fetch(`${env.NEXT_PUBLIC_API_URL}/api/notifications/${id}/read`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: true } : n)));
+        } catch (err) {
+            console.error("Error marking notification as read:", err);
+        }
+    };
+
+    const markAllAsRead = async () => {
+        try {
+            const token = getStoredToken();
+            await fetch(`${env.NEXT_PUBLIC_API_URL}/api/notifications/read-all`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setNotifications(notifications.map((n) => ({ ...n, read: true })));
+        } catch (err) {
+            console.error("Error marking all notifications as read:", err);
+        }
+    };
+
+    const deleteNotification = async (id: string) => {
+        try {
+            const token = getStoredToken();
+            await fetch(`${env.NEXT_PUBLIC_API_URL}/api/notifications/${id}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setNotifications(notifications.filter((n) => n.id !== id));
+        } catch (err) {
+            console.error("Error deleting notification:", err);
+        }
+    };
+
+    const clearAll = async () => {
+        // Delete all notifications one by one (or add a bulk delete endpoint)
+        for (const notification of notifications) {
+            await deleteNotification(notification.id);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+            </div>
         );
-    };
+    }
 
-    const markAllAsRead = () => {
-        setNotifications(notifications.map((n) => ({ ...n, read: true })));
-    };
-
-    const deleteNotification = (id: string) => {
-        setNotifications(notifications.filter((n) => n.id !== id));
-    };
-
-    const clearAll = () => {
-        setNotifications([]);
-    };
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+                <AlertCircle className="h-12 w-12 text-red-400" />
+                <p className="text-gray-600">{error}</p>
+                <Button onClick={fetchNotifications}>Try Again</Button>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -224,6 +278,10 @@ export default function NotificationsPage() {
                     <p className="text-gray-500">Stay updated with the latest activity</p>
                 </div>
                 <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+                        <RefreshCcw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+                        Refresh
+                    </Button>
                     <Button variant="outline" onClick={markAllAsRead} disabled={unreadCount === 0}>
                         <CheckCheck className="mr-2 h-4 w-4" />
                         Mark All Read
@@ -247,7 +305,7 @@ export default function NotificationsPage() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-500">Total</CardTitle>
@@ -270,21 +328,31 @@ export default function NotificationsPage() {
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Orders</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500">Projects</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-blue-600">
-                            {notifications.filter((n) => n.type === "order").length}
+                            {notifications.filter((n) => getNotificationCategory(n.type) === "project").length}
                         </div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Tickets</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500">Quotes</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-purple-600">
-                            {notifications.filter((n) => n.type === "ticket").length}
+                            {notifications.filter((n) => getNotificationCategory(n.type) === "quote").length}
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-500">Users</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-amber-600">
+                            {notifications.filter((n) => getNotificationCategory(n.type) === "user").length}
                         </div>
                     </CardContent>
                 </Card>
@@ -297,8 +365,9 @@ export default function NotificationsPage() {
                     <TabsTrigger value="unread">
                         Unread {unreadCount > 0 && `(${unreadCount})`}
                     </TabsTrigger>
-                    <TabsTrigger value="orders">Orders</TabsTrigger>
-                    <TabsTrigger value="tickets">Tickets</TabsTrigger>
+                    <TabsTrigger value="projects">Projects</TabsTrigger>
+                    <TabsTrigger value="quotes">Quotes</TabsTrigger>
+                    <TabsTrigger value="users">Users</TabsTrigger>
                     <TabsTrigger value="system">System</TabsTrigger>
                 </TabsList>
 
@@ -333,10 +402,10 @@ export default function NotificationsPage() {
                                                             </p>
                                                             <div className="flex items-center gap-2 mt-2">
                                                                 <Badge className={getNotificationBadgeColor(notification.type)}>
-                                                                    {notification.type}
+                                                                    {notification.type.replace(/_/g, " ")}
                                                                 </Badge>
                                                                 <span className="text-xs text-gray-400">
-                                                                    {notification.timestamp}
+                                                                    {formatTimeAgo(notification.createdAt)}
                                                                 </span>
                                                             </div>
                                                         </div>
