@@ -30,7 +30,7 @@ export const adminNavigation: NavSection[] = [
     title: "Admin",
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Overview" },
-      { title: "Services", href: "/services", icon: Package, description: "Manage products & services" },
+      { title: "Services", href: "/manage-services", icon: Package, description: "Manage products & services" },
       { title: "Projects", href: "/projects", icon: FolderKanban, description: "Manage customer projects" },
       { title: "AI Insights", href: "/ai-chat", icon: Bot, description: "Chat with Trojan for business insights" },
       { title: "Staff", href: "/staff", icon: Users, description: "Manage team members" },
