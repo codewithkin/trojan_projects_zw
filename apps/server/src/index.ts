@@ -11,6 +11,7 @@ import projectsRoute from "./routes/projects";
 import aiRoute from "./routes/ai";
 import usersRoute from "./routes/users";
 import uploadRoute from "./routes/upload";
+import notificationsRoute from "./routes/notifications";
 
 const app = new Hono();
 
@@ -39,6 +40,7 @@ app.route("/api/projects", projectsRoute);
 app.route("/api/ai", aiRoute);
 app.route("/api/users", usersRoute);
 app.route("/api/upload", uploadRoute);
+app.route("/api/notifications", notificationsRoute);
 
 app.get("/", (c) => {
   return c.text("OK");

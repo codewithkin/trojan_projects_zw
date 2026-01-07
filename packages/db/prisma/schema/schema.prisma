@@ -283,3 +283,97 @@ model ServiceRequest {
   @@index([status])
   @@map("service_request")
 }
+
+// ============================================
+// NOTIFICATIONS & PUSH TOKENS
+// ============================================
+
+enum NotificationType {
+  user_created
+  user_invited
+  role_updated
+  project_created
+  project_updated
+  project_accepted
+  project_completed
+  quote_created
+  quote_approved
+  quote_rejected
+  message_received
+  system
+}
+
+// Admin dashboard notifications
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  link      String?          // Optional link to navigate to
+  read      Boolean          @default(false)
+  metadata  Json?            // Additional data (e.g., projectId, userId)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([read])
+  @@index([createdAt])
+  @@map("notification")
+}
+
+// Push notification tokens for mobile apps
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique // Expo push token
+  platform  String   // ios, android
+  deviceId  String?  // Unique device identifier
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("push_token")
+}
+
+// Chat room for projects
+model ChatRoom {
+  id        String        @id @default(cuid())
+  projectId String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  messages  ChatMessage[]
+  members   ChatMember[]
+
+  @@map("chat_room")
+}
+
+// Chat room members
+model ChatMember {
+  id        String    @id @default(cuid())
+  roomId    String
+  room      ChatRoom  @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  joinedAt  DateTime  @default(now())
+  lastSeen  DateTime? // Last time user was active in chat
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+  @@map("chat_member")
+}
+
+// Persisted chat messages
+model ChatMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  userName  String
+  userRole  String
+  content   String
+  type      String   @default("message") // message, join, leave, system
+  createdAt DateTime @default(now())
+
+  @@index([roomId])
+  @@index([createdAt])
+  @@map("chat_message")
+}
