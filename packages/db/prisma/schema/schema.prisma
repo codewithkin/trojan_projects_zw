@@ -8,3 +8,278 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UserRole {
+  user
+  staff
+  support
+  admin
+
+  @@map("user_role")
+}
+
+model User {
+  id            String          @id
+  name          String
+  email         String
+  emailVerified Boolean         @default(false)
+  image         String?
+  phone         String?
+  role          UserRole        @default(user)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  preferences   UserPreference?
+
+  // Service relations
+  ratings         ServiceRating[]
+  likes           ServiceLike[]
+  serviceRequests ServiceRequest[]
+  quotes          Quote[]
+  projects        Project[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model UserPreference {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interests String[] // Array of service tag IDs
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("user_preference")
+}
+
+// Service Categories
+enum ServiceCategory {
+  solar
+  cctv
+  electrical
+  water
+  welding
+}
+
+// Service offered by Trojan Projects
+model Service {
+  id           String          @id @default(cuid())
+  name         String
+  slug         String          @unique
+  description  String
+  price        Decimal         @db.Decimal(10, 2)
+  priceRange   String?
+  category     ServiceCategory
+  featured     Boolean         @default(false)
+  images       String[]
+  brands       String[]
+  supports     String[]
+  specifications Json?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  ratings      ServiceRating[]
+  likes        ServiceLike[]
+  requests     ServiceRequest[]
+  quotes       Quote[]
+  projects     Project[]
+
+  @@index([category])
+  @@index([featured])
+  @@map("service")
+}
+
+// User ratings for services
+model ServiceRating {
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([serviceId, userId]) // One rating per user per service
+  @@index([serviceId])
+  @@index([userId])
+  @@map("service_rating")
+}
+
+// Users who have liked/wishlisted a service
+model ServiceLike {
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([serviceId, userId]) // One like per user per service
+  @@index([serviceId])
+  @@index([userId])
+  @@map("service_like")
+}
+
+// Quote status - initial request before becoming a project
+enum QuoteStatus {
+  pending      // User submitted, waiting for staff to review
+  approved     // Staff approved, user can promote to project
+  rejected     // Staff rejected
+}
+
+// Project status - after quote is accepted
+enum ProjectStatus {
+  pending          // Quote converted to project, waiting for staff to accept
+  starting         // Staff accepted, team on the way
+  in_progress      // Team arrived, work in progress
+  waiting_for_review  // Work complete, waiting for user confirmation
+  completed        // User confirmed, project done
+  cancelled        // Project was cancelled
+}
+
+// Quote - user request for a service quotation
+model Quote {
+  id               String       @id @default(cuid())
+  serviceId        String
+  service          Service      @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           QuoteStatus  @default(pending)
+  location         String
+  notes            String?
+  estimatedPrice   Decimal?     @db.Decimal(10, 2)
+  staffNotes       String?      // Notes from staff about the quote
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([serviceId])
+  @@index([userId])
+  @@index([status])
+  @@map("quote")
+}
+
+// Project - can be created directly or from a quote
+model Project {
+  id               String        @id @default(cuid())
+  serviceId        String
+  service          Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quoteId          String?       @unique // Optional link to a quote
+  status           ProjectStatus @default(pending)
+  location         String
+  notes            String?
+  finalPrice       Decimal?      @db.Decimal(10, 2)
+  
+  // Scheduling
+  scheduledDate    DateTime?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  
+  // Staff assignment
+  technicianName   String?
+  technicianPhone  String?
+  
+  // User review
+  userRating       Int?          // 1-5 stars
+  userReview       String?
+  
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([serviceId])
+  @@index([userId])
+  @@index([quoteId])
+  @@index([status])
+  @@map("project")
+}
+
+// Service request status (legacy - keeping for backward compatibility)
+enum ServiceRequestStatus {
+  pending
+  confirmed
+  in_progress
+  completed
+  cancelled
+}
+
+// User requests for services (legacy model - migrate to Quote/Project)
+model ServiceRequest {
+  id               String               @id @default(cuid())
+  serviceId        String
+  service          Service              @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           ServiceRequestStatus @default(pending)
+  location         String
+  notes            String?
+  estimatedPrice   Decimal?             @db.Decimal(10, 2)
+  finalPrice       Decimal?             @db.Decimal(10, 2)
+  requestDate      DateTime             @default(now())
+  confirmedDate    DateTime?
+  completedDate    DateTime?
+  technicianName   String?
+  technicianPhone  String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@index([serviceId])
+  @@index([userId])
+  @@index([status])
+  @@map("service_request")
+}
