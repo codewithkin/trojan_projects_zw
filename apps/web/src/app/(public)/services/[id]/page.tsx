@@ -103,7 +103,8 @@ export default function ServiceDetailPage() {
     }
 
     const category = categoryConfig[service.category];
-    const isLiked = session?.user && service.likedBy?.includes(session.user.id);
+    // Use optimistic userLiked field
+    const isLiked = service.userLiked ?? false;
 
     const nextImage = () => {
         setSelectedImage((prev) => (prev + 1) % service.images.length);
@@ -114,7 +115,7 @@ export default function ServiceDetailPage() {
     };
 
     const handleLike = () => {
-        if (!session?.user) {
+        if (!user) {
             setShowAuthModal(true);
             return;
         }
@@ -122,7 +123,7 @@ export default function ServiceDetailPage() {
     };
 
     const handleRequest = () => {
-        if (!session?.user) {
+        if (!user) {
             setShowAuthModal(true);
             return;
         }

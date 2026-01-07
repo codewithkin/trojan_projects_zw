@@ -64,7 +64,8 @@
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.1.18",
     "uniwind": "^1.2.2",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@trojan_projects_zw/config": "workspace:*",
