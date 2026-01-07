@@ -7,6 +7,7 @@ export type ProjectStatus = "pending" | "confirmed" | "in-progress" | "completed
 export interface Service {
     id: string;
     name: string;
+    slug?: string;
     price: number;
     priceRange: string;
     description: string;
@@ -23,6 +24,8 @@ export interface Service {
     featured?: boolean;
     rating?: number;
     reviewCount?: number;
+    likesCount?: number;
+    likedBy?: string[];
 }
 
 export interface UserProject {

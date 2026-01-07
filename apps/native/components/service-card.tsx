@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Service } from "@/types/services";
+import { Service, ServiceDetail } from "@/types/services";
 import { categoryConfig } from "@/data/services";
 import { useAuth } from "@/contexts/auth-context";
 import { useLikeService, useServiceLikeStore } from "@/hooks/use-services";
@@ -10,7 +10,7 @@ const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
 interface ServiceCardProps {
-    service: Service;
+    service: Service | ServiceDetail;
     onPress?: () => void;
     onWishlist?: () => void;
 }
@@ -23,10 +23,10 @@ export function ServiceCard({ service, onPress, onWishlist }: ServiceCardProps) 
     // Initialize like state from service data
     useEffect(() => {
         if (session?.user) {
-            const userLiked = service.likedBy?.includes(session.user.id) || false;
+            const userLiked = 'likedBy' in service ? service.likedBy?.includes(session.user.id) || false : false;
             initFromServer(service.slug, userLiked, service.likesCount || 0);
         }
-    }, [service.slug, service.likedBy, service.likesCount, session?.user?.id]);
+    }, [service.slug, service.likesCount, session?.user?.id]);
 
     const category = categoryConfig[service.category];
     const isWishlisted = isLiked(service.slug);
