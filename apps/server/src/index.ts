@@ -20,8 +20,17 @@ import { notifyNewMessage } from "./lib/notifications";
 
 const app = new Hono();
 
-// CORS middleware - allow access from anywhere
-app.use("/*", cors({ origin: "*" }));
+// CORS middleware - allow specific origins with credentials
+app.use("/*", cors({
+  origin: [
+    "http://localhost:3001",
+    "https://trojan-projects-zw-web.vercel.app",
+    "trojan_projects_zw://",
+  ],
+  credentials: true,
+  allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+}));
 
 app.use(logger());
 
