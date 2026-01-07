@@ -1,48 +1,39 @@
-export interface ServiceTag {
-  id: string;
-  name: string;
+export interface OnboardingSlide {
+  title: string;
+  description: string;
   icon: string;
+  highlight: string;
 }
 
-export const serviceTags: ServiceTag[] = [
-  { id: "solar", name: "Solar Installation", icon: "Sun" },
-  { id: "cctv", name: "CCTV & Security", icon: "Camera" },
-  { id: "electrical", name: "Electrical Work", icon: "Zap" },
-  { id: "water", name: "Water Systems", icon: "Droplet" },
-  { id: "welding", name: "Welding Services", icon: "Flame" },
-  { id: "borehole", name: "Borehole Drilling", icon: "Drill" },
-  { id: "plumbing", name: "Plumbing", icon: "Wrench" },
-  { id: "aircon", name: "Air Conditioning", icon: "Wind" },
-  { id: "gate", name: "Gate Automation", icon: "DoorOpen" },
-  { id: "maintenance", name: "Maintenance", icon: "Settings" },
-  { id: "other", name: "Something Else", icon: "MoreHorizontal" },
+export const staffOnboardingSlides: OnboardingSlide[] = [
+  {
+    title: "Welcome to Trojan Projects Staff Hub",
+    description: "Your all-in-one platform for managing projects, quotations, and customer communications. Built for field technicians, support staff, and administrators.",
+    icon: "Briefcase",
+    highlight: "Streamlined Operations",
+  },
+  {
+    title: "Real-Time Project Management",
+    description: "Track active installations, update project status, upload photos, and communicate with the team - all from your mobile device in the field.",
+    icon: "FolderKanban",
+    highlight: "Stay Connected on the Go",
+  },
+  {
+    title: "Quick Quote Generation",
+    description: "Create professional quotations instantly. Access service pricing, add line items, and send quotes directly to customers from the app.",
+    icon: "FileText",
+    highlight: "Faster Response Times",
+  },
+  {
+    title: "AI-Powered Support Chat",
+    description: "Get instant answers about products, pricing, and technical specs. Your AI assistant helps you provide better customer service.",
+    icon: "MessageSquare",
+    highlight: "Expert Knowledge at Your Fingertips",
+  },
 ];
 
-export const zimbabweLocations = [
-  "Harare",
-  "Bulawayo",
-  "Mutare",
-  "Gweru",
-  "Kwekwe",
-  "Kadoma",
-  "Masvingo",
-  "Chinhoyi",
-  "Norton",
-  "Marondera",
-  "Ruwa",
-  "Chitungwiza",
-  "Bindura",
-  "Beitbridge",
-  "Redcliff",
-  "Victoria Falls",
-  "Hwange",
-  "Chegutu",
-  "Kariba",
-  "Karoi",
-  "Other",
-];
-
-export interface UserPreferences {
-  interests: string[];
-  location: string;
-}
+export const roleDescriptions = {
+  admin: "Full system access including user management, analytics, and all operational features.",
+  staff: "Field technician access for project updates, photo uploads, and customer communications.",
+  support: "Customer service access for quote generation, inquiries, and basic project tracking.",
+};
