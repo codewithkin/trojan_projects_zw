@@ -12,7 +12,7 @@ import {
     SafeAreaView,
     StatusBar,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, ChevronDown, Lock, Search, X } from "lucide-react-native";
 import { env } from "@trojan_projects_zw/env/native";
 import { useAuth } from "@/contexts/auth-context";
@@ -34,6 +34,7 @@ interface Service {
 
 export default function NewProjectScreen() {
     const router = useRouter();
+    const params = useLocalSearchParams<{ serviceId?: string }>();
     const { user, isAuthenticated, requireAuth } = useAuth();
     const [loading, setLoading] = useState(false);
     const [fetchingServices, setFetchingServices] = useState(true);
@@ -53,6 +54,16 @@ export default function NewProjectScreen() {
     useEffect(() => {
         fetchServices();
     }, []);
+
+    // Auto-select service if serviceId is provided in query params
+    useEffect(() => {
+        if (params.serviceId && services.length > 0 && !formData.serviceId) {
+            const preSelectedService = services.find(s => s.id === params.serviceId);
+            if (preSelectedService) {
+                handleServiceSelect(preSelectedService);
+            }
+        }
+    }, [params.serviceId, services]);
 
     const fetchServices = async () => {
         try {

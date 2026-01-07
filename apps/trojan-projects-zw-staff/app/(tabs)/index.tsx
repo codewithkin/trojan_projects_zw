@@ -54,7 +54,7 @@ export default function Home() {
   const [pendingProjects, setPendingProjects] = useState<PendingProject[]>([]);
   const [loadingPending, setLoadingPending] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
-  
+
   // Real stats from API
   const [statsData, setStatsData] = useState({
     totalProjects: 0,
@@ -78,11 +78,11 @@ export default function Home() {
       // Fetch projects summary
       const projectsData = await get<ProjectsResponse>("/api/projects?limit=100");
       const projects = projectsData.projects || [];
-      
+
       // Fetch quotes
       const quotesData = await get<{ quotes: Array<{ status: string }> }>("/api/quotes?limit=100");
       const quotes = quotesData.quotes || [];
-      
+
       setStatsData({
         totalProjects: projects.length,
         pendingProjects: projects.filter(p => p.status === "pending").length,

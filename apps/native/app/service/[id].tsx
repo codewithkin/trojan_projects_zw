@@ -361,7 +361,7 @@ export default function ServiceDetailScreen() {
                 <View style={[styles.ctaContainer, isTablet && styles.ctaContainerTablet]}>
                     <TouchableOpacity
                         style={[styles.ctaButton, isTablet && styles.ctaButtonTablet]}
-                        onPress={() => router.push("/quotes")}
+                        onPress={() => router.push(`/new/project?serviceId=${service.id}`)}
                     >
                         <Ionicons name="cart" size={20} color={TROJAN_NAVY} />
                         <Text style={styles.ctaButtonText}>Request This Service</Text>

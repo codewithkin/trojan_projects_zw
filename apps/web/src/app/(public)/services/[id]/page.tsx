@@ -127,8 +127,8 @@ export default function ServiceDetailPage() {
             setShowAuthModal(true);
             return;
         }
-        // Navigate to quote form with this service pre-selected
-        router.push(`/quotes/new?service=${slug}`);
+        // Navigate to new project form with this service pre-selected
+        window.location.href = `/projects/new?serviceId=${service.id}`;
     };
 
     return (
