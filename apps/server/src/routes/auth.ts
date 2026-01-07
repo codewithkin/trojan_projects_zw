@@ -15,6 +15,7 @@ import { createJWT, generateSessionToken, verifyJWT, extractBearerToken } from "
 import { generateToken } from "../lib/auth/jwt";
 import { sendVerificationEmail, sendPasswordResetEmail, sendInviteEmail } from "../lib/email";
 import { hasAdminAccess, hasFullAdminAccess } from "../config/admins";
+import { notifyUserCreated, notifyUserInvited, notifyRoleUpdated } from "../lib/notifications";
 
 const authRoute = new Hono();
 
@@ -121,6 +122,13 @@ authRoute.post("/sign-up", async (c) => {
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
       // Don't fail signup if email fails
+    }
+
+    // Create notification for admin dashboard
+    try {
+      await notifyUserCreated({ id: user.id, name: user.name, email: user.email });
+    } catch (notifyError) {
+      console.error("Failed to create notification:", notifyError);
     }
 
     return c.json<AuthResponse>({
@@ -669,6 +677,16 @@ authRoute.post("/invite", async (c) => {
     } catch (emailError) {
       console.error("Failed to send invite email:", emailError);
       // User created but email failed - continue anyway
+    }
+
+    // Create notification for admin dashboard
+    try {
+      await notifyUserInvited(
+        { id: user.id, name: user.name, email: user.email, role },
+        currentUser.name
+      );
+    } catch (notifyError) {
+      console.error("Failed to create notification:", notifyError);
     }
 
     return c.json({

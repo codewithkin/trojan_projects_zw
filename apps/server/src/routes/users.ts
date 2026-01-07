@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
 import { authMiddleware } from "../lib/auth/middleware";
+import { notifyRoleUpdated } from "../lib/notifications";
 
 // Define valid roles (will include admin after migration)
 type Role = "user" | "staff" | "support" | "admin";
@@ -163,6 +164,77 @@ const usersRoute = new Hono()
     } catch (error) {
       console.error("Error deleting user:", error);
       return c.json({ error: "Failed to delete user" }, 500);
+    }
+  })
+
+  /**
+   * PATCH /api/users/:id/role - Update a user's role (admin only)
+   */
+  .patch("/:id/role", authMiddleware, async (c) => {
+    const requestingUser = c.get("user");
+    const userId = c.req.param("id");
+
+    if (!requestingUser) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    // Only admin can update roles
+    if ((requestingUser.role as Role) !== "admin") {
+      return c.json({ error: "Forbidden" }, 403);
+    }
+
+    // Can't change your own role
+    if (requestingUser.id === userId) {
+      return c.json({ error: "Cannot change your own role" }, 400);
+    }
+
+    try {
+      const body = await c.req.json();
+      const { role } = body;
+
+      if (!role || !validRoles.includes(role as Role)) {
+        return c.json({ error: "Invalid role" }, 400);
+      }
+
+      // Check if user exists and get current role
+      const existingUser = await db.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!existingUser) {
+        return c.json({ error: "User not found" }, 404);
+      }
+
+      const oldRole = existingUser.role;
+
+      // Update role
+      const updatedUser = await db.user.update({
+        where: { id: userId },
+        data: { role: role as Role },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+
+      // Create notification
+      try {
+        await notifyRoleUpdated(
+          { id: updatedUser.id, name: updatedUser.name },
+          oldRole,
+          role,
+          requestingUser.name
+        );
+      } catch (notifyError) {
+        console.error("Failed to create notification:", notifyError);
+      }
+
+      return c.json({ success: true, user: updatedUser });
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      return c.json({ error: "Failed to update user role" }, 500);
     }
   });
 
