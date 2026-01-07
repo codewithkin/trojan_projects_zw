@@ -61,24 +61,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="services"
-        options={{
-          title: "Services",
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <View
-              style={{
-                backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
-              }}
-            >
-              <Feather name="grid" size={isTablet ? 28 : 24} color={focused ? TROJAN_NAVY : color} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="projects"
         options={{
-          title: "My Projects",
+          title: "Projects",
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
             <View
               style={{
@@ -86,6 +71,21 @@ export default function TabLayout() {
               }}
             >
               <Feather name="briefcase" size={isTablet ? 28 : 24} color={focused ? TROJAN_NAVY : color} />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="quotes"
+        options={{
+          title: "Quotations",
+          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+            <View
+              style={{
+                backgroundColor: focused ? `${TROJAN_GOLD}30` : "transparent",
+              }}
+            >
+              <Feather name="file-text" size={isTablet ? 28 : 24} color={focused ? TROJAN_NAVY : color} />
             </View>
           ),
         }}
@@ -106,7 +106,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="quotes"
+        name="services"
         options={{
           href: null,
         }}
