@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
     View,
     Text,
@@ -15,6 +15,8 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { services, categoryConfig } from "@/data/services";
+import { useAuth } from "@/contexts/auth-context";
+import { useLikeService, useServiceLikeStore, useService } from "@/hooks/use-services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -29,11 +31,34 @@ export default function ServiceDetailScreen() {
     const params = useLocalSearchParams();
     const router = useRouter();
     const [selectedImage, setSelectedImage] = useState(0);
-    const [isWishlisted, setIsWishlisted] = useState(false);
+
+    // Auth and optimistic like hooks
+    const { requireAuth, session } = useAuth();
+    const likeMutation = useLikeService();
+    const { isLiked, getLikeCount, initFromServer } = useServiceLikeStore();
 
     const service = useMemo(() => {
         return services.find((s) => s.id === params.id);
     }, [params.id]);
+
+    // Initialize like state from service data
+    useEffect(() => {
+        if (session?.user && service) {
+            const userLiked = service.likedBy?.includes(session.user.id) || false;
+            initFromServer(service.slug || service.id, userLiked, service.likesCount || 0);
+        }
+    }, [service?.slug, service?.id, service?.likedBy, service?.likesCount, session?.user?.id]);
+
+    const isWishlisted = service ? isLiked(service.slug || service.id) : false;
+
+    const handleWishlist = async () => {
+        if (!service) return;
+        const isAuthed = await requireAuth("Sign in to save services to your wishlist");
+        if (!isAuthed) return;
+
+        // Optimistic update happens in the mutation hook
+        likeMutation.mutate(service.slug || service.id);
+    };
 
     const handleCall = useCallback(() => {
         Linking.openURL("tel:+263771234567");
@@ -93,7 +118,7 @@ export default function ServiceDetailScreen() {
                 </TouchableOpacity>
                 <View style={styles.headerActions}>
                     <TouchableOpacity
-                        onPress={() => setIsWishlisted(!isWishlisted)}
+                        onPress={handleWishlist}
                         style={styles.headerIcon}
                     >
                         <Ionicons
