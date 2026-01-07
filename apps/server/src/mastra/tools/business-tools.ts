@@ -2,6 +2,9 @@ import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { db } from "@trojan_projects_zw/db";
 
+// Type for project status to match Prisma enum
+type ProjectStatusType = "pending" | "starting" | "in_progress" | "waiting_for_review" | "completed" | "cancelled";
+
 /**
  * Tool to get overall project statistics
  */
@@ -154,7 +157,7 @@ export const getRevenueAnalyticsTool = createTool({
     totalRevenue: z.number(),
     projectCount: z.number(),
     averageProjectValue: z.number(),
-    revenueByCategory: z.record(z.number()),
+    revenueByCategory: z.record(z.string(), z.number()),
     period: z.string(),
   }),
   execute: async ({ context }) => {
@@ -181,16 +184,12 @@ export const getRevenueAnalyticsTool = createTool({
         dateFilter = undefined;
     }
 
-    const whereClause: { status: string; completedAt?: { gte: Date } } = {
-      status: "completed",
-    };
-    if (dateFilter) {
-      whereClause.completedAt = { gte: dateFilter };
-    }
-
     // Get completed projects with revenue
     const projects = await db.project.findMany({
-      where: whereClause,
+      where: {
+        status: "completed" as ProjectStatusType,
+        ...(dateFilter && { completedAt: { gte: dateFilter } }),
+      },
       include: {
         service: { select: { category: true } },
       },
@@ -394,8 +393,8 @@ export const getServicePerformanceTool = createTool({
       if (!categoryMap[service.category]) {
         categoryMap[service.category] = { projectCount: 0, revenue: 0 };
       }
-      categoryMap[service.category].projectCount += service.projectCount;
-      categoryMap[service.category].revenue += service.totalRevenue;
+      categoryMap[service.category]!.projectCount += service.projectCount;
+      categoryMap[service.category]!.revenue += service.totalRevenue;
     }
 
     const topCategories = Object.entries(categoryMap)

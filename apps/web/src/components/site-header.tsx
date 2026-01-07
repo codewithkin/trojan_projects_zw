@@ -15,7 +15,7 @@ const TROJAN_GOLD = "#FFC107";
 
 const navItems = [
     { name: "Home", href: "/", icon: Package },
-    { name: "Services", href: "/projects", icon: Package },
+    { name: "Services", href: "/catalog", icon: Package },
     { name: "About Us", href: "/about", icon: Users },
     { name: "Chat", href: "/chat", icon: MessageCircle },
 ];
@@ -108,7 +108,7 @@ export function SiteHeader() {
                                                         New Quote
                                                     </Button>
                                                 </Link>
-                                                <Link href="/projects/new">
+                                                <Link href="/catalog/new">
                                                     <Button style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
                                                         New Project
                                                     </Button>
@@ -203,7 +203,7 @@ export function SiteHeader() {
                                                     New Quote
                                                 </Button>
                                             </Link>
-                                            <Link href="/projects/new" onClick={() => setMobileMenuOpen(false)}>
+                                            <Link href="/catalog/new" onClick={() => setMobileMenuOpen(false)}>
                                                 <Button
                                                     className="w-full"
                                                     style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}

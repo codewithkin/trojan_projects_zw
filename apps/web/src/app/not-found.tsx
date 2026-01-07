@@ -66,7 +66,7 @@ export default function NotFound() {
                         className="gap-2 rounded-full px-6"
                         style={{ borderColor: TROJAN_NAVY, color: TROJAN_NAVY }}
                     >
-                        <Link href="/projects">
+                        <Link href="/catalog">
                             <Search size={18} />
                             Browse Services
                         </Link>

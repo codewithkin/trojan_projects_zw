@@ -55,7 +55,7 @@ export default function UserMenu() {
         </Link>
       )}
       {!isAdmin && (
-        <Link href="/projects/new">
+        <Link href="/catalog/new">
           <Button style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
             Request Project
           </Button>

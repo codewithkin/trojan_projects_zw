@@ -82,7 +82,7 @@ export default function HomePage() {
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap gap-3">
-                <Link href="/projects">
+                <Link href="/catalog">
                   <Button
                     size="lg"
                     className="rounded-full px-6"
@@ -321,7 +321,7 @@ export default function HomePage() {
 
       {/* Floating Action Button for New Project Request */}
       <Link
-        href="/projects/new"
+        href="/catalog/new"
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-6 py-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
         style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
       >
