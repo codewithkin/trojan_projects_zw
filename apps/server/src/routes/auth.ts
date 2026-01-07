@@ -7,6 +7,7 @@ import {
   resetPasswordSchema,
   verifyEmailSchema,
   resendVerificationSchema,
+  changePasswordSchema,
   type AuthResponse, 
   type AuthUser 
 } from "../lib/auth/types";
@@ -583,6 +584,104 @@ authRoute.post("/reset-password", async (c) => {
   }
 });
 
+// Change Password (authenticated users)
+authRoute.post("/change-password", async (c) => {
+  try {
+    // Get the authorization token
+    const authHeader = c.req.header("Authorization") ?? null;
+    const token = extractBearerToken(authHeader);
+
+    if (!token) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "Authentication required",
+      }, 401);
+    }
+
+    // Verify the token
+    const decoded = await verifyJWT(token);
+    if (!decoded) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "Invalid or expired token",
+      }, 401);
+    }
+
+    const body = await c.req.json();
+    const validation = changePasswordSchema.safeParse(body);
+
+    if (!validation.success) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: validation.error.issues[0]?.message || "Invalid input",
+      }, 400);
+    }
+
+    const { currentPassword, newPassword } = validation.data;
+
+    // Find the user and their account
+    const user = await db.user.findUnique({
+      where: { id: decoded.sub },
+      include: {
+        accounts: {
+          where: { providerId: "credentials" },
+        },
+      },
+    });
+
+    if (!user || !user.accounts[0]) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "User not found",
+      }, 404);
+    }
+
+    // Verify current password
+    const account = user.accounts[0];
+    if (!account.password) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "No password set for this account",
+      }, 400);
+    }
+
+    const isValidPassword = await verifyPassword(currentPassword, account.password);
+    if (!isValidPassword) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "Current password is incorrect",
+      }, 400);
+    }
+
+    // Check that new password is different from current
+    if (currentPassword === newPassword) {
+      return c.json<AuthResponse>({
+        success: false,
+        error: "New password must be different from current password",
+      }, 400);
+    }
+
+    // Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update account password
+    await db.account.update({
+      where: { id: account.id },
+      data: { password: hashedPassword },
+    });
+
+    return c.json<AuthResponse>({
+      success: true,
+    });
+  } catch (error) {
+    console.error("Change password error:", error);
+    return c.json<AuthResponse>({
+      success: false,
+      error: "Failed to change password",
+    }, 500);
+  }
+});
+
 // Invite Team Member (Admin only)
 authRoute.post("/invite", async (c) => {
   try {
@@ -683,7 +782,7 @@ authRoute.post("/invite", async (c) => {
     try {
       await notifyUserInvited(
         { id: user.id, name: user.name, email: user.email, role },
-        currentUser.name
+        session.user.name
       );
     } catch (notifyError) {
       console.error("Failed to create notification:", notifyError);
