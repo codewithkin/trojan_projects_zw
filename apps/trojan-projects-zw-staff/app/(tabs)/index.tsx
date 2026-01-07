@@ -1,10 +1,11 @@
-﻿import { useState } from "react";
-import { ScrollView, View, SafeAreaView, StatusBar, Platform, useWindowDimensions, Pressable, RefreshControl } from "react-native";
+﻿import { useState, useCallback, useEffect } from "react";
+import { ScrollView, View, SafeAreaView, StatusBar, Platform, useWindowDimensions, Pressable, RefreshControl, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import { BarChart3, Users, FolderKanban, FileText, TrendingUp, Clock, CheckCircle, AlertCircle } from "lucide-react-native";
+import { BarChart3, Users, FolderKanban, FileText, TrendingUp, Clock, CheckCircle, AlertCircle, ChevronRight, MapPin, Calendar } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/contexts/auth-context";
 import { hasAdminAccess, hasFullAdminAccess, getEffectiveRole } from "@/config/admins";
+import { get, patch } from "@/lib/api";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -17,11 +18,42 @@ interface StatCard {
   trend?: string;
 }
 
+interface PendingProject {
+  id: string;
+  status: string;
+  service: {
+    name: string;
+    category: string;
+    images?: string[];
+  };
+  location: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+}
+
+interface ProjectsResponse {
+  projects: PendingProject[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+}
+
 export default function Home() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+  const [pendingProjects, setPendingProjects] = useState<PendingProject[]>([]);
+  const [loadingPending, setLoadingPending] = useState(true);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
 
   const isTablet = width >= 768;
   const isLargeTablet = width >= 1024;
@@ -31,11 +63,55 @@ export default function Home() {
   const isAdmin = hasFullAdminAccess(user);
   const canManage = hasAdminAccess(user);
 
+  const fetchPendingProjects = useCallback(async () => {
+    try {
+      const data = await get<ProjectsResponse>("/api/projects?status=pending&limit=10");
+      const pending = (data.projects || []).filter((p) => p.status === "pending");
+      setPendingProjects(pending);
+    } catch (error) {
+      console.error("Error fetching pending projects:", error);
+    } finally {
+      setLoadingPending(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPendingProjects();
+  }, [fetchPendingProjects]);
+
   const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await fetchPendingProjects();
     setRefreshing(false);
+  };
+
+  const handleAcceptProject = async (projectId: string) => {
+    try {
+      setAcceptingId(projectId);
+      await patch(`/api/projects/${projectId}`, { status: "starting" });
+      // Remove from list after accepting
+      setPendingProjects((prev) => prev.filter((p) => p.id !== projectId));
+      // Navigate to the project chat or detail
+      router.push(`/chat/${projectId}` as any);
+    } catch (error) {
+      console.error("Error accepting project:", error);
+    } finally {
+      setAcceptingId(null);
+    }
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
   };
 
   // Role-based stats
@@ -292,6 +368,199 @@ export default function Home() {
                 );
               })}
             </View>
+          </View>
+
+          {/* Pending Requests Section */}
+          <View style={{ marginBottom: isTablet ? 32 : 24 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: isTablet ? 16 : 12,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: isTablet ? 20 : 18,
+                  fontWeight: "700",
+                  color: TROJAN_NAVY,
+                }}
+              >
+                Pending Requests
+              </Text>
+              {pendingProjects.length > 0 && (
+                <Pressable onPress={() => router.push("/projects" as any)}>
+                  <Text style={{ fontSize: 14, color: "#3B82F6", fontWeight: "600" }}>
+                    View All
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+
+            {loadingPending ? (
+              <View
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: isTablet ? 16 : 12,
+                  padding: 40,
+                  alignItems: "center",
+                }}
+              >
+                <ActivityIndicator size="large" color={TROJAN_GOLD} />
+                <Text style={{ marginTop: 12, color: "#6B7280" }}>Loading requests...</Text>
+              </View>
+            ) : pendingProjects.length === 0 ? (
+              <View
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: isTablet ? 16 : 12,
+                  padding: 40,
+                  alignItems: "center",
+                }}
+              >
+                <CheckCircle size={48} color="#10B981" strokeWidth={1.5} />
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                    color: TROJAN_NAVY,
+                    marginTop: 12,
+                  }}
+                >
+                  All caught up!
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: "#6B7280",
+                    textAlign: "center",
+                    marginTop: 4,
+                  }}
+                >
+                  No pending project requests at the moment
+                </Text>
+              </View>
+            ) : (
+              pendingProjects.map((project, index) => (
+                <Pressable
+                  key={project.id}
+                  onPress={() => router.push(`/service/${project.id}` as any)}
+                  style={{
+                    backgroundColor: "white",
+                    borderRadius: isTablet ? 16 : 12,
+                    padding: isTablet ? 20 : 16,
+                    marginBottom: index < pendingProjects.length - 1 ? 12 : 0,
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 8,
+                    elevation: 2,
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginBottom: 8,
+                        }}
+                      >
+                        <View
+                          style={{
+                            backgroundColor: "#FEF9C3",
+                            paddingHorizontal: 8,
+                            paddingVertical: 4,
+                            borderRadius: 6,
+                            marginRight: 8,
+                          }}
+                        >
+                          <Text style={{ fontSize: 11, fontWeight: "600", color: "#CA8A04" }}>
+                            NEW REQUEST
+                          </Text>
+                        </View>
+                        <Text style={{ fontSize: 12, color: "#6B7280" }}>
+                          {formatTimeAgo(project.createdAt)}
+                        </Text>
+                      </View>
+
+                      <Text
+                        style={{
+                          fontSize: isTablet ? 18 : 16,
+                          fontWeight: "700",
+                          color: TROJAN_NAVY,
+                          marginBottom: 4,
+                        }}
+                      >
+                        {project.service.name}
+                      </Text>
+
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          marginBottom: 4,
+                        }}
+                      >
+                        <MapPin size={14} color="#6B7280" />
+                        <Text
+                          style={{
+                            fontSize: 13,
+                            color: "#6B7280",
+                            marginLeft: 4,
+                            flex: 1,
+                          }}
+                          numberOfLines={1}
+                        >
+                          {project.location}
+                        </Text>
+                      </View>
+
+                      {project.user && (
+                        <Text style={{ fontSize: 13, color: "#6B7280" }}>
+                          By: {project.user.name}
+                        </Text>
+                      )}
+                    </View>
+
+                    <ChevronRight size={20} color="#9CA3AF" />
+                  </View>
+
+                  <Pressable
+                    onPress={() => handleAcceptProject(project.id)}
+                    disabled={acceptingId === project.id}
+                    style={{
+                      backgroundColor: acceptingId === project.id ? "#94a3b8" : TROJAN_GOLD,
+                      borderRadius: 8,
+                      paddingVertical: 12,
+                      marginTop: 16,
+                      alignItems: "center",
+                    }}
+                  >
+                    {acceptingId === project.id ? (
+                      <ActivityIndicator size="small" color="white" />
+                    ) : (
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: "700",
+                          color: TROJAN_NAVY,
+                        }}
+                      >
+                        Accept Request
+                      </Text>
+                    )}
+                  </Pressable>
+                </Pressable>
+              ))
+            )}
           </View>
 
           {/* Role Badge */}
