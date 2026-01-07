@@ -534,8 +534,8 @@ const projectsRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    // Only staff/support can view stats
-    if (user.role !== "staff" && user.role !== "support") {
+    // Only staff/support/admin can view stats
+    if (user.role !== "staff" && user.role !== "support" && user.role !== "admin") {
       return c.json({ error: "Forbidden" }, 403);
     }
 
