@@ -25,23 +25,9 @@ interface AppHeaderProps {
 // Map paths to page titles
 const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
-    "/analytics": "Analytics",
-    "/orders": "Orders",
-    "/customers": "Customers",
-    "/services": "Services",
-    "/staff": "Staff",
-    "/reports": "Reports",
-    "/settings": "Settings",
-    "/calendar": "Calendar",
-    "/my-work": "My Projects",
-    "/my-stats": "My Stats",
-    "/tickets": "Tickets",
-    "/chat": "Chat",
-    "/customer-lookup": "Customer Lookup",
-    "/faq": "FAQ Management",
-    "/profile": "Profile",
     "/projects": "Projects",
-    "/quotes": "Quotes",
+    "/notifications": "Notifications",
+    "/settings": "Settings",
 };
 
 export function AppHeader({ onToggleSidebar, sidebarCollapsed }: AppHeaderProps) {

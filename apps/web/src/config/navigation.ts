@@ -1,6 +1,6 @@
 import {
   LayoutDashboard,
-  ShoppingCart,
+  FolderKanban,
   Bell,
   UserPlus,
   type LucideIcon,
@@ -21,14 +21,14 @@ export interface NavSection {
 
 /**
  * Navigation items for Admin users
- * Simplified to just orders, notifications, and invitations
+ * Simplified to just projects, notifications, and invitations
  */
 export const adminNavigation: NavSection[] = [
   {
     title: "Admin",
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, description: "Overview" },
-      { title: "Orders", href: "/orders", icon: ShoppingCart, description: "Manage customer orders" },
+      { title: "Projects", href: "/projects", icon: FolderKanban, description: "Manage customer projects" },
       { title: "Notifications", href: "/notifications", icon: Bell, description: "System notifications" },
       { title: "Invite Users", href: "/dashboard#invite", icon: UserPlus, description: "Invite team members" },
     ],

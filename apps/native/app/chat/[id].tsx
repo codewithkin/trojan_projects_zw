@@ -222,9 +222,6 @@ export default function ChatRoom() {
                 </View>
 
                 <Pressable className="p-2">
-                    <Ionicons name="call" size={22} color="white" />
-                </Pressable>
-                <Pressable className="p-2">
                     <Ionicons name="ellipsis-vertical" size={22} color="white" />
                 </Pressable>
             </View>
@@ -273,17 +270,14 @@ export default function ChatRoom() {
                 className="flex-row items-end px-2 py-2 bg-transparent"
                 style={{ paddingBottom: Math.max(insets.bottom, 8) }}
             >
-                <View className="flex-1 bg-white rounded-3xl flex-row items-end mr-2 px-3">
-                    <Pressable className="py-3">
-                        <Ionicons name="happy-outline" size={24} color="#9CA3AF" />
-                    </Pressable>
+                <View className="flex-1 bg-white rounded-3xl flex-row items-end mr-2 px-4">
                     <TextInput
                         value={inputValue}
                         onChangeText={setInputValue}
-                        placeholder="Message"
+                        placeholder="Type a message..."
                         placeholderTextColor="#9CA3AF"
                         multiline
-                        className="flex-1 px-2 py-3"
+                        className="flex-1 py-3"
                         style={{
                             maxHeight: 100,
                             fontSize: 16,
@@ -291,9 +285,6 @@ export default function ChatRoom() {
                         }}
                         onSubmitEditing={sendMessage}
                     />
-                    <Pressable className="py-3">
-                        <Ionicons name="attach" size={24} color="#9CA3AF" />
-                    </Pressable>
                 </View>
 
                 <Pressable
@@ -301,13 +292,13 @@ export default function ChatRoom() {
                     disabled={!connected || !inputValue.trim()}
                     className="w-12 h-12 rounded-full items-center justify-center"
                     style={{
-                        backgroundColor: TROJAN_GOLD,
+                        backgroundColor: inputValue.trim() ? TROJAN_GOLD : "#E5E7EB",
                     }}
                 >
                     <Ionicons
-                        name={inputValue.trim() ? "send" : "mic"}
+                        name="send"
                         size={22}
-                        color={TROJAN_NAVY}
+                        color={inputValue.trim() ? TROJAN_NAVY : "#9CA3AF"}
                     />
                 </Pressable>
             </View>

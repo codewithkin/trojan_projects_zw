@@ -13,7 +13,7 @@ import {
 import { hashPassword, verifyPassword } from "../lib/auth/password";
 import { createJWT, generateSessionToken, verifyJWT, extractBearerToken } from "../lib/auth/jwt";
 import { generateToken } from "../lib/auth/jwt";
-import { sendVerificationEmail, sendPasswordResetEmail } from "../lib/email";
+import { sendVerificationEmail, sendPasswordResetEmail, sendInviteEmail } from "../lib/email";
 
 const authRoute = new Hono();
 
@@ -571,6 +571,110 @@ authRoute.post("/reset-password", async (c) => {
       success: false,
       error: "Failed to reset password",
     }, 500);
+  }
+});
+
+// Invite Team Member (Admin only)
+authRoute.post("/invite", async (c) => {
+  try {
+    // Verify admin authorization
+    const authHeader = c.req.header("Authorization") ?? null;
+    const token = extractBearerToken(authHeader as string | null);
+
+    if (!token) {
+      return c.json({ success: false, error: "Unauthorized" }, 401);
+    }
+
+    const payload = await verifyJWT(token);
+    if (!payload) {
+      return c.json({ success: false, error: "Invalid token" }, 401);
+    }
+
+    // Get the requesting user
+    const session = await db.session.findUnique({
+      where: { id: payload.sessionId },
+      include: { user: true },
+    });
+
+    if (!session) {
+      return c.json({ success: false, error: "Session not found" }, 401);
+    }
+
+    // Only staff/support can invite
+    if (session.user.role !== "staff" && session.user.role !== "support") {
+      return c.json({ success: false, error: "Only admins can invite team members" }, 403);
+    }
+
+    const body = await c.req.json();
+    const { email, name, password, role } = body;
+
+    if (!email || !name || !password || !role) {
+      return c.json({ success: false, error: "Email, name, password, and role are required" }, 400);
+    }
+
+    // Validate role
+    const validRoles = ["user", "staff", "support"];
+    if (!validRoles.includes(role)) {
+      return c.json({ success: false, error: "Invalid role" }, 400);
+    }
+
+    // Check if user already exists
+    const existingUser = await db.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return c.json({ success: false, error: "User with this email already exists" }, 409);
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return c.json({ success: false, error: "Password must be at least 6 characters" }, 400);
+    }
+
+    // Hash password
+    const hashedPassword = await hashPassword(password);
+
+    // Create user with verified email (invited users don't need to verify)
+    const userId = generateToken(16);
+    const user = await db.user.create({
+      data: {
+        id: userId,
+        name,
+        email,
+        emailVerified: true, // Invited users are pre-verified
+        role,
+      },
+    });
+
+    // Create account with password
+    const accountId = generateToken(16);
+    await db.account.create({
+      data: {
+        id: accountId,
+        accountId: email,
+        providerId: "credentials",
+        userId: user.id,
+        password: hashedPassword,
+      },
+    });
+
+    // Send invite email with credentials
+    try {
+      await sendInviteEmail(email, name, role, password);
+    } catch (emailError) {
+      console.error("Failed to send invite email:", emailError);
+      // User created but email failed - continue anyway
+    }
+
+    return c.json({
+      success: true,
+      user: toAuthUser(user),
+      message: `Invitation sent to ${email}`,
+    }, 201);
+  } catch (error) {
+    console.error("Invite error:", error);
+    return c.json({ success: false, error: "Failed to invite team member" }, 500);
   }
 });
 

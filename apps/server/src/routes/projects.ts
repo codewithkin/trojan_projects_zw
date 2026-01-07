@@ -411,6 +411,104 @@ const projectsRoute = new Hono()
       console.error("Error submitting review:", error);
       return c.json({ error: "Failed to submit review" }, 500);
     }
+  })
+  // GET /api/projects/stats - Get project statistics (admin only)
+  .get("/stats", authMiddleware, async (c) => {
+    const user = c.get("user");
+
+    if (!user) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    // Only staff/support can view stats
+    if (user.role !== "staff" && user.role !== "support") {
+      return c.json({ error: "Forbidden" }, 403);
+    }
+
+    try {
+      // Get counts by status
+      const [
+        totalProjects,
+        pendingCount,
+        startingCount,
+        inProgressCount,
+        waitingReviewCount,
+        completedCount,
+        cancelledCount,
+        recentProjects,
+        totalRevenue,
+        activeCustomers,
+      ] = await Promise.all([
+        db.project.count(),
+        db.project.count({ where: { status: "pending" } }),
+        db.project.count({ where: { status: "starting" } }),
+        db.project.count({ where: { status: "in_progress" } }),
+        db.project.count({ where: { status: "waiting_for_review" } }),
+        db.project.count({ where: { status: "completed" } }),
+        db.project.count({ where: { status: "cancelled" } }),
+        db.project.findMany({
+          take: 5,
+          orderBy: { createdAt: "desc" },
+          include: {
+            service: { select: { id: true, name: true, category: true } },
+            user: { select: { id: true, name: true, email: true } },
+          },
+        }),
+        db.project.aggregate({
+          _sum: { finalPrice: true },
+          where: { status: "completed" },
+        }),
+        db.user.count({ where: { role: "user" } }),
+      ]);
+
+      // Get projects by category (from service relation)
+      const projectsByCategory = await db.project.groupBy({
+        by: ["serviceId"],
+        _count: true,
+      });
+
+      // Get service categories for the groupBy results
+      const serviceIds = projectsByCategory.map((p) => p.serviceId).filter(Boolean) as string[];
+      const services = await db.service.findMany({
+        where: { id: { in: serviceIds } },
+        select: { id: true, category: true },
+      });
+
+      const categoryMap = new Map(services.map((s) => [s.id, s.category]));
+      const categoryCounts: Record<string, number> = {};
+      
+      for (const p of projectsByCategory) {
+        const category = categoryMap.get(p.serviceId || "") || "other";
+        categoryCounts[category] = (categoryCounts[category] || 0) + p._count;
+      }
+
+      return c.json({
+        stats: {
+          totalProjects,
+          pendingCount,
+          startingCount,
+          inProgressCount,
+          waitingReviewCount,
+          completedCount,
+          cancelledCount,
+          totalRevenue: totalRevenue._sum.finalPrice ? Number(totalRevenue._sum.finalPrice) : 0,
+          activeCustomers,
+        },
+        categoryCounts,
+        recentProjects: recentProjects.map((p) => ({
+          id: p.id,
+          status: p.status,
+          finalPrice: p.finalPrice ? Number(p.finalPrice) : null,
+          location: p.location,
+          service: p.service,
+          user: p.user,
+          createdAt: p.createdAt,
+        })),
+      });
+    } catch (error) {
+      console.error("Error fetching project stats:", error);
+      return c.json({ error: "Failed to fetch stats" }, 500);
+    }
   });
 
 export default projectsRoute;
