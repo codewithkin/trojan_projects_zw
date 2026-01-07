@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, memo } from "react";
-import { Send, Bot, User, Loader2, Sparkles, RotateCcw, Copy, Check, AlertCircle, TrendingUp, Zap } from "lucide-react";
+import { Send, Bot, User, Loader2, Sparkles, RotateCcw, Copy, Check, AlertCircle, TrendingUp, Zap, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { useSession } from "@/hooks/use-session";
+import { getStoredToken } from "@/lib/auth-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -70,7 +70,6 @@ const deserializeMessages = (data: { id: string; role: "user" | "assistant"; con
   }));
 
 export default function AIChatPage() {
-  const { token } = useSession();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -169,6 +168,7 @@ export default function AIChatPage() {
           content: msg.content,
         }));
 
+        const token = getStoredToken();
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/ai/chat`,
           {
@@ -270,7 +270,7 @@ export default function AIChatPage() {
         abortControllerRef.current = null;
       }
     },
-    [inputValue, isLoading, messages, token]
+    [inputValue, isLoading, messages]
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -278,14 +278,24 @@ export default function AIChatPage() {
       e.preventDefault();
       sendMessage();
     }
+    // Escape to stop generation
+    if (e.key === "Escape" && isLoading) {
+      e.preventDefault();
+      stopGeneration();
+    }
+  };
+
+  const stopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsLoading(false);
   };
 
   const resetChat = () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+    stopGeneration();
     setMessages([]);
-    setIsLoading(false);
     localStorage.removeItem(CHAT_HISTORY_KEY);
     setShowHistory(false);
   };
@@ -327,17 +337,18 @@ export default function AIChatPage() {
       </div>
 
       {/* Messages Area */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 px-4">
-        {messages.length === 0 ? (
-          // Empty state with suggestions
-          <div className="flex flex-col items-center justify-center h-full py-12">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-              style={{ backgroundColor: `${TROJAN_GOLD}20` }}
-            >
-              <Sparkles size={40} style={{ color: TROJAN_GOLD }} />
-            </div>
-            <h3
+      <div ref={scrollAreaRef} className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full px-4">
+          {messages.length === 0 ? (
+            // Empty state with suggestions
+            <div className="flex flex-col items-center justify-center h-full py-12">
+              <div
+                className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+                style={{ backgroundColor: `${TROJAN_GOLD}20` }}
+              >
+                <Sparkles size={40} style={{ color: TROJAN_GOLD }} />
+              </div>
+              <h3
               className="text-xl font-semibold mb-2"
               style={{ color: TROJAN_NAVY }}
             >
@@ -408,7 +419,8 @@ export default function AIChatPage() {
             ))}
           </div>
         )}
-      </ScrollArea>
+        </ScrollArea>
+      </div>
 
       {/* Input Area */}
       <div className="border-t border-gray-200 p-4 bg-white">
@@ -419,30 +431,39 @@ export default function AIChatPage() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about your business..."
+              placeholder={isLoading ? "AI is responding..." : "Ask about your business..."}
               disabled={isLoading}
               className="resize-none min-h-[52px] max-h-[200px] pr-12 rounded-xl border-gray-200 focus:border-gray-300 focus:ring-0"
               rows={1}
             />
           </div>
-          <Button
-            onClick={() => sendMessage()}
-            disabled={!inputValue.trim() || isLoading}
-            className="h-[52px] w-[52px] rounded-xl shrink-0"
-            style={{
-              backgroundColor: inputValue.trim() ? TROJAN_GOLD : "#E5E7EB",
-              color: inputValue.trim() ? TROJAN_NAVY : "#9CA3AF",
-            }}
-          >
-            {isLoading ? (
-              <Loader2 size={20} className="animate-spin" />
-            ) : (
+          {isLoading ? (
+            // Stop generation button
+            <Button
+              onClick={stopGeneration}
+              className="h-[52px] w-[52px] rounded-xl shrink-0 bg-red-500 hover:bg-red-600 text-white"
+              title="Stop generation (Esc)"
+            >
+              <AlertCircle size={20} />
+            </Button>
+          ) : (
+            // Send button
+            <Button
+              onClick={() => sendMessage()}
+              disabled={!inputValue.trim()}
+              className="h-[52px] w-[52px] rounded-xl shrink-0"
+              style={{
+                backgroundColor: inputValue.trim() ? TROJAN_GOLD : "#E5E7EB",
+                color: inputValue.trim() ? TROJAN_NAVY : "#9CA3AF",
+              }}
+              title="Send message (Enter)"
+            >
               <Send size={20} />
-            )}
-          </Button>
+            </Button>
+          )}
         </div>
         <p className="text-xs text-gray-400 text-center mt-3">
-          AI can make mistakes. Verify important information independently.
+          AI can make mistakes. Verify important information independently. Press <kbd className="px-1 py-0.5 bg-gray-100 rounded text-[10px]">Enter</kbd> to send, <kbd className="px-1 py-0.5 bg-gray-100 rounded text-[10px]">Shift+Enter</kbd> for new line.
         </p>
       </div>
     </div>
@@ -505,27 +526,11 @@ const MessageBubble = memo(function MessageBubble({
                 {message.content}
               </div>
             ) : (
-              <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-gray-900 prose-pre:text-gray-100">
+              <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-pre:bg-gray-900 prose-pre:text-gray-100">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
-                    // Custom code block rendering
-                    code: ({ className, children, ...props }) => {
-                      const isInline = !className;
-                      if (isInline) {
-                        return (
-                          <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-gray-800" {...props}>
-                            {children}
-                          </code>
-                        );
-                      }
-                      return (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      );
-                    },
-                    // Custom table rendering
+                    // Custom table rendering for better styling
                     table: ({ children }) => (
                       <div className="overflow-x-auto my-3">
                         <table className="min-w-full border-collapse border border-gray-200 text-sm">
