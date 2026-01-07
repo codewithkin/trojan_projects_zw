@@ -19,7 +19,7 @@ COPY packages/db/prisma/schema ./packages/db/prisma/schema
 COPY packages/db/prisma.config.ts ./packages/db/
 
 # Install all dependencies (triggers postinstall for prisma generate)
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copy source code stage
 FROM install AS build
