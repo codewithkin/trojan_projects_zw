@@ -35,11 +35,11 @@ export default function TabLayout() {
         },
         tabBarActiveTintColor: TROJAN_NAVY,
         tabBarInactiveTintColor: "#9CA3AF",
-        tabBarLabelStyle: ({ focused }: { focused: boolean }) => ({
+        tabBarLabelStyle: {
           fontSize: isTablet ? 13 : 11,
-          fontWeight: focused ? "700" : "600", // Increase weight when active
+          fontWeight: "600",
           marginTop: isTablet ? 6 : 4,
-        }),
+        },
         tabBarIconStyle: {
           marginTop: isTablet ? 6 : 4,
         },
