@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+import { env } from "@trojan_projects_zw/env/web";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -27,12 +28,27 @@ export default function ForgotPasswordPage() {
 
         setLoading(true);
 
-        // Simulate API call - in production this would call the actual API
-        setTimeout(() => {
-            setSent(true);
+        try {
+            const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/auth/forgot-password`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setSent(true);
+                toast.success("Password reset instructions sent!");
+            } else {
+                toast.error(data.error || "Failed to send reset email");
+            }
+        } catch (error) {
+            console.error("Forgot password error:", error);
+            toast.error("Failed to send reset email. Please try again.");
+        } finally {
             setLoading(false);
-            toast.success("Password reset instructions sent!");
-        }, 1500);
+        }
     };
 
     if (sent) {
