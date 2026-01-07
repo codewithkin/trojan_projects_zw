@@ -1,208 +1,240 @@
-import { useState, useEffect, useRef } from "react";
-import { View, TextInput, Pressable, KeyboardAvoidingView, Platform, FlatList, Image } from "react-native";
-import { useRouter } from "expo-router";
+﻿import { useState, useRef } from "react";
+import { View, TextInput, Pressable, KeyboardAvoidingView, Platform, ScrollView, SafeAreaView, StatusBar, useWindowDimensions } from "react-native";
+import { Send, MessageSquare } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
-import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/auth-context";
-import { env } from "@trojan_projects_zw/env/native";
+import { getEffectiveRole } from "@/config/admins";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-interface ChatRoom {
+interface Message {
     id: string;
-    name: string;
-    type: "project" | "support";
-    lastMessage?: string;
-    lastMessageTime?: string;
-    unreadCount: number;
-    avatar?: string;
-    status?: string;
+    role: "user" | "assistant";
+    content: string;
+    timestamp: Date;
 }
-
-type TabType = "projects" | "support";
-
-// TODO: Replace with actual data from API
-const mockChatRooms: ChatRoom[] = [];
 
 export default function Chat() {
-    const router = useRouter();
-    const { isAuthenticated, requireAuth } = useAuth();
-    const [activeTab, setActiveTab] = useState<TabType>("projects");
-    const [searchQuery, setSearchQuery] = useState("");
+    const { user } = useAuth();
+    const { width } = useWindowDimensions();
+    const [messages, setMessages] = useState<Message[]>([
+        {
+            id: "1",
+            role: "assistant",
+            content: `Hi! I'm your AI assistant. I'm here to help ${getEffectiveRole(user) === "admin" ? "with system administration, analytics, and team management" : getEffectiveRole(user) === "staff" ? "with field work, project updates, and technical questions" : "with customer support, quote generation, and service information"}. What can I help you with today?`,
+            timestamp: new Date(),
+        },
+    ]);
+    const [inputText, setInputText] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const scrollViewRef = useRef<ScrollView>(null);
 
-    const filteredRooms = mockChatRooms.filter((room) => {
-        const matchesTab = activeTab === "support" ? room.type === "support" : room.type === "project";
-        const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesTab && matchesSearch;
-    });
+    const isTablet = width >= 768;
+    const isLargeTablet = width >= 1024;
+    const contentPadding = isTablet ? 24 : 16;
 
-    const formatTime = (time?: string) => {
-        return time || "";
+    const handleSend = async () => {
+        if (!inputText.trim()) return;
+
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            role: "user",
+            content: inputText,
+            timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, userMessage]);
+        setInputText("");
+        setIsLoading(true);
+
+        // Simulate AI response
+        setTimeout(() => {
+            const assistantMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: "assistant",
+                content: "I'm a demo AI assistant. In production, I'd provide real-time help based on your role and questions about Trojan Projects services.",
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, assistantMessage]);
+            setIsLoading(false);
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 1000);
     };
-
-    const handleRoomPress = async (room: ChatRoom) => {
-        const authed = await requireAuth("Sign in to access chat");
-        if (authed) {
-            // Navigate to individual chat screen without tabs/header
-            router.push(`/chat/${room.id}`);
-        }
-    };
-
-    const renderChatRoom = ({ item }: { item: ChatRoom }) => (
-        <Pressable
-            onPress={() => handleRoomPress(item)}
-            className="flex-row items-center px-4 py-3 bg-white border-b border-gray-100"
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-        >
-            {/* Avatar */}
-            <View
-                className="w-14 h-14 rounded-full items-center justify-center mr-3"
-                style={{ backgroundColor: item.type === "support" ? TROJAN_GOLD : `${TROJAN_NAVY}20` }}
-            >
-                <Ionicons
-                    name={item.type === "support" ? "headset" : "briefcase"}
-                    size={24}
-                    color={item.type === "support" ? TROJAN_NAVY : TROJAN_NAVY}
-                />
-            </View>
-
-            {/* Chat Info */}
-            <View className="flex-1">
-                <View className="flex-row items-center justify-between">
-                    <Text className="font-semibold text-gray-900 text-base" numberOfLines={1}>
-                        {item.name}
-                    </Text>
-                    <Text className="text-xs text-gray-400">{formatTime(item.lastMessageTime)}</Text>
-                </View>
-                {item.status && (
-                    <Text className="text-xs text-gray-500 mt-0.5">{item.status}</Text>
-                )}
-                <View className="flex-row items-center justify-between mt-1">
-                    <Text className="text-sm text-gray-500 flex-1 mr-2" numberOfLines={1}>
-                        {item.lastMessage || "No messages yet"}
-                    </Text>
-                    {item.unreadCount > 0 && (
-                        <View
-                            className="min-w-5 h-5 rounded-full items-center justify-center px-1.5"
-                            style={{ backgroundColor: TROJAN_GOLD }}
-                        >
-                            <Text className="text-xs font-bold" style={{ color: TROJAN_NAVY }}>
-                                {item.unreadCount}
-                            </Text>
-                        </View>
-                    )}
-                </View>
-            </View>
-        </Pressable>
-    );
 
     return (
-        <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-            {/* Header */}
-            <View className="px-4 pt-16 pb-4" style={{ backgroundColor: TROJAN_NAVY }}>
-                <View className="mb-4">
-                    <Text className="text-2xl font-bold text-white">Chats</Text>
-                </View>
-
-                {/* Search Bar */}
-                <View className="bg-white/10 rounded-full px-4 flex-row items-center" style={{ height: 40 }}>
-                    <Ionicons name="search" size={18} color="rgba(255,255,255,0.6)" />
-                    <TextInput
-                        placeholder="Search chats..."
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        placeholderTextColor="rgba(255,255,255,0.6)"
-                        className="flex-1 ml-2 text-white"
-                        style={{ fontSize: 14 }}
-                    />
-                </View>
-
-                {/* Tabs */}
-                <View className="flex-row mt-4">
-                    <Pressable
-                        onPress={() => setActiveTab("projects")}
-                        className="flex-1 py-2 items-center"
-                        style={{
-                            borderBottomWidth: 2,
-                            borderBottomColor: activeTab === "projects" ? TROJAN_GOLD : "transparent",
-                        }}
-                    >
-                        <Text
-                            className="font-semibold"
-                            style={{ color: activeTab === "projects" ? TROJAN_GOLD : "rgba(255,255,255,0.6)" }}
-                        >
-                            Projects
-                        </Text>
-                    </Pressable>
-                    <Pressable
-                        onPress={() => setActiveTab("support")}
-                        className="flex-1 py-2 items-center"
-                        style={{
-                            borderBottomWidth: 2,
-                            borderBottomColor: activeTab === "support" ? TROJAN_GOLD : "transparent",
-                        }}
-                    >
-                        <Text
-                            className="font-semibold"
-                            style={{ color: activeTab === "support" ? TROJAN_GOLD : "rgba(255,255,255,0.6)" }}
-                        >
-                            Support
-                        </Text>
-                    </Pressable>
-                </View>
-            </View>
-
-            {/* Chat List */}
-            <FlatList
-                data={filteredRooms}
-                renderItem={renderChatRoom}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={{ flexGrow: 1 }}
-                ListEmptyComponent={
-                    <View className="flex-1 items-center justify-center py-20">
-                        <Ionicons
-                            name={activeTab === "projects" ? "chatbubbles-outline" : "headset-outline"}
-                            size={64}
-                            color="#D1D5DB"
-                        />
-                        <Text className="text-lg font-semibold text-gray-900 mt-4">
-                            No {activeTab} chats yet
-                        </Text>
-                        <Text className="text-gray-500 mt-2 text-center px-8">
-                            {activeTab === "projects"
-                                ? "Project chats will appear here when you start working on projects with our team."
-                                : "Need help? Contact our support team to start a conversation."}
-                        </Text>
-                    </View>
-                }
-            />
-
-            {/* FAB for new support chat */}
-            {activeTab === "support" && (
-                <Pressable
-                    onPress={() => handleRoomPress({ id: "support", name: "Trojan Support", type: "support", unreadCount: 0 })}
+        <SafeAreaView
+            style={{
+                flex: 1,
+                backgroundColor: "#F9FAFB",
+                paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+            }}
+        >
+            <View style={{ padding: contentPadding, backgroundColor: "white" }}>
+                <Text
                     style={{
-                        position: "absolute",
-                        bottom: 24,
-                        right: 24,
-                        width: 56,
-                        height: 56,
-                        borderRadius: 28,
-                        backgroundColor: TROJAN_GOLD,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        shadowColor: "#000",
-                        shadowOffset: { width: 0, height: 4 },
-                        shadowOpacity: 0.3,
-                        shadowRadius: 8,
-                        elevation: 8,
+                        fontSize: isTablet ? 28 : 22,
+                        fontWeight: "700",
+                        color: TROJAN_NAVY,
                     }}
                 >
-                    <Ionicons name="create" size={24} color={TROJAN_NAVY} />
-                </Pressable>
-            )}
-        </View>
+                    AI Assistant
+                </Text>
+                <Text
+                    style={{
+                        fontSize: isTablet ? 14 : 12,
+                        color: "#6B7280",
+                        marginTop: 4,
+                    }}
+                >
+                    {getEffectiveRole(user) === "admin"
+                        ? "Get insights on analytics, team management, and operations"
+                        : getEffectiveRole(user) === "staff"
+                        ? "Technical support for field installations"
+                        : "Customer service and product information"}
+                </Text>
+            </View>
+
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+            >
+                <ScrollView
+                    ref={scrollViewRef}
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{
+                        padding: contentPadding,
+                        maxWidth: isLargeTablet ? 900 : undefined,
+                        alignSelf: "center",
+                        width: "100%",
+                    }}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {messages.map((message) => (
+                        <View
+                            key={message.id}
+                            style={{
+                                marginBottom: 16,
+                                alignSelf: message.role === "user" ? "flex-end" : "flex-start",
+                                maxWidth: "80%",
+                            }}
+                        >
+                            <View
+                                style={{
+                                    backgroundColor: message.role === "user" ? TROJAN_NAVY : "white",
+                                    borderRadius: isTablet ? 16 : 12,
+                                    padding: isTablet ? 16 : 12,
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: message.role === "assistant" ? 0.05 : 0,
+                                    shadowRadius: 8,
+                                    elevation: message.role === "assistant" ? 2 : 0,
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontSize: isTablet ? 15 : 14,
+                                        color: message.role === "user" ? "white" : TROJAN_NAVY,
+                                        lineHeight: isTablet ? 22 : 20,
+                                    }}
+                                >
+                                    {message.content}
+                                </Text>
+                                <Text
+                                    style={{
+                                        fontSize: 11,
+                                        color: message.role === "user" ? "rgba(255,255,255,0.7)" : "#9CA3AF",
+                                        marginTop: 6,
+                                    }}
+                                >
+                                    {message.timestamp.toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </Text>
+                            </View>
+                        </View>
+                    ))}
+
+                    {isLoading && (
+                        <View
+                            style={{
+                                alignSelf: "flex-start",
+                                backgroundColor: "white",
+                                borderRadius: 12,
+                                padding: 12,
+                                marginBottom: 16,
+                                shadowColor: "#000",
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.05,
+                                shadowRadius: 8,
+                                elevation: 2,
+                            }}
+                        >
+                            <Text style={{ color: "#9CA3AF", fontSize: 14 }}>Typing...</Text>
+                        </View>
+                    )}
+                </ScrollView>
+
+                <View
+                    style={{
+                        padding: contentPadding,
+                        backgroundColor: "white",
+                        borderTopWidth: 1,
+                        borderTopColor: "#E5E7EB",
+                    }}
+                >
+                    <View
+                        style={{
+                            maxWidth: isLargeTablet ? 900 : undefined,
+                            alignSelf: "center",
+                            width: "100%",
+                        }}
+                    >
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                backgroundColor: "#F9FAFB",
+                                borderRadius: isTablet ? 24 : 20,
+                                paddingHorizontal: isTablet ? 18 : 14,
+                                paddingVertical: isTablet ? 12 : 8,
+                            }}
+                        >
+                            <TextInput
+                                placeholder="Ask me anything..."
+                                placeholderTextColor="#9CA3AF"
+                                value={inputText}
+                                onChangeText={setInputText}
+                                multiline
+                                style={{
+                                    flex: 1,
+                                    fontSize: isTablet ? 16 : 14,
+                                    color: TROJAN_NAVY,
+                                    maxHeight: 100,
+                                }}
+                                onSubmitEditing={handleSend}
+                            />
+                            <Pressable
+                                onPress={handleSend}
+                                disabled={!inputText.trim() || isLoading}
+                                style={{
+                                    backgroundColor: inputText.trim() && !isLoading ? TROJAN_GOLD : "#E5E7EB",
+                                    width: isTablet ? 44 : 36,
+                                    height: isTablet ? 44 : 36,
+                                    borderRadius: isTablet ? 22 : 18,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginLeft: 8,
+                                }}
+                            >
+                                <Send size={isTablet ? 20 : 18} color={inputText.trim() && !isLoading ? TROJAN_NAVY : "#9CA3AF"} />
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 }
-
