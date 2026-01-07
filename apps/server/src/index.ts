@@ -10,6 +10,7 @@ import quotesRoute from "./routes/quotes";
 import projectsRoute from "./routes/projects";
 import aiRoute from "./routes/ai";
 import usersRoute from "./routes/users";
+import uploadRoute from "./routes/upload";
 
 const app = new Hono();
 
@@ -37,6 +38,7 @@ app.route("/api/quotes", quotesRoute);
 app.route("/api/projects", projectsRoute);
 app.route("/api/ai", aiRoute);
 app.route("/api/users", usersRoute);
+app.route("/api/upload", uploadRoute);
 
 app.get("/", (c) => {
   return c.text("OK");

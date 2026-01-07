@@ -1,18 +1,6 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-
-// S3 Client configuration
-const s3Client = new S3Client({
-  region: process.env.NEXT_PUBLIC_AWS_REGION || "us-west-2",
-  credentials: {
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY || "",
-  },
-});
-
-const BUCKET_NAME = process.env.NEXT_PUBLIC_S3_BUCKET_NAME || "trojan-projects-zw";
-
 /**
  * Generate a unique filename for S3 upload
+ * (kept for reference, actual generation happens on backend)
  */
 function generateUniqueFileName(originalName: string): string {
   const timestamp = Date.now();
@@ -28,33 +16,52 @@ function generateUniqueFileName(originalName: string): string {
 }
 
 /**
- * Upload a file to S3 and return the public URL
+ * Upload a file to S3 via backend API (server-side upload)
+ * This avoids CORS issues and keeps AWS credentials secure
  */
 export async function uploadToS3(file: File): Promise<string> {
-  const fileName = generateUniqueFileName(file.name);
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  const formData = new FormData();
+  formData.append("image", file);
 
-  const command = new PutObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: fileName,
-    Body: buffer,
-    ContentType: file.type,
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/upload/service-image`,
+    {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    }
+  );
 
-  await s3Client.send(command);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to upload image");
+  }
 
-  // Return the public URL
-  const region = process.env.NEXT_PUBLIC_AWS_REGION || "us-west-2";
-  return `https://${BUCKET_NAME}.s3.${region}.amazonaws.com/${fileName}`;
+  const data = await response.json();
+  return data.url;
 }
 
 /**
- * Upload multiple files to S3
+ * Upload multiple files to S3 via backend API
  */
 export async function uploadMultipleToS3(files: File[]): Promise<string[]> {
-  const uploadPromises = files.map((file) => uploadToS3(file));
-  return Promise.all(uploadPromises);
-}
+  const formData = new FormData();
+  files.forEach((file) => formData.append("images", file));
 
-export { s3Client, BUCKET_NAME };
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/upload/multiple`,
+    {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to upload files");
+  }
+
+  const data = await response.json();
+  return data.files.map((f: { url: string }) => f.url);
+}
