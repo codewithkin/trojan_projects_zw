@@ -47,7 +47,7 @@ export default function UserOnboardingScreen() {
         console.log("Saving preferences:", preferences);
 
         // Redirect to main app (drawer)
-        router.replace("/(drawer)");
+        router.replace("/(tabs)");
     };
 
     const getIcon = (iconName: string) => {
