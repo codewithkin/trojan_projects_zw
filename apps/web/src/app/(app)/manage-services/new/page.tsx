@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -17,10 +17,10 @@ import {
     Sparkles,
     Droplets,
     Flame,
-    Tag,
     FileText,
     Wrench,
     Building2,
+    Upload,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,8 +35,9 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/shadcn-select";
 import { toast } from "sonner";
+import { uploadToS3 } from "@/lib/s3";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -82,9 +83,10 @@ export default function NewServicePage() {
     // Dynamic input states
     const [newBrand, setNewBrand] = useState("");
     const [newSupport, setNewSupport] = useState("");
-    const [newImageUrl, setNewImageUrl] = useState("");
     const [newSpecKey, setNewSpecKey] = useState("");
     const [newSpecValue, setNewSpecValue] = useState("");
+    const [uploadingImages, setUploadingImages] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -162,10 +164,44 @@ export default function NewServicePage() {
         setForm({ ...form, supports: form.supports.filter((s) => s !== support) });
     };
 
-    const addImage = () => {
-        if (newImageUrl.trim() && !form.images.includes(newImageUrl.trim())) {
-            setForm({ ...form, images: [...form.images, newImageUrl.trim()] });
-            setNewImageUrl("");
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setUploadingImages(true);
+        const uploadedUrls: string[] = [];
+
+        try {
+            for (const file of Array.from(files)) {
+                // Validate file type
+                if (!file.type.startsWith("image/")) {
+                    toast.error(`${file.name} is not an image file`);
+                    continue;
+                }
+
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    toast.error(`${file.name} exceeds 5MB limit`);
+                    continue;
+                }
+
+                const url = await uploadToS3(file);
+                uploadedUrls.push(url);
+            }
+
+            if (uploadedUrls.length > 0) {
+                setForm({ ...form, images: [...form.images, ...uploadedUrls] });
+                toast.success(`${uploadedUrls.length} image(s) uploaded successfully`);
+            }
+        } catch (error) {
+            console.error("Error uploading images:", error);
+            toast.error("Failed to upload images. Please try again.");
+        } finally {
+            setUploadingImages(false);
+            // Reset file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
         }
     };
 
@@ -489,19 +525,36 @@ export default function NewServicePage() {
                             <ImageIcon className="h-5 w-5" style={{ color: "#F59E0B" }} />
                             Images
                         </CardTitle>
-                        <CardDescription>Add image URLs for this service</CardDescription>
+                        <CardDescription>Upload images for this service (max 5MB each)</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex gap-2">
-                            <Input
-                                placeholder="https://example.com/image.jpg"
-                                value={newImageUrl}
-                                onChange={(e) => setNewImageUrl(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
+                        <div className="flex flex-col gap-4">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleImageUpload}
+                                className="hidden"
+                                id="image-upload"
                             />
-                            <Button type="button" variant="outline" onClick={addImage}>
-                                <Plus className="h-4 w-4" />
-                            </Button>
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                            >
+                                {uploadingImages ? (
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                                        <p className="text-sm text-gray-500">Uploading images...</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Upload className="h-8 w-8 text-gray-400" />
+                                        <p className="text-sm text-gray-600 font-medium">Click to upload images</p>
+                                        <p className="text-xs text-gray-400">PNG, JPG, WEBP up to 5MB</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         {form.images.length > 0 && (
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
