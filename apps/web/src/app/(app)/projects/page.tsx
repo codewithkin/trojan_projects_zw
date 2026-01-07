@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
-    Plus,
     MoreHorizontal,
     Eye,
     Edit,
@@ -14,10 +13,14 @@ import {
     PlayCircle,
     Loader2,
     RefreshCw,
+    DollarSign,
+    TrendingUp,
+    Users,
+    FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -116,15 +119,44 @@ export default function AdminProjectsPage() {
         ? projects
         : projects.filter((project) => project.status === activeTab);
 
-    const stats = {
-        all: projects.length,
-        pending: projects.filter((p) => p.status === "pending").length,
-        starting: projects.filter((p) => p.status === "starting").length,
-        in_progress: projects.filter((p) => p.status === "in_progress").length,
-        waiting_for_review: projects.filter((p) => p.status === "waiting_for_review").length,
-        completed: projects.filter((p) => p.status === "completed").length,
-        cancelled: projects.filter((p) => p.status === "cancelled").length,
-    };
+    // Calculate statistics
+    const stats = useMemo(() => {
+        const totalRevenue = projects
+            .filter(p => p.status === "completed" && p.finalPrice)
+            .reduce((sum, p) => sum + (p.finalPrice || 0), 0);
+
+        const pendingRevenue = projects
+            .filter(p => p.status !== "completed" && p.status !== "cancelled" && p.finalPrice)
+            .reduce((sum, p) => sum + (p.finalPrice || 0), 0);
+
+        const uniqueCustomers = new Set(projects.map(p => p.user.id)).size;
+
+        const thisMonth = new Date();
+        thisMonth.setDate(1);
+        thisMonth.setHours(0, 0, 0, 0);
+        const projectsThisMonth = projects.filter(p => new Date(p.createdAt) >= thisMonth).length;
+
+        // Category breakdown
+        const categoryBreakdown = projects.reduce((acc, p) => {
+            acc[p.service.category] = (acc[p.service.category] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>);
+
+        return {
+            total: projects.length,
+            pending: projects.filter((p) => p.status === "pending").length,
+            starting: projects.filter((p) => p.status === "starting").length,
+            in_progress: projects.filter((p) => p.status === "in_progress").length,
+            waiting_for_review: projects.filter((p) => p.status === "waiting_for_review").length,
+            completed: projects.filter((p) => p.status === "completed").length,
+            cancelled: projects.filter((p) => p.status === "cancelled").length,
+            totalRevenue,
+            pendingRevenue,
+            uniqueCustomers,
+            projectsThisMonth,
+            categoryBreakdown,
+        };
+    }, [projects]);
 
     const formatDate = (dateString: string | null) => {
         if (!dateString) return "-";
@@ -140,6 +172,47 @@ export default function AdminProjectsPage() {
         return `$${price.toLocaleString()}`;
     };
 
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    // Stats cards configuration
+    const statsCards = [
+        {
+            title: "Total Projects",
+            value: stats.total,
+            description: `${stats.projectsThisMonth} this month`,
+            icon: FolderOpen,
+            color: TROJAN_NAVY,
+        },
+        {
+            title: "Total Revenue",
+            value: formatCurrency(stats.totalRevenue),
+            description: `${formatCurrency(stats.pendingRevenue)} pending`,
+            icon: DollarSign,
+            color: "#16A34A",
+        },
+        {
+            title: "Active Projects",
+            value: stats.in_progress + stats.starting,
+            description: `${stats.waiting_for_review} awaiting review`,
+            icon: TrendingUp,
+            color: "#3B82F6",
+        },
+        {
+            title: "Unique Customers",
+            value: stats.uniqueCustomers,
+            description: `${stats.completed} completed projects`,
+            icon: Users,
+            color: "#8B5CF6",
+        },
+    ];
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -148,26 +221,62 @@ export default function AdminProjectsPage() {
                     <h1 className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
                         Projects
                     </h1>
-                    <p className="text-gray-500">Manage customer projects and installations</p>
+                    <p className="text-gray-500">View and manage customer projects</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={fetchProjects} disabled={loading} className="flex items-center">
-                        <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-                        Refresh
-                    </Button>
-                    <Button asChild style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
-                        <Link href="/projects/new" className="flex items-center">
-                            <Plus className="mr-2 h-4 w-4" />
-                            New Project
-                        </Link>
-                    </Button>
-                </div>
+                <Button variant="outline" onClick={fetchProjects} disabled={loading} className="flex items-center">
+                    <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                    Refresh
+                </Button>
             </div>
+
+            {/* Stats Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {statsCards.map((stat) => (
+                    <Card key={stat.title}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-gray-500">
+                                {stat.title}
+                            </CardTitle>
+                            <stat.icon className="h-4 w-4" style={{ color: stat.color }} />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold" style={{ color: TROJAN_NAVY }}>
+                                {stat.value}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                                {stat.description}
+                            </p>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+
+            {/* Category Breakdown */}
+            {Object.keys(stats.categoryBreakdown).length > 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium">Projects by Category</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-wrap gap-2">
+                            {Object.entries(stats.categoryBreakdown).map(([category, count]) => (
+                                <Badge
+                                    key={category}
+                                    variant="secondary"
+                                    className="px-3 py-1 capitalize"
+                                >
+                                    {category}: {count}
+                                </Badge>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="flex-wrap h-auto gap-1">
-                    <TabsTrigger value="all">All ({stats.all})</TabsTrigger>
+                    <TabsTrigger value="all">All ({stats.total})</TabsTrigger>
                     <TabsTrigger value="pending">Pending ({stats.pending})</TabsTrigger>
                     <TabsTrigger value="starting">Starting ({stats.starting})</TabsTrigger>
                     <TabsTrigger value="in_progress">In Progress ({stats.in_progress})</TabsTrigger>
@@ -189,10 +298,8 @@ export default function AdminProjectsPage() {
                         <Card>
                             <CardContent className="py-12">
                                 <div className="text-center">
-                                    <p className="text-gray-500 mb-4">No projects found</p>
-                                    <Button asChild variant="outline">
-                                        <Link href="/projects/new">Create First Project</Link>
-                                    </Button>
+                                    <FolderOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                                    <p className="text-gray-500">No projects found in this category</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -235,7 +342,7 @@ export default function AdminProjectsPage() {
                                                     </p>
                                                 </div>
                                                 <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
+                                                    <DropdownMenuTrigger>
                                                         <Button variant="ghost" className="h-8 w-8 p-0">
                                                             <MoreHorizontal className="h-4 w-4" />
                                                         </Button>
@@ -243,18 +350,18 @@ export default function AdminProjectsPage() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem asChild>
-                                                            <Link href={`/projects/${project.id}`}>
+                                                        <Link href={`/projects/${project.id}` as string}>
+                                                            <DropdownMenuItem>
                                                                 <Eye className="mr-2 h-4 w-4" />
                                                                 View Details
-                                                            </Link>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem asChild>
-                                                            <Link href={`/projects/${project.id}/edit`}>
+                                                            </DropdownMenuItem>
+                                                        </Link>
+                                                        <Link href={`/projects/${project.id}/edit` as string}>
+                                                            <DropdownMenuItem>
                                                                 <Edit className="mr-2 h-4 w-4" />
                                                                 Edit Project
-                                                            </Link>
-                                                        </DropdownMenuItem>
+                                                            </DropdownMenuItem>
+                                                        </Link>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </div>
