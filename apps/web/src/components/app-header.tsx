@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Bell, Menu, Search, X } from "lucide-react";
@@ -14,6 +14,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getStoredToken } from "@/lib/auth-client";
+import { env } from "@trojan_projects_zw/env/web";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -35,17 +37,38 @@ const pageTitles: Record<string, string> = {
 export function AppHeader({ onToggleSidebar, sidebarCollapsed }: AppHeaderProps) {
     const pathname = usePathname();
     const [showSearch, setShowSearch] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     const pageTitle = pageTitles[pathname] || "Dashboard";
 
-    // Mock notifications - in real app, fetch from API
-    const notifications = [
-        { id: 1, title: "New order received", time: "5 min ago", read: false },
-        { id: 2, title: "Payment confirmed", time: "1 hour ago", read: false },
-        { id: 3, title: "Staff member joined", time: "2 hours ago", read: true },
-    ];
+    // Fetch notifications on mount and poll for updates
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const token = getStoredToken();
+                const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/notifications?limit=5`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setNotifications(data.notifications || []);
+                    setUnreadCount(data.unreadCount || 0);
+                }
+            } catch (error) {
+                console.error("Failed to fetch notifications:", error);
+            }
+        };
 
-    const unreadCount = notifications.filter((n) => !n.read).length;
+        fetchNotifications();
+
+        // Poll every 30 seconds for new notifications
+        const interval = setInterval(fetchNotifications, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <header className="sticky top-0 z-30 flex items-center h-16 px-4 bg-white border-b border-gray-200">
@@ -129,14 +152,18 @@ export function AppHeader({ onToggleSidebar, sidebarCollapsed }: AppHeaderProps)
                                         )}
                                         <span className="font-medium text-sm">{notification.title}</span>
                                     </div>
-                                    <span className="text-xs text-gray-500">{notification.time}</span>
+                                    <span className="text-xs text-gray-500">
+                                        {new Date(notification.createdAt).toLocaleString()}
+                                    </span>
                                 </DropdownMenuItem>
                             ))
                         )}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="justify-center text-sm font-medium" style={{ color: TROJAN_NAVY }}>
-                            View all notifications
-                        </DropdownMenuItem>
+                        <Link href="/notifications">
+                            <DropdownMenuItem className="justify-center text-sm font-medium" style={{ color: TROJAN_NAVY }}>
+                                View all notifications
+                            </DropdownMenuItem>
+                        </Link>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
