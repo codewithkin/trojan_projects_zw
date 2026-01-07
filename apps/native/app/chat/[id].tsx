@@ -11,7 +11,7 @@ const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
 interface ChatMessage {
-    type: "message" | "join" | "leave" | "typing";
+    type: "message" | "join" | "leave" | "typing" | "system";
     roomId: string;
     userId: string;
     userName: string;
@@ -30,6 +30,7 @@ export default function ChatRoom() {
     const [inputValue, setInputValue] = useState("");
     const [connected, setConnected] = useState(false);
     const [roomName, setRoomName] = useState("Chat");
+    const [isWaitingForStaff, setIsWaitingForStaff] = useState(true);
     const ws = useRef<WebSocket | null>(null);
     const flatListRef = useRef<FlatList>(null);
 
@@ -80,6 +81,16 @@ export default function ChatRoom() {
             try {
                 const message: ChatMessage = JSON.parse(event.data);
                 setMessages((prev) => [...prev, { ...message, id: message.timestamp + Math.random() }]);
+                
+                // Check if staff has joined (they are no longer waiting)
+                const staffRoles = ["staff", "support", "admin"];
+                if (message.type === "join" && staffRoles.includes(message.userRole)) {
+                    setIsWaitingForStaff(false);
+                }
+                if (message.type === "system" && message.content?.includes("joined the chat")) {
+                    setIsWaitingForStaff(false);
+                }
+                
                 // Scroll to bottom on new message
                 setTimeout(() => {
                     flatListRef.current?.scrollToEnd({ animated: true });
@@ -121,6 +132,19 @@ export default function ChatRoom() {
 
     const renderMessage = ({ item }: { item: ChatMessage }) => {
         const isOwnMessage = item.userId === session?.user?.id;
+
+        // System messages (like "{name} joined the chat")
+        if (item.type === "system") {
+            return (
+                <View className="items-center my-3 px-8">
+                    <View className="bg-amber-50 rounded-lg px-4 py-3 border border-amber-200">
+                        <Text className="text-xs text-amber-700 text-center font-medium">
+                            {item.content}
+                        </Text>
+                    </View>
+                </View>
+            );
+        }
 
         if (item.type === "join" || item.type === "leave") {
             return (
@@ -256,6 +280,19 @@ export default function ChatRoom() {
                                 ? "We're here to help you with any questions"
                                 : "Communicate with your project team here"}
                         </Text>
+                        {!isSupport && isWaitingForStaff && (
+                            <View className="mt-6 bg-amber-50 rounded-lg px-6 py-4 mx-8 border border-amber-200">
+                                <View className="flex-row items-center justify-center mb-2">
+                                    <Ionicons name="time-outline" size={20} color="#D97706" />
+                                    <Text className="text-amber-700 font-semibold ml-2">
+                                        Waiting for team
+                                    </Text>
+                                </View>
+                                <Text className="text-amber-600 text-sm text-center">
+                                    Our team will get back to you shortly. You'll be notified when someone joins the chat.
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 }
                 onContentSizeChange={() => {
