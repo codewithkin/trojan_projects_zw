@@ -452,7 +452,7 @@ export default function Profile() {
                                         icon="lock-closed-outline"
                                         title="Change Password"
                                         subtitle="Update your password"
-                                        onPress={() => console.log("Change password")}
+                                        onPress={() => router.push("/change-password")}
                                         rightElement={<Ionicons name="chevron-forward" size={isTablet ? 22 : 20} color="#9CA3AF" />}
                                     />
                                 </CardContent>
