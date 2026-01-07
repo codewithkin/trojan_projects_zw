@@ -20,16 +20,13 @@
       "package": "com.trojanprojects.staff",
       "versionCode": 1
     },
-    "extra": {
-      "eas": {
-        "projectId": "9368f028-4c59-4d83-9eec-da9174aac356"
-      }
-    },
-    "updates": {
-      "url": "https://u.expo.dev/9368f028-4c59-4d83-9eec-da9174aac356"
-    },
     "runtimeVersion": {
       "policy": "appVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7d0c9d85-7e5f-4189-ab9e-70cad3f33afb"
+      }
     }
   }
 }
