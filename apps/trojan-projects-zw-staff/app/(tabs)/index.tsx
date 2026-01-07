@@ -54,6 +54,16 @@ export default function Home() {
   const [pendingProjects, setPendingProjects] = useState<PendingProject[]>([]);
   const [loadingPending, setLoadingPending] = useState(true);
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  
+  // Real stats from API
+  const [statsData, setStatsData] = useState({
+    totalProjects: 0,
+    pendingProjects: 0,
+    inProgressProjects: 0,
+    completedProjects: 0,
+    totalQuotes: 0,
+    pendingQuotes: 0,
+  });
 
   const isTablet = width >= 768;
   const isLargeTablet = width >= 1024;
@@ -62,6 +72,29 @@ export default function Home() {
   const effectiveRole = getEffectiveRole(user);
   const isAdmin = hasFullAdminAccess(user);
   const canManage = hasAdminAccess(user);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      // Fetch projects summary
+      const projectsData = await get<ProjectsResponse>("/api/projects?limit=100");
+      const projects = projectsData.projects || [];
+      
+      // Fetch quotes
+      const quotesData = await get<{ quotes: Array<{ status: string }> }>("/api/quotes?limit=100");
+      const quotes = quotesData.quotes || [];
+      
+      setStatsData({
+        totalProjects: projects.length,
+        pendingProjects: projects.filter(p => p.status === "pending").length,
+        inProgressProjects: projects.filter(p => p.status === "in_progress" || p.status === "starting").length,
+        completedProjects: projects.filter(p => p.status === "completed").length,
+        totalQuotes: quotes.length,
+        pendingQuotes: quotes.filter(q => q.status === "pending").length,
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  }, []);
 
   const fetchPendingProjects = useCallback(async () => {
     try {
@@ -77,11 +110,12 @@ export default function Home() {
 
   useEffect(() => {
     fetchPendingProjects();
-  }, [fetchPendingProjects]);
+    fetchStats();
+  }, [fetchPendingProjects, fetchStats]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPendingProjects();
+    await Promise.all([fetchPendingProjects(), fetchStats()]);
     setRefreshing(false);
   };
 
@@ -114,29 +148,29 @@ export default function Home() {
     return `${diffDays}d ago`;
   };
 
-  // Role-based stats
+  // Role-based stats with real data
   const getStatsForRole = (): StatCard[] => {
     if (isAdmin) {
       return [
-        { title: "Active Projects", value: 23, icon: FolderKanban, color: "#3B82F6", trend: "+12%" },
-        { title: "Pending Quotes", value: 8, icon: FileText, color: "#F59E0B", trend: "+3" },
-        { title: "Total Staff", value: 15, icon: Users, color: "#10B981" },
-        { title: "Revenue (Month)", value: "$45.2K", icon: TrendingUp, color: "#8B5CF6", trend: "+18%" },
+        { title: "Total Projects", value: statsData.totalProjects, icon: FolderKanban, color: "#3B82F6" },
+        { title: "Pending Quotes", value: statsData.pendingQuotes, icon: FileText, color: "#F59E0B" },
+        { title: "In Progress", value: statsData.inProgressProjects, icon: Clock, color: "#10B981" },
+        { title: "Completed", value: statsData.completedProjects, icon: CheckCircle, color: "#8B5CF6" },
       ];
     } else if (effectiveRole === "staff") {
       return [
-        { title: "Assigned Projects", value: 5, icon: FolderKanban, color: "#3B82F6" },
-        { title: "In Progress", value: 3, icon: Clock, color: "#F59E0B" },
-        { title: "Completed Today", value: 2, icon: CheckCircle, color: "#10B981" },
-        { title: "Pending Tasks", value: 7, icon: AlertCircle, color: "#EF4444" },
+        { title: "Total Projects", value: statsData.totalProjects, icon: FolderKanban, color: "#3B82F6" },
+        { title: "In Progress", value: statsData.inProgressProjects, icon: Clock, color: "#F59E0B" },
+        { title: "Completed", value: statsData.completedProjects, icon: CheckCircle, color: "#10B981" },
+        { title: "Pending", value: statsData.pendingProjects, icon: AlertCircle, color: "#EF4444" },
       ];
     } else {
       // Support role
       return [
-        { title: "Active Inquiries", value: 12, icon: FileText, color: "#3B82F6" },
-        { title: "Quotes Sent", value: 18, icon: CheckCircle, color: "#10B981" },
-        { title: "Pending Followups", value: 5, icon: Clock, color: "#F59E0B" },
-        { title: "Customer Calls", value: 24, icon: Users, color: "#8B5CF6" },
+        { title: "Total Quotes", value: statsData.totalQuotes, icon: FileText, color: "#3B82F6" },
+        { title: "Pending Quotes", value: statsData.pendingQuotes, icon: Clock, color: "#F59E0B" },
+        { title: "Projects Active", value: statsData.inProgressProjects, icon: FolderKanban, color: "#10B981" },
+        { title: "Completed", value: statsData.completedProjects, icon: CheckCircle, color: "#8B5CF6" },
       ];
     }
   };
