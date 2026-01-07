@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Bot, User, Loader2, Sparkles, RotateCcw, Copy, Check } from "lucide-react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
+import { Send, Bot, User, Loader2, Sparkles, RotateCcw, Copy, Check, AlertCircle, TrendingUp, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/hooks/use-session";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
@@ -31,15 +33,41 @@ interface StreamEvent {
   };
 }
 
-// Suggested prompts for quick start
+// Chat history storage key
+const CHAT_HISTORY_KEY = "trojan-ai-chat-history";
+
+// Suggested prompts for quick start - organized by category
 const suggestedPrompts = [
-  { text: "What's the overview of our business today?", icon: "📊" },
-  { text: "Show me pending projects that need attention", icon: "⏳" },
-  { text: "How's our revenue looking this month?", icon: "💰" },
-  { text: "Who are our top customers?", icon: "⭐" },
-  { text: "Which services are most popular?", icon: "🔧" },
-  { text: "What happened in the last 7 days?", icon: "📅" },
+  { text: "What's the overview of our business today?", icon: "📊", category: "overview" },
+  { text: "Show me pending projects that need attention", icon: "⏳", category: "projects" },
+  { text: "How's our revenue looking this month?", icon: "💰", category: "revenue" },
+  { text: "Who are our top customers?", icon: "⭐", category: "customers" },
+  { text: "Which services are most popular?", icon: "🔧", category: "services" },
+  { text: "What happened in the last 7 days?", icon: "📅", category: "activity" },
 ];
+
+// Quick action follow-ups
+const quickFollowUps = [
+  "Tell me more about this",
+  "What should I prioritize?",
+  "Compare to last month",
+  "Any recommendations?",
+];
+
+// Helper to serialize messages for storage
+const serializeMessages = (messages: ChatMessage[]) => 
+  messages.map(m => ({
+    ...m,
+    timestamp: m.timestamp.toISOString(),
+  }));
+
+// Helper to deserialize messages from storage
+const deserializeMessages = (data: { id: string; role: "user" | "assistant"; content: string; timestamp: string }[]): ChatMessage[] =>
+  data.map(m => ({
+    ...m,
+    timestamp: new Date(m.timestamp),
+    isStreaming: false,
+  }));
 
 export default function AIChatPage() {
   const { token } = useSession();
@@ -47,9 +75,36 @@ export default function AIChatPage() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Load chat history from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CHAT_HISTORY_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(deserializeMessages(parsed));
+          setShowHistory(true);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load chat history:", err);
+    }
+  }, []);
+
+  // Save messages to localStorage when they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      const toSave = messages.filter(m => !m.isStreaming);
+      if (toSave.length > 0) {
+        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(serializeMessages(toSave)));
+      }
+    }
+  }, [messages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -231,6 +286,8 @@ export default function AIChatPage() {
     }
     setMessages([]);
     setIsLoading(false);
+    localStorage.removeItem(CHAT_HISTORY_KEY);
+    setShowHistory(false);
   };
 
   return (
@@ -290,12 +347,26 @@ export default function AIChatPage() {
               I can analyze your business data and provide insights on projects,
               revenue, customers, and more.
             </p>
+            
+            {/* Quick Stats Cards */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
+                <TrendingUp size={16} className="text-green-600" />
+                <span className="text-sm text-green-700">Real-time data</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full">
+                <Zap size={16} className="text-blue-600" />
+                <span className="text-sm text-blue-700">Instant insights</span>
+              </div>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl">
               {suggestedPrompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => sendMessage(prompt.text)}
-                  className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group"
+                  disabled={isLoading}
+                  className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group disabled:opacity-50"
                 >
                   <span className="text-xl">{prompt.icon}</span>
                   <span className="text-sm text-gray-700 group-hover:text-gray-900">
@@ -306,15 +377,34 @@ export default function AIChatPage() {
             </div>
           </div>
         ) : (
-          // Messages list
+          // Messages list with follow-up suggestions
           <div className="py-6 space-y-6">
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                onCopy={() => copyToClipboard(message.content, message.id)}
-                isCopied={copiedId === message.id}
-              />
+            {messages.map((message, index) => (
+              <div key={message.id}>
+                <MessageBubble
+                  message={message}
+                  onCopy={() => copyToClipboard(message.content, message.id)}
+                  isCopied={copiedId === message.id}
+                />
+                
+                {/* Show quick follow-ups after the last assistant message */}
+                {message.role === "assistant" && 
+                 !message.isStreaming && 
+                 index === messages.length - 1 && 
+                 !isLoading && (
+                  <div className="flex flex-wrap gap-2 mt-4 ml-11">
+                    {quickFollowUps.map((followUp, i) => (
+                      <button
+                        key={i}
+                        onClick={() => sendMessage(followUp)}
+                        className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors"
+                      >
+                        {followUp}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}
@@ -359,8 +449,8 @@ export default function AIChatPage() {
   );
 }
 
-// Message Bubble Component
-function MessageBubble({
+// Message Bubble Component with Markdown Support
+const MessageBubble = memo(function MessageBubble({
   message,
   onCopy,
   isCopied,
@@ -381,7 +471,7 @@ function MessageBubble({
       {/* Avatar */}
       <div
         className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+          "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1",
           isUser ? "bg-gray-700" : ""
         )}
         style={!isUser ? { backgroundColor: TROJAN_GOLD } : {}}
@@ -396,8 +486,8 @@ function MessageBubble({
       {/* Message Content */}
       <div
         className={cn(
-          "flex-1 max-w-[80%]",
-          isUser ? "flex justify-end" : ""
+          "flex-1 max-w-[85%] lg:max-w-[75%]",
+          isUser ? "flex flex-col items-end" : ""
         )}
       >
         <div
@@ -408,21 +498,105 @@ function MessageBubble({
               : "bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm"
           )}
         >
-          {/* Message text with markdown-like formatting */}
-          <div className={cn(
-            "text-sm leading-relaxed whitespace-pre-wrap",
-            message.isStreaming && "min-h-[20px]"
-          )}>
-            {message.content || (message.isStreaming && (
-              <span className="inline-flex items-center gap-1 text-gray-400">
+          {/* Message content */}
+          {message.content ? (
+            isUser ? (
+              <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                {message.content}
+              </div>
+            ) : (
+              <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-strong:text-gray-900 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-gray-900 prose-pre:text-gray-100">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    // Custom code block rendering
+                    code: ({ className, children, ...props }) => {
+                      const isInline = !className;
+                      if (isInline) {
+                        return (
+                          <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-gray-800" {...props}>
+                            {children}
+                          </code>
+                        );
+                      }
+                      return (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
+                    },
+                    // Custom table rendering
+                    table: ({ children }) => (
+                      <div className="overflow-x-auto my-3">
+                        <table className="min-w-full border-collapse border border-gray-200 text-sm">
+                          {children}
+                        </table>
+                      </div>
+                    ),
+                    th: ({ children }) => (
+                      <th className="border border-gray-200 bg-gray-50 px-3 py-2 text-left font-medium text-gray-700">
+                        {children}
+                      </th>
+                    ),
+                    td: ({ children }) => (
+                      <td className="border border-gray-200 px-3 py-2">
+                        {children}
+                      </td>
+                    ),
+                    // Custom list rendering
+                    ul: ({ children }) => (
+                      <ul className="list-disc list-inside space-y-1 my-2">
+                        {children}
+                      </ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className="list-decimal list-inside space-y-1 my-2">
+                        {children}
+                      </ol>
+                    ),
+                    // Headers
+                    h1: ({ children }) => (
+                      <h1 className="text-lg font-bold text-gray-900 mt-4 mb-2">{children}</h1>
+                    ),
+                    h2: ({ children }) => (
+                      <h2 className="text-base font-semibold text-gray-900 mt-3 mb-2">{children}</h2>
+                    ),
+                    h3: ({ children }) => (
+                      <h3 className="text-sm font-semibold text-gray-900 mt-2 mb-1">{children}</h3>
+                    ),
+                    // Paragraphs
+                    p: ({ children }) => (
+                      <p className="my-2 leading-relaxed">{children}</p>
+                    ),
+                    // Links
+                    a: ({ children, href }) => (
+                      <a href={href} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                        {children}
+                      </a>
+                    ),
+                    // Blockquotes
+                    blockquote: ({ children }) => (
+                      <blockquote className="border-l-4 border-gray-300 pl-4 my-2 text-gray-600 italic">
+                        {children}
+                      </blockquote>
+                    ),
+                  }}
+                >
+                  {message.content}
+                </ReactMarkdown>
+                {message.isStreaming && (
+                  <span className="inline-block w-2 h-4 bg-gray-400 opacity-70 animate-pulse ml-0.5" />
+                )}
+              </div>
+            )
+          ) : (
+            message.isStreaming && (
+              <div className="flex items-center gap-2 text-gray-400 py-1">
                 <Loader2 size={14} className="animate-spin" />
-                Thinking...
-              </span>
-            ))}
-            {message.isStreaming && message.content && (
-              <span className="inline-block w-2 h-4 bg-current opacity-70 animate-pulse ml-0.5" />
-            )}
-          </div>
+                <span className="text-sm">Analyzing your business data...</span>
+              </div>
+            )
+          )}
 
           {/* Copy button for assistant messages */}
           {!isUser && message.content && !message.isStreaming && (
@@ -455,4 +629,4 @@ function MessageBubble({
       </div>
     </div>
   );
-}
+});
