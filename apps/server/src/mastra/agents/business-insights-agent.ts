@@ -22,6 +22,32 @@ import {
   checkRateLimitTool,
   checkContextLengthTool,
 } from "../tools/guardrail-tools";
+// Admin tools for CRUD operations
+import {
+  // Service management
+  listServicesTool,
+  createServiceTool,
+  updateServiceTool,
+  deleteServiceTool,
+  // Project management
+  listProjectsTool,
+  createProjectTool,
+  updateProjectTool,
+  updateProjectStatusTool,
+  deleteProjectTool,
+  // Quote management
+  listQuotesTool,
+  approveQuoteTool,
+  rejectQuoteTool,
+  convertQuoteToProjectTool,
+  // User management
+  listUsersTool,
+  inviteUserTool,
+  updateUserRoleTool,
+  getUserDetailsTool,
+  // Dashboard
+  getDashboardSummaryTool,
+} from "../tools/admin-tools";
 
 /**
  * Trojan Business Insights Agent
@@ -80,12 +106,39 @@ You have memory tools to maintain context across the conversation:
 - Celebrate wins and positive trends with the team
 
 ## What You Can Help With
+
+### 📊 Analytics & Insights (Read-Only)
 1. **Project Overview**: Get total project counts, status breakdowns, and completion rates
 2. **Revenue Analysis**: Analyze revenue by time period, category, or service
 3. **Customer Insights**: Understand customer behavior, top customers, and engagement
 4. **Service Performance**: See which services are most popular and profitable
 5. **Recent Activity**: Get a quick summary of what's happened recently
-6. **Project Search**: Find specific projects or customers
+6. **Dashboard Summary**: Get a comprehensive overview of all key metrics
+
+### 🛠️ Service Management (Admin Actions)
+7. **List Services**: View all services with filters by category
+8. **Create Service**: Add new services with name, description, price, and category
+9. **Update Service**: Modify existing service details, pricing, or featured status
+10. **Delete Service**: Remove services (with confirmation for safety)
+
+### 📋 Project Management (Admin Actions)
+11. **List Projects**: View all projects with filters by status
+12. **Create Project**: Create new projects for customers
+13. **Update Project**: Modify project details, pricing, or technician assignment
+14. **Update Project Status**: Move projects through the workflow (pending → starting → in_progress → waiting_for_review → completed)
+15. **Delete Project**: Remove cancelled or pending projects
+
+### 💰 Quote Management (Admin Actions)
+16. **List Quotes**: View all quote requests with status filters
+17. **Approve Quote**: Approve pending quotes and set estimated prices
+18. **Reject Quote**: Reject quotes with explanation
+19. **Convert Quote to Project**: Turn approved quotes into active projects
+
+### 👥 User Management (Admin Actions)
+20. **List Users**: View all users with role filters
+21. **Invite User**: Create new team member accounts and send invitation emails
+22. **Update User Role**: Change user roles (promote staff to admin, etc.)
+23. **Get User Details**: View comprehensive user information including project history
 
 ## How to Respond
 - Start with a brief summary/headline for the answer
@@ -111,11 +164,11 @@ If asked about something unrelated to business analytics:
 ## Handling Questions You Can't Answer
 If asked about something you don't have data for, be honest and explain what information you do have access to. If a question requires more context, ask clarifying questions.
 
-Remember: Your goal is to help the team make data-driven decisions and keep a pulse on business health while staying strictly within your business analytics scope.`,
+Remember: Your goal is to help the team make data-driven decisions, manage operations efficiently, and keep a pulse on business health.`,
 
   model: "openai/gpt-4o",
   tools: {
-    // Business data tools
+    // Business data tools (read-only analytics)
     getProjectStatsTool,
     getProjectsByStatusTool,
     getRevenueAnalyticsTool,
@@ -135,5 +188,28 @@ Remember: Your goal is to help the team make data-driven decisions and keep a pu
     validateOutputTool,
     checkRateLimitTool,
     checkContextLengthTool,
+    // Admin tools - Service management
+    listServicesTool,
+    createServiceTool,
+    updateServiceTool,
+    deleteServiceTool,
+    // Admin tools - Project management
+    listProjectsTool,
+    createProjectTool,
+    updateProjectTool,
+    updateProjectStatusTool,
+    deleteProjectTool,
+    // Admin tools - Quote management
+    listQuotesTool,
+    approveQuoteTool,
+    rejectQuoteTool,
+    convertQuoteToProjectTool,
+    // Admin tools - User management
+    listUsersTool,
+    inviteUserTool,
+    updateUserRoleTool,
+    getUserDetailsTool,
+    // Admin tools - Dashboard
+    getDashboardSummaryTool,
   },
 });
