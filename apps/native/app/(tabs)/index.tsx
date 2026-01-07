@@ -6,6 +6,7 @@ import { Text } from "@/components/ui/text";
 import { ServiceCard } from "@/components/service-card";
 import { StatsSection } from "@/components/stats-section";
 import { ServicesGridSkeleton, ServicesListSkeleton } from "@/components/skeletons";
+import { FABGroup } from "@/components/fab-group";
 import { useServices } from "@/hooks/use-services";
 import { categoryConfig, type ServiceCategory } from "@/data/services";
 
@@ -342,7 +343,8 @@ export default function Home() {
         </View>
       </ScrollView>
 
-
+      {/* FAB Group */}
+      <FABGroup />
     </SafeAreaView>
   );
 }

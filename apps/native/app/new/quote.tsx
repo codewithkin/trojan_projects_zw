@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
     View,
     Text,
@@ -13,15 +13,26 @@ import {
     StatusBar,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { ArrowLeft, ChevronDown, Lock } from "lucide-react-native";
+import { ArrowLeft, ChevronDown, Lock, Search, X } from "lucide-react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { env } from "@trojan_projects_zw/env/native";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Text as StyledText } from "@/components/ui/text";
 import { zimbabweLocations } from "@/data/onboarding";
+import { categoryConfig, type ServiceCategory } from "@/data/services";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
+
+// Service categories for quick selection
+const serviceCategories: { key: ServiceCategory; label: string; icon: string; color: string }[] = [
+    { key: "solar", label: "Solar", icon: "sunny", color: "#F59E0B" },
+    { key: "cctv", label: "CCTV", icon: "videocam", color: "#3B82F6" },
+    { key: "electrical", label: "Electrical", icon: "flash", color: "#EF4444" },
+    { key: "water", label: "Borehole", icon: "water", color: "#06B6D4" },
+    { key: "welding", label: "Welding", icon: "construct", color: "#6B7280" },
+];
 
 interface Service {
     id: string;
@@ -38,6 +49,8 @@ export default function NewQuoteScreen() {
     const [services, setServices] = useState<Service[]>([]);
     const [showServicePicker, setShowServicePicker] = useState(false);
     const [showLocationPicker, setShowLocationPicker] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
+    const [serviceSearchQuery, setServiceSearchQuery] = useState("");
     const [formData, setFormData] = useState({
         serviceId: "",
         serviceName: "",
@@ -62,6 +75,49 @@ export default function NewQuoteScreen() {
         } finally {
             setFetchingServices(false);
         }
+    };
+
+    // Filter services based on category and search
+    const filteredServices = useMemo(() => {
+        let result = services;
+
+        // Filter by category if selected
+        if (selectedCategory) {
+            result = result.filter((s) => s.category === selectedCategory);
+        }
+
+        // Filter by search query
+        if (serviceSearchQuery.trim()) {
+            const query = serviceSearchQuery.toLowerCase();
+            result = result.filter(
+                (s) =>
+                    s.name.toLowerCase().includes(query) ||
+                    s.category.toLowerCase().includes(query)
+            );
+        }
+
+        return result;
+    }, [services, selectedCategory, serviceSearchQuery]);
+
+    // Handle category selection
+    const handleCategorySelect = (category: ServiceCategory) => {
+        if (selectedCategory === category) {
+            setSelectedCategory(null); // Deselect if same
+        } else {
+            setSelectedCategory(category);
+            setShowServicePicker(true); // Auto-open service picker
+        }
+    };
+
+    // Handle service selection
+    const handleServiceSelect = (service: Service) => {
+        setFormData({
+            ...formData,
+            serviceId: service.id,
+            serviceName: service.name,
+        });
+        setShowServicePicker(false);
+        setServiceSearchQuery("");
     };
 
     const handleSubmit = async () => {
@@ -194,6 +250,55 @@ export default function NewQuoteScreen() {
                             </View>
                         ) : (
                             <>
+                                {/* Quick Category Selection */}
+                                <View className="mb-4">
+                                    <Text className="text-sm font-medium text-gray-700 mb-2">
+                                        Quick Select by Category
+                                    </Text>
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        style={{ marginHorizontal: -16, paddingHorizontal: 16 }}
+                                    >
+                                        {serviceCategories.map((cat) => {
+                                            const isActive = selectedCategory === cat.key;
+                                            return (
+                                                <Pressable
+                                                    key={cat.key}
+                                                    onPress={() => handleCategorySelect(cat.key)}
+                                                    style={{
+                                                        flexDirection: "row",
+                                                        alignItems: "center",
+                                                        paddingHorizontal: 14,
+                                                        paddingVertical: 10,
+                                                        borderRadius: 20,
+                                                        marginRight: 10,
+                                                        backgroundColor: isActive ? TROJAN_NAVY : "white",
+                                                        borderWidth: 1,
+                                                        borderColor: isActive ? TROJAN_NAVY : "#E5E7EB",
+                                                    }}
+                                                >
+                                                    <Ionicons
+                                                        name={cat.icon as any}
+                                                        size={16}
+                                                        color={isActive ? "white" : cat.color}
+                                                        style={{ marginRight: 6 }}
+                                                    />
+                                                    <Text
+                                                        style={{
+                                                            color: isActive ? "white" : "#374151",
+                                                            fontWeight: "600",
+                                                            fontSize: 13,
+                                                        }}
+                                                    >
+                                                        {cat.label}
+                                                    </Text>
+                                                </Pressable>
+                                            );
+                                        })}
+                                    </ScrollView>
+                                </View>
+
                                 {/* Service Selection */}
                                 <View className="mb-4">
                                     <Text className="text-sm font-medium text-gray-700 mb-2">
@@ -211,59 +316,58 @@ export default function NewQuoteScreen() {
                                         <ChevronDown size={20} color="#6B7280" />
                                     </Pressable>
                                     {showServicePicker && (
-                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-80">
-                                            <ScrollView nestedScrollEnabled>
-                                                {services.length > 0 ? (
-                                                    Object.entries(groupedServices).length > 0 ? (
-                                                        Object.entries(groupedServices).map(([category, categoryServices]) => (
-                                                            <View key={category}>
-                                                                <View className="px-3 py-2 bg-gray-50 border-b border-gray-100">
-                                                                    <Text className="text-xs font-semibold text-gray-600 uppercase">
-                                                                        {category}
-                                                                    </Text>
-                                                                </View>
-                                                                {categoryServices.map((service) => (
-                                                                    <Pressable
-                                                                        key={service.id}
-                                                                        onPress={() => {
-                                                                            setFormData({
-                                                                                ...formData,
-                                                                                serviceId: service.id,
-                                                                                serviceName: service.name,
-                                                                            });
-                                                                            setShowServicePicker(false);
-                                                                        }}
-                                                                        className="p-3 border-b border-gray-100"
-                                                                    >
-                                                                        <Text className="text-gray-900">{service.name}</Text>
-                                                                    </Pressable>
-                                                                ))}
-                                                            </View>
-                                                        ))
-                                                    ) : (
-                                                        // Fallback flat list if grouping doesn't work
-                                                        services.map((service) => (
-                                                            <Pressable
-                                                                key={service.id}
-                                                                onPress={() => {
-                                                                    setFormData({
-                                                                        ...formData,
-                                                                        serviceId: service.id,
-                                                                        serviceName: service.name,
-                                                                    });
-                                                                    setShowServicePicker(false);
-                                                                }}
-                                                                className="p-3 border-b border-gray-100 flex-row items-center justify-between"
-                                                            >
-                                                                <View>
-                                                                    <Text className="text-gray-900 font-medium">{service.name}</Text>\n                                                                <Text className="text-gray-500 text-xs mt-1">{service.category}</Text>
-                                                                </View>
-                                                            </Pressable>
-                                                        ))
-                                                    )
+                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-96">
+                                            {/* Search Input */}
+                                            <View className="p-2 border-b border-gray-100">
+                                                <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-2">
+                                                    <Search size={18} color="#6B7280" />
+                                                    <TextInput
+                                                        placeholder="Search services..."
+                                                        placeholderTextColor="#9CA3AF"
+                                                        value={serviceSearchQuery}
+                                                        onChangeText={setServiceSearchQuery}
+                                                        className="flex-1 ml-2 text-gray-900"
+                                                        autoFocus
+                                                    />
+                                                    {serviceSearchQuery.length > 0 && (
+                                                        <Pressable onPress={() => setServiceSearchQuery("")}>
+                                                            <X size={18} color="#6B7280" />
+                                                        </Pressable>
+                                                    )}
+                                                </View>
+                                                {selectedCategory && (
+                                                    <View className="flex-row items-center mt-2">
+                                                        <Text className="text-xs text-gray-500">
+                                                            Filtered by: {categoryConfig[selectedCategory].label}
+                                                        </Text>
+                                                        <Pressable
+                                                            onPress={() => setSelectedCategory(null)}
+                                                            className="ml-2"
+                                                        >
+                                                            <Text className="text-xs text-blue-500">Clear</Text>
+                                                        </Pressable>
+                                                    </View>
+                                                )}
+                                            </View>
+                                            <ScrollView nestedScrollEnabled style={{ maxHeight: 280 }}>
+                                                {filteredServices.length > 0 ? (
+                                                    filteredServices.map((service) => (
+                                                        <Pressable
+                                                            key={service.id}
+                                                            onPress={() => handleServiceSelect(service)}
+                                                            className="p-3 border-b border-gray-100"
+                                                        >
+                                                            <Text className="text-gray-900 font-medium">{service.name}</Text>
+                                                            <Text className="text-gray-500 text-xs mt-0.5">{service.category}</Text>
+                                                        </Pressable>
+                                                    ))
                                                 ) : (
                                                     <View className="p-4 items-center">
-                                                        <Text className="text-gray-500">No services available</Text>
+                                                        <Text className="text-gray-500">
+                                                            {serviceSearchQuery
+                                                                ? `No services match "${serviceSearchQuery}"`
+                                                                : "No services available"}
+                                                        </Text>
                                                     </View>
                                                 )}
                                             </ScrollView>

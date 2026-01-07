@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, Search, X } from "lucide-react";
+import Link from "next/link";
+import { Bell, Menu, Search, X, Plus, FolderPlus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -65,6 +66,48 @@ export function AppHeader({ onToggleSidebar, sidebarCollapsed }: AppHeaderProps)
 
             {/* Right side */}
             <div className="flex items-center gap-2 ml-auto">
+                {/* New Project / New Quote Buttons */}
+                <div className="hidden sm:flex items-center gap-2">
+                    <Link
+                        href="/projects/new"
+                        className="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-sm font-medium border border-gray-200 rounded-md bg-white hover:bg-gray-50 transition-colors"
+                    >
+                        <FolderPlus size={16} />
+                        <span className="hidden md:inline">New Project</span>
+                    </Link>
+                    <Link
+                        href="/quotes/new"
+                        className="inline-flex items-center justify-center gap-1.5 h-8 px-3 text-sm font-medium rounded-md transition-colors"
+                        style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
+                    >
+                        <FileText size={16} />
+                        <span className="hidden md:inline">New Quote</span>
+                    </Link>
+                </div>
+
+                {/* Mobile: Dropdown for actions */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="sm:hidden inline-flex items-center justify-center h-9 w-9 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                        <Plus size={18} />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                            <Link href="/projects/new" className="flex items-center gap-2 w-full">
+                                <FolderPlus size={16} />
+                                New Project
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Link href="/quotes/new" className="flex items-center gap-2 w-full">
+                                <FileText size={16} />
+                                New Quote
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
                 {/* Search */}
                 {showSearch ? (
                     <div className="flex items-center gap-2 animate-in slide-in-from-right">

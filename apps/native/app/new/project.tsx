@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
     View,
     Text,
@@ -13,7 +13,7 @@ import {
     StatusBar,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { ArrowLeft, ChevronDown, Lock } from "lucide-react-native";
+import { ArrowLeft, ChevronDown, Lock, Search, X } from "lucide-react-native";
 import { env } from "@trojan_projects_zw/env/native";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,8 @@ interface Service {
     name: string;
     slug: string;
     category: string;
+    price: number;
+    priceFormatted?: string;
 }
 
 export default function NewProjectScreen() {
@@ -38,6 +40,7 @@ export default function NewProjectScreen() {
     const [services, setServices] = useState<Service[]>([]);
     const [showServicePicker, setShowServicePicker] = useState(false);
     const [showLocationPicker, setShowLocationPicker] = useState(false);
+    const [serviceSearchQuery, setServiceSearchQuery] = useState("");
     const [formData, setFormData] = useState({
         serviceId: "",
         serviceName: "",
@@ -64,6 +67,29 @@ export default function NewProjectScreen() {
         } finally {
             setFetchingServices(false);
         }
+    };
+
+    // Filter services based on search query
+    const filteredServices = useMemo(() => {
+        if (!serviceSearchQuery.trim()) return services;
+        const query = serviceSearchQuery.toLowerCase();
+        return services.filter(
+            (s) =>
+                s.name.toLowerCase().includes(query) ||
+                s.category.toLowerCase().includes(query)
+        );
+    }, [services, serviceSearchQuery]);
+
+    // Handle service selection - auto-fill price
+    const handleServiceSelect = (service: Service) => {
+        setFormData({
+            ...formData,
+            serviceId: service.id,
+            serviceName: service.name,
+            price: service.price ? service.price.toString() : "",
+        });
+        setShowServicePicker(false);
+        setServiceSearchQuery("");
     };
 
     const handleSubmit = async () => {
@@ -102,7 +128,7 @@ export default function NewProjectScreen() {
             const data = await response.json();
             if (response.ok) {
                 Alert.alert("Success", "Project created successfully!", [
-                    { text: "OK", onPress: () => router.replace("/(drawer)/") },
+                    { text: "OK", onPress: () => router.replace("/") },
                 ]);
             } else {
                 Alert.alert("Error", data.error || "Failed to create project");
@@ -213,29 +239,59 @@ export default function NewProjectScreen() {
                                         <ChevronDown size={20} color="#6B7280" />
                                     </Pressable>
                                     {showServicePicker && services.length > 0 && (
-                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-80">
-                                            <ScrollView nestedScrollEnabled>
-                                                {services.map((service) => (
-                                                    <Pressable
-                                                        key={service.id}
-                                                        onPress={() => {
-                                                            setFormData({
-                                                                ...formData,
-                                                                serviceId: service.id,
-                                                                serviceName: service.name,
-                                                            });
-                                                            setShowServicePicker(false);
-                                                        }}
-                                                        className="p-3 border-b border-gray-100"
-                                                    >
-                                                        <Text className="text-gray-900 font-medium">
-                                                            {service.name}
+                                        <View className="border border-gray-200 rounded-lg mt-2 bg-white max-h-96">
+                                            {/* Search Input */}
+                                            <View className="p-2 border-b border-gray-100">
+                                                <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-2">
+                                                    <Search size={18} color="#6B7280" />
+                                                    <TextInput
+                                                        placeholder="Search services..."
+                                                        placeholderTextColor="#9CA3AF"
+                                                        value={serviceSearchQuery}
+                                                        onChangeText={setServiceSearchQuery}
+                                                        className="flex-1 ml-2 text-gray-900"
+                                                        autoFocus
+                                                    />
+                                                    {serviceSearchQuery.length > 0 && (
+                                                        <Pressable onPress={() => setServiceSearchQuery("")}>
+                                                            <X size={18} color="#6B7280" />
+                                                        </Pressable>
+                                                    )}
+                                                </View>
+                                            </View>
+                                            <ScrollView nestedScrollEnabled style={{ maxHeight: 280 }}>
+                                                {filteredServices.length > 0 ? (
+                                                    filteredServices.map((service) => (
+                                                        <Pressable
+                                                            key={service.id}
+                                                            onPress={() => handleServiceSelect(service)}
+                                                            className="p-3 border-b border-gray-100"
+                                                        >
+                                                            <View className="flex-row items-center justify-between">
+                                                                <View className="flex-1">
+                                                                    <Text className="text-gray-900 font-medium">
+                                                                        {service.name}
+                                                                    </Text>
+                                                                    <Text className="text-sm text-gray-500 mt-0.5">
+                                                                        {service.category}
+                                                                    </Text>
+                                                                </View>
+                                                                <Text
+                                                                    className="font-semibold ml-2"
+                                                                    style={{ color: TROJAN_NAVY }}
+                                                                >
+                                                                    ${service.price?.toLocaleString() || "0"}
+                                                                </Text>
+                                                            </View>
+                                                        </Pressable>
+                                                    ))
+                                                ) : (
+                                                    <View className="p-4 items-center">
+                                                        <Text className="text-gray-500">
+                                                            No services match "{serviceSearchQuery}"
                                                         </Text>
-                                                        <Text className="text-sm text-gray-500 mt-0.5">
-                                                            {service.category}
-                                                        </Text>
-                                                    </Pressable>
-                                                ))}
+                                                    </View>
+                                                )}
                                             </ScrollView>
                                         </View>
                                     )}
@@ -295,7 +351,7 @@ export default function NewProjectScreen() {
                                 {/* Project Price */}
                                 <View className="mb-4">
                                     <Text className="text-sm font-medium text-gray-700 mb-2">
-                                        Project Price (Optional)
+                                        Project Price {formData.serviceId ? "(Auto-filled from service)" : "(Optional)"}
                                     </Text>
                                     <TextInput
                                         className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
@@ -306,7 +362,9 @@ export default function NewProjectScreen() {
                                         onChangeText={(text) => setFormData({ ...formData, price: text })}
                                     />
                                     <Text className="text-xs text-gray-500 mt-1">
-                                        Agreed upon price in USD
+                                        {formData.serviceId
+                                            ? "Price auto-filled from selected service. You can adjust if needed."
+                                            : "Agreed upon price in USD"}
                                     </Text>
                                 </View>
 

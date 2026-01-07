@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, Plus, AlertCircle, Settings } from "lucide-react";
+import { Sun, Camera, Zap, Droplets, Wrench, Search, ArrowRight, AlertCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/site-header";
@@ -318,16 +318,6 @@ export default function HomePage() {
       <FAQSection />
 
       <SiteFooter />
-
-      {/* Floating Action Button for New Project Request */}
-      <Link
-        href="/catalog/new"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-6 py-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
-        style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}
-      >
-        <Plus size={20} />
-        <span className="font-semibold hidden sm:inline">New Project</span>
-      </Link>
     </div>
   );
 }
