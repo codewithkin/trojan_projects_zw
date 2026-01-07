@@ -1,5 +1,6 @@
 import { env } from "@trojan_projects_zw/env/server";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { db } from "@trojan_projects_zw/db";
 
@@ -19,28 +20,8 @@ import { notifyNewMessage } from "./lib/notifications";
 
 const app = new Hono();
 
-// CORS middleware - must be first
-app.use("/*", async (c, next) => {
-  // Handle preflight OPTIONS requests
-  if (c.req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, Cookie",
-        "Access-Control-Max-Age": "86400",
-      },
-    });
-  }
-  
-  await next();
-  
-  // Add CORS headers to all responses
-  c.res.headers.set("Access-Control-Allow-Origin", "*");
-  c.res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-  c.res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
-});
+// CORS middleware - allow access from anywhere
+app.use("/*", cors({ origin: "*" }));
 
 app.use(logger());
 

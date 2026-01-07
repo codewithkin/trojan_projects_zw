@@ -20,9 +20,7 @@
       "package": "com.trojanprojects.staff",
       "versionCode": 1
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "extra": {
       "eas": {
         "projectId": "7d0c9d85-7e5f-4189-ab9e-70cad3f33afb"
