@@ -123,11 +123,6 @@ export default function AIChatPage() {
         textareaRef.current?.focus();
     }, []);
 
-    // Don't render if not authorized
-    if (isCheckingAuth || !isAuthorized) {
-        return null;
-    }
-
     const copyToClipboard = async (text: string, id: string) => {
         try {
             await navigator.clipboard.writeText(text);
@@ -310,6 +305,11 @@ export default function AIChatPage() {
 
     // Get message count for stats display
     const messageCount = messages.filter(m => m.role === "user").length;
+
+    // Don't render if not authorized
+    if (isCheckingAuth || !isAuthorized) {
+        return null;
+    }
 
     return (
         <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">

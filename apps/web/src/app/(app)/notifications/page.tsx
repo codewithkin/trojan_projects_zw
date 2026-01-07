@@ -57,7 +57,7 @@ interface Notification {
     type: NotificationType;
     title: string;
     message: string;
-    data: Record<string, unknown> | null;
+    metadata: Record<string, unknown> | null;
     read: boolean;
     createdAt: string;
 }

@@ -119,15 +119,6 @@ export default function AdminProjectsPage() {
         }
     }, [isLoading, isAuthorized]);
 
-    // Don't render if not authorized
-    if (isLoading || !isAuthorized) {
-        return null;
-    }
-
-    useEffect(() => {
-        fetchProjects();
-    }, []);
-
     const filteredProjects = activeTab === "all"
         ? projects
         : projects.filter((project) => project.status === activeTab);
@@ -170,6 +161,11 @@ export default function AdminProjectsPage() {
             categoryBreakdown,
         };
     }, [projects]);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
 
     const formatDate = (dateString: string | null) => {
         if (!dateString) return "-";

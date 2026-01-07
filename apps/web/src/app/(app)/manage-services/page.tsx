@@ -112,35 +112,6 @@ export default function ServicesPage() {
         }
     }, [isLoading, isAuthorized]);
 
-    // Don't render if not authorized
-    if (isLoading || !isAuthorized) {
-        return null;
-    }
-
-    const fetchServices = async () => {
-        setLoading(true);
-        try {
-            const token = localStorage.getItem("auth_token");
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services?limit=100`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setServices(data.services || []);
-            } else {
-                toast.error("Failed to fetch services");
-            }
-        } catch (error) {
-            console.error("Error fetching services:", error);
-            toast.error("Failed to fetch services");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const stats = useMemo(() => {
         const totalRevenue = services.reduce((sum, s) => sum + s.price, 0);
         const avgPrice = services.length > 0 ? totalRevenue / services.length : 0;
@@ -180,7 +151,7 @@ export default function ServicesPage() {
             }
         }
 
-        // Filter by search
+        // Filter by search query
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter(
@@ -193,6 +164,35 @@ export default function ServicesPage() {
 
         return filtered;
     }, [services, activeTab, searchQuery]);
+
+    // Don't render if not authorized
+    if (isLoading || !isAuthorized) {
+        return null;
+    }
+
+    const fetchServices = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("auth_token");
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services?limit=100`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setServices(data.services || []);
+            } else {
+                toast.error("Failed to fetch services");
+            }
+        } catch (error) {
+            console.error("Error fetching services:", error);
+            toast.error("Failed to fetch services");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleDelete = async () => {
         if (!deleteDialog.service) return;
