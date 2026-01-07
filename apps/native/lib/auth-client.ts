@@ -173,6 +173,19 @@ export async function resetPassword(data: {
 }
 
 /**
+ * Change password (for authenticated users)
+ */
+export async function changePassword(data: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<AuthResponse> {
+  return authFetch<AuthResponse>("/api/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+/**
  * Verify email with code
  */
 export async function verifyEmail(code: string): Promise<AuthResponse> {
