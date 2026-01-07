@@ -123,7 +123,7 @@ function SignIn() {
                   >
                     Password
                   </Text>
-                  <Pressable>
+                  <Pressable onPress={() => router.push("/forgot-password")}>
                     <Text style={{ color: TROJAN_NAVY, fontSize: isTablet ? 13 : 12 }}>
                       Forgot password?
                     </Text>
