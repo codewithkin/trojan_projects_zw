@@ -10,6 +10,7 @@ import {
     Image,
     StatusBar,
     useWindowDimensions,
+    Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Sun, Shield, Zap } from "lucide-react-native";
@@ -259,7 +260,10 @@ export default function LoginScreen() {
                                 >
                                     Password
                                 </Text>
-                                <Pressable onPress={() => router.push("/forgot-password")}>
+                                <Pressable onPress={() => {
+                                    // TODO: Implement forgot password
+                                    Alert.alert("Coming Soon", "Password reset feature will be available soon.");
+                                }}>
                                     <Text style={{ fontSize: isTablet ? 14 : 13, color: TROJAN_NAVY }}>
                                         Forgot password?
                                     </Text>
