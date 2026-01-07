@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
 import { authMiddleware } from "../lib/auth/middleware";
+import { notifyQuoteCreated, notifyQuoteApproved, notifyQuoteRejected } from "../lib/notifications";
 
 const quotesRoute = new Hono()
   // GET /api/quotes - Get user's quotes
@@ -126,6 +127,18 @@ const quotesRoute = new Hono()
         },
       });
 
+      // Create notification for admin dashboard
+      try {
+        await notifyQuoteCreated({
+          id: quote.id,
+          service: { name: quote.service.name },
+          user: { name: user.name },
+          location: quote.location,
+        });
+      } catch (notifyError) {
+        console.error("Failed to create notification:", notifyError);
+      }
+
       return c.json({ 
         quote: {
           id: quote.id,
@@ -200,8 +213,36 @@ const quotesRoute = new Hono()
               slug: true,
             },
           },
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       });
+
+      // Create notification for status change
+      if (status === "approved" || status === "rejected") {
+        try {
+          if (status === "approved") {
+            await notifyQuoteApproved({
+              id: updatedQuote.id,
+              service: { name: updatedQuote.service.name },
+              user: { name: updatedQuote.user.name },
+              estimatedPrice: updatedQuote.estimatedPrice ? Number(updatedQuote.estimatedPrice) : null,
+            });
+          } else {
+            await notifyQuoteRejected({
+              id: updatedQuote.id,
+              service: { name: updatedQuote.service.name },
+              user: { name: updatedQuote.user.name },
+            });
+          }
+        } catch (notifyError) {
+          console.error("Failed to create notification:", notifyError);
+        }
+      }
 
       return c.json({ 
         quote: updatedQuote,

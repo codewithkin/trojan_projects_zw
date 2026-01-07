@@ -1,6 +1,12 @@
 import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
 import { authMiddleware } from "../lib/auth/middleware";
+import { 
+  notifyProjectCreated, 
+  notifyProjectAccepted, 
+  notifyProjectStatusUpdate, 
+  notifyProjectCompleted 
+} from "../lib/notifications";
 
 const projectsRoute = new Hono()
   // POST /api/projects - Create a new project
@@ -61,6 +67,17 @@ const projectsRoute = new Hono()
           },
         },
       });
+
+      // Create notification for admin dashboard
+      try {
+        await notifyProjectCreated({
+          id: project.id,
+          service: { name: project.service.name },
+          user: { name: project.user.name },
+        });
+      } catch (notifyError) {
+        console.error("Failed to create notification:", notifyError);
+      }
 
       return c.json(
         {
@@ -333,7 +350,47 @@ const projectsRoute = new Hono()
       const updatedProject = await db.project.update({
         where: { id: projectId },
         data: updateData,
+        include: {
+          service: {
+            select: { name: true },
+          },
+          user: {
+            select: { name: true },
+          },
+        },
       });
+
+      // Create notification for status update
+      if (status) {
+        try {
+          if (status === "completed") {
+            await notifyProjectCompleted({
+              id: updatedProject.id,
+              service: { name: updatedProject.service.name },
+              user: { name: updatedProject.user.name },
+              finalPrice: updatedProject.finalPrice ? Number(updatedProject.finalPrice) : null,
+            });
+          } else if (status === "starting") {
+            // "starting" means staff accepted the project
+            await notifyProjectAccepted(
+              {
+                id: updatedProject.id,
+                service: { name: updatedProject.service.name },
+                user: { name: updatedProject.user.name },
+              },
+              user.name
+            );
+          } else {
+            await notifyProjectStatusUpdate({
+              id: updatedProject.id,
+              service: { name: updatedProject.service.name },
+              status,
+            });
+          }
+        } catch (notifyError) {
+          console.error("Failed to create notification:", notifyError);
+        }
+      }
 
       // Status messages
       const statusMessages: Record<string, string> = {
