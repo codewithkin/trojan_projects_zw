@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
 import { authMiddleware } from "../lib/auth/middleware";
 import { notifyQuoteCreated, notifyQuoteApproved, notifyQuoteRejected } from "../lib/notifications";
+import { pushNewQuote } from "../lib/push-notifications";
 
 const quotesRoute = new Hono()
   // GET /api/quotes - Get user's quotes
@@ -135,6 +136,14 @@ const quotesRoute = new Hono()
           user: { name: user.name },
           location: quote.location,
         });
+        
+        // Send push notification to all staff
+        await pushNewQuote(
+          quote.id,
+          quote.service.name,
+          user.name,
+          quote.location
+        );
       } catch (notifyError) {
         console.error("Failed to create notification:", notifyError);
       }

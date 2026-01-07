@@ -7,6 +7,7 @@ import {
   notifyProjectStatusUpdate, 
   notifyProjectCompleted 
 } from "../lib/notifications";
+import { pushNewProject } from "../lib/push-notifications";
 
 const projectsRoute = new Hono()
   // POST /api/projects - Create a new project
@@ -75,6 +76,13 @@ const projectsRoute = new Hono()
           service: { name: project.service.name },
           user: { name: project.user.name },
         });
+        
+        // Send push notification to all staff
+        await pushNewProject(
+          project.id,
+          project.service.name,
+          project.user.name
+        );
       } catch (notifyError) {
         console.error("Failed to create notification:", notifyError);
       }
