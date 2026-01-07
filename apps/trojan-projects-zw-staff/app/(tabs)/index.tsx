@@ -1,52 +1,99 @@
-import { useState, useMemo } from "react";
-import { ScrollView, View, TextInput, Pressable, SafeAreaView, StatusBar, Platform, Dimensions, useWindowDimensions, ActivityIndicator } from "react-native";
+﻿import { useState } from "react";
+import { ScrollView, View, SafeAreaView, StatusBar, Platform, useWindowDimensions, Pressable, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { BarChart3, Users, FolderKanban, FileText, TrendingUp, Clock, CheckCircle, AlertCircle } from "lucide-react-native";
 import { Text } from "@/components/ui/text";
-import { ServiceCard } from "@/components/service-card";
-import { StatsSection } from "@/components/stats-section";
-import { ServicesGridSkeleton, ServicesListSkeleton } from "@/components/skeletons";
-import { FABGroup } from "@/components/fab-group";
-import { useServices } from "@/hooks/use-services";
-import { categoryConfig, type ServiceCategory } from "@/data/services";
+import { useAuth } from "@/contexts/auth-context";
+import { hasAdminAccess, hasFullAdminAccess, getEffectiveRole } from "@/config/admins";
 
 const TROJAN_NAVY = "#0F1B4D";
 const TROJAN_GOLD = "#FFC107";
 
-const categories: (ServiceCategory | "all")[] = ["all", "solar", "cctv", "electrical", "water", "welding"];
+interface StatCard {
+  title: string;
+  value: string | number;
+  icon: any;
+  color: string;
+  trend?: string;
+}
 
 export default function Home() {
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { user } = useAuth();
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch services from API
-  const { data: services, isLoading, isError, error, refetch } = useServices();
-
-  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | "all">("all");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Responsive breakpoints
   const isTablet = width >= 768;
   const isLargeTablet = width >= 1024;
   const contentPadding = isTablet ? 24 : 16;
-  const gridColumns = isLargeTablet ? 3 : isTablet ? 2 : 1;
 
-  const filteredServices = useMemo(() => {
-    if (!services) return [];
-    return services.filter((service) => {
-      const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
-      const matchesSearch =
-        service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        service.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [services, selectedCategory, searchQuery]);
+  const effectiveRole = getEffectiveRole(user);
+  const isAdmin = hasFullAdminAccess(user);
+  const canManage = hasAdminAccess(user);
 
-  const featuredServices = useMemo(() => services?.filter((s) => s.featured) || [], [services]);
-
-  const handleServicePress = (serviceSlug: string) => {
-    router.push(`/service/${serviceSlug}`);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setRefreshing(false);
   };
+
+  // Role-based stats
+  const getStatsForRole = (): StatCard[] => {
+    if (isAdmin) {
+      return [
+        { title: "Active Projects", value: 23, icon: FolderKanban, color: "#3B82F6", trend: "+12%" },
+        { title: "Pending Quotes", value: 8, icon: FileText, color: "#F59E0B", trend: "+3" },
+        { title: "Total Staff", value: 15, icon: Users, color: "#10B981" },
+        { title: "Revenue (Month)", value: "$45.2K", icon: TrendingUp, color: "#8B5CF6", trend: "+18%" },
+      ];
+    } else if (effectiveRole === "staff") {
+      return [
+        { title: "Assigned Projects", value: 5, icon: FolderKanban, color: "#3B82F6" },
+        { title: "In Progress", value: 3, icon: Clock, color: "#F59E0B" },
+        { title: "Completed Today", value: 2, icon: CheckCircle, color: "#10B981" },
+        { title: "Pending Tasks", value: 7, icon: AlertCircle, color: "#EF4444" },
+      ];
+    } else {
+      // Support role
+      return [
+        { title: "Active Inquiries", value: 12, icon: FileText, color: "#3B82F6" },
+        { title: "Quotes Sent", value: 18, icon: CheckCircle, color: "#10B981" },
+        { title: "Pending Followups", value: 5, icon: Clock, color: "#F59E0B" },
+        { title: "Customer Calls", value: 24, icon: Users, color: "#8B5CF6" },
+      ];
+    }
+  };
+
+  const stats = getStatsForRole();
+
+  // Quick actions based on role
+  const getQuickActions = () => {
+    if (isAdmin) {
+      return [
+        { title: "View Analytics", icon: BarChart3, route: "/analytics", color: "#3B82F6" },
+        { title: "Manage Staff", icon: Users, route: "/staff", color: "#10B981" },
+        { title: "All Projects", icon: FolderKanban, route: "/projects", color: "#F59E0B" },
+        { title: "All Quotations", icon: FileText, route: "/quotes", color: "#8B5CF6" },
+      ];
+    } else if (effectiveRole === "staff") {
+      return [
+        { title: "My Projects", icon: FolderKanban, route: "/projects", color: "#3B82F6" },
+        { title: "Update Status", icon: Clock, route: "/projects", color: "#F59E0B" },
+        { title: "Upload Photos", icon: CheckCircle, route: "/projects", color: "#10B981" },
+        { title: "AI Chat Help", icon: AlertCircle, route: "/chat", color: "#8B5CF6" },
+      ];
+    } else {
+      return [
+        { title: "Create Quote", icon: FileText, route: "/quotes", color: "#3B82F6" },
+        { title: "View Inquiries", icon: Users, route: "/projects", color: "#10B981" },
+        { title: "AI Assistant", icon: AlertCircle, route: "/chat", color: "#F59E0B" },
+        { title: "My Quotations", icon: CheckCircle, route: "/quotes", color: "#8B5CF6" },
+      ];
+    }
+  };
+
+  const quickActions = getQuickActions();
 
   return (
     <SafeAreaView
@@ -56,296 +103,228 @@ export default function Home() {
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
       }}
     >
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        {/* Search Header */}
-        <View style={{ padding: contentPadding, backgroundColor: "#F9FAFB" }}>
-          {/* Search Bar */}
+      <ScrollView
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[TROJAN_GOLD]} />}
+      >
+        <View
+          style={{
+            padding: contentPadding,
+            maxWidth: isLargeTablet ? 1200 : undefined,
+            alignSelf: "center",
+            width: "100%",
+          }}
+        >
+          {/* Header */}
+          <View style={{ marginBottom: isTablet ? 32 : 24 }}>
+            <Text
+              style={{
+                fontSize: isTablet ? 32 : 24,
+                fontWeight: "700",
+                color: TROJAN_NAVY,
+                marginBottom: 8,
+              }}
+            >
+              Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}!
+            </Text>
+            <Text
+              style={{
+                fontSize: isTablet ? 16 : 14,
+                color: "#6B7280",
+              }}
+            >
+              {effectiveRole === "admin" && "You have full administrative access"}
+              {effectiveRole === "staff" && "Field Technician Dashboard"}
+              {effectiveRole === "support" && "Customer Support Dashboard"}
+            </Text>
+          </View>
+
+          {/* Stats Grid */}
           <View
             style={{
               flexDirection: "row",
-              alignItems: "center",
-              backgroundColor: "#D1D5DB", // gray-300
-              borderRadius: isTablet ? 24 : 20,
-              paddingHorizontal: isTablet ? 18 : 14,
-              height: isTablet ? 56 : 48,
-              maxWidth: isLargeTablet ? 800 : undefined,
-              alignSelf: "center",
-              width: "100%",
+              flexWrap: "wrap",
+              marginHorizontal: -8,
+              marginBottom: isTablet ? 32 : 24,
             }}
           >
-            <Ionicons name="search" size={isTablet ? 24 : 20} color="#6B7280" />
-            <TextInput
-              placeholder="Search services..."
-              placeholderTextColor="#6B7280"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              style={{
-                flex: 1,
-                marginLeft: 10,
-                fontSize: isTablet ? 17 : 15,
-                color: TROJAN_NAVY,
-              }}
-            />
-            {searchQuery.length > 0 && (
-              <Pressable onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={isTablet ? 24 : 20} color="#6B7280" />
-              </Pressable>
-            )}
-          </View>
-        </View>
-
-        <View style={{
-          padding: contentPadding,
-          maxWidth: isLargeTablet ? 1200 : undefined,
-          alignSelf: "center",
-          width: "100%",
-        }}>
-          {/* Category Pills */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={{ marginBottom: 20, marginHorizontal: -16, paddingHorizontal: 16 }}
-          >
-            {categories.map((cat) => {
-              const isActive = selectedCategory === cat;
-              const config = cat === "all" ? null : categoryConfig[cat];
+            {stats.map((stat, index) => {
+              const IconComponent = stat.icon;
               return (
-                <Pressable
-                  key={cat}
-                  onPress={() => setSelectedCategory(cat)}
+                <View
+                  key={index}
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    paddingHorizontal: 16,
-                    paddingVertical: 10,
-                    borderRadius: 20,
-                    marginRight: 10,
-                    backgroundColor: isActive ? TROJAN_NAVY : "white",
-                    borderWidth: 1,
-                    borderColor: isActive ? TROJAN_NAVY : "#E5E7EB",
+                    width: isLargeTablet ? "25%" : isTablet ? "50%" : "50%",
+                    padding: 8,
                   }}
                 >
-                  {config && (
-                    <Ionicons
-                      name={config.icon as any}
-                      size={16}
-                      color={isActive ? "white" : config.color}
-                      style={{ marginRight: 6 }}
-                    />
-                  )}
-                  <Text
+                  <View
                     style={{
-                      color: isActive ? "white" : "#374151",
-                      fontWeight: "600",
-                      fontSize: 13,
+                      backgroundColor: "white",
+                      borderRadius: isTablet ? 16 : 12,
+                      padding: isTablet ? 20 : 16,
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.05,
+                      shadowRadius: 8,
+                      elevation: 2,
                     }}
                   >
-                    {cat === "all" ? "All Services" : config?.label}
-                  </Text>
-                </Pressable>
+                    <View
+                      style={{
+                        backgroundColor: `${stat.color}15`,
+                        width: isTablet ? 48 : 40,
+                        height: isTablet ? 48 : 40,
+                        borderRadius: isTablet ? 12 : 10,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginBottom: 12,
+                      }}
+                    >
+                      <IconComponent size={isTablet ? 24 : 20} color={stat.color} strokeWidth={2} />
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: isTablet ? 28 : 24,
+                        fontWeight: "700",
+                        color: TROJAN_NAVY,
+                        marginBottom: 4,
+                      }}
+                    >
+                      {stat.value}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: isTablet ? 14 : 12,
+                        color: "#6B7280",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {stat.title}
+                    </Text>
+                    {stat.trend && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: "#10B981",
+                          fontWeight: "600",
+                          marginTop: 4,
+                        }}
+                      >
+                        {stat.trend}
+                      </Text>
+                    )}
+                  </View>
+                </View>
               );
             })}
-          </ScrollView>
-
-          {/* Featured Section (only when "all" is selected) */}
-          {selectedCategory === "all" && searchQuery === "" && !isLoading && !isError && featuredServices.length > 0 && (
-            <View style={{ marginBottom: 20 }}>
-              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
-                <View
-                  style={{
-                    width: 6,
-                    height: isTablet ? 24 : 20,
-                    backgroundColor: TROJAN_GOLD,
-                    borderRadius: 3,
-                    marginRight: 8,
-                  }}
-                />
-                <Text style={{ fontSize: isTablet ? 22 : 18, fontWeight: "700", color: TROJAN_NAVY }}>
-                  Featured Services
-                </Text>
-              </View>
-              <View style={{
-                flexDirection: isTablet ? "row" : "column",
-                flexWrap: "wrap",
-                gap: isTablet ? 16 : 12,
-              }}>
-                {featuredServices.map((service) => (
-                  <View key={service.id} style={{
-                    width: isTablet ? `${100 / gridColumns - 2}%` : "100%",
-                  }}>
-                    <ServiceCard
-                      service={service}
-                      onPress={() => handleServicePress(service.slug)}
-                    />
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* All Services Section */}
-          <View>
-            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 12 }}>
-              <View
-                style={{
-                  width: 6,
-                  height: isTablet ? 24 : 20,
-                  backgroundColor: TROJAN_GOLD,
-                  borderRadius: 3,
-                  marginRight: 8,
-                }}
-              />
-              <Text style={{ fontSize: isTablet ? 22 : 18, fontWeight: "700", color: TROJAN_NAVY }}>
-                {selectedCategory === "all"
-                  ? (searchQuery ? "Search Results" : "All Services")
-                  : categoryConfig[selectedCategory].label
-                }
-              </Text>
-              {!isLoading && !isError && (
-                <Text style={{ marginLeft: 8, color: "#9CA3AF", fontSize: isTablet ? 16 : 14 }}>
-                  ({filteredServices.length})
-                </Text>
-              )}
-            </View>
-
-            {/* Loading State */}
-            {isLoading && (
-              <View>
-                {isTablet ? (
-                  <ServicesGridSkeleton count={4} />
-                ) : (
-                  <ServicesListSkeleton count={4} />
-                )}
-              </View>
-            )}
-
-            {/* Error State */}
-            {isError && (
-              <View style={{
-                alignItems: "center",
-                paddingVertical: isTablet ? 60 : 40,
-                backgroundColor: "white",
-                borderRadius: 16
-              }}>
-                <Ionicons name="warning-outline" size={isTablet ? 64 : 48} color="#EF4444" />
-                <Text style={{ fontSize: isTablet ? 20 : 16, fontWeight: "600", color: TROJAN_NAVY, marginTop: 12 }}>
-                  Failed to load services
-                </Text>
-                <Text style={{ fontSize: isTablet ? 16 : 14, color: "#9CA3AF", marginTop: 4, textAlign: "center" }}>
-                  {error?.message || "An error occurred"}
-                </Text>
-                <Pressable
-                  onPress={refetch}
-                  style={{
-                    marginTop: 16,
-                    backgroundColor: TROJAN_GOLD,
-                    paddingHorizontal: isTablet ? 28 : 20,
-                    paddingVertical: isTablet ? 14 : 10,
-                    borderRadius: 20,
-                  }}
-                >
-                  <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: isTablet ? 16 : 14 }}>
-                    Try Again
-                  </Text>
-                </Pressable>
-              </View>
-            )}
-
-            {/* Services List */}
-            {!isLoading && !isError && filteredServices.length > 0 ? (
-              <View style={{
-                flexDirection: isTablet ? "row" : "column",
-                flexWrap: "wrap",
-                gap: isTablet ? 16 : 12,
-              }}>
-                {filteredServices.map((service) => (
-                  <View key={service.id} style={{
-                    width: isTablet ? `${100 / gridColumns - 2}%` : "100%",
-                  }}>
-                    <ServiceCard
-                      service={service}
-                      onPress={() => handleServicePress(service.slug)}
-                    />
-                  </View>
-                ))}
-              </View>
-            ) : !isLoading && !isError && (
-              <View style={{
-                alignItems: "center",
-                paddingVertical: isTablet ? 60 : 40,
-                backgroundColor: "white",
-                borderRadius: 16
-              }}>
-                <Ionicons name="search-outline" size={isTablet ? 64 : 48} color="#D1D5DB" />
-                <Text style={{ fontSize: isTablet ? 20 : 16, fontWeight: "600", color: TROJAN_NAVY, marginTop: 12 }}>
-                  No services found
-                </Text>
-                <Text style={{ fontSize: isTablet ? 16 : 14, color: "#9CA3AF", marginTop: 4, textAlign: "center" }}>
-                  Try adjusting your search or category filter
-                </Text>
-                <Pressable
-                  onPress={() => { setSearchQuery(""); setSelectedCategory("all"); }}
-                  style={{
-                    marginTop: 16,
-                    backgroundColor: TROJAN_GOLD,
-                    paddingHorizontal: isTablet ? 28 : 20,
-                    paddingVertical: isTablet ? 14 : 10,
-                    borderRadius: 20,
-                  }}
-                >
-                  <Text style={{ color: TROJAN_NAVY, fontWeight: "600", fontSize: isTablet ? 16 : 14 }}>
-                    Clear Filters
-                  </Text>
-                </Pressable>
-              </View>
-            )}
           </View>
 
-          {/* CTA Section */}
-          <View
-            style={{
-              marginTop: 24,
-              marginBottom: 32,
-              padding: isTablet ? 28 : 20,
-              backgroundColor: TROJAN_NAVY,
-              borderRadius: isTablet ? 24 : 20,
-              flexDirection: isLargeTablet ? "row" : "column",
-              alignItems: isLargeTablet ? "center" : "stretch",
-              justifyContent: isLargeTablet ? "space-between" : "flex-start",
-            }}
-          >
-            <View style={{ flex: isLargeTablet ? 1 : undefined, marginBottom: isLargeTablet ? 0 : 16 }}>
-              <Text style={{ color: "white", fontSize: isTablet ? 22 : 18, fontWeight: "700" }}>
-                Need a Custom Quote?
-              </Text>
-              <Text style={{ color: "rgba(255,255,255,0.7)", fontSize: isTablet ? 16 : 14, marginTop: 4 }}>
-                Contact us for personalized solutions tailored to your needs.
-              </Text>
-            </View>
-            <Pressable
-              onPress={() => router.push("/quotes")}
+          {/* Quick Actions */}
+          <View style={{ marginBottom: isTablet ? 32 : 24 }}>
+            <Text
               style={{
-                backgroundColor: TROJAN_GOLD,
-                paddingVertical: isTablet ? 16 : 12,
-                paddingHorizontal: isLargeTablet ? 32 : undefined,
-                borderRadius: 20,
-                alignItems: "center",
+                fontSize: isTablet ? 20 : 18,
+                fontWeight: "700",
+                color: TROJAN_NAVY,
+                marginBottom: isTablet ? 16 : 12,
               }}
             >
-              <Text style={{ color: TROJAN_NAVY, fontWeight: "700", fontSize: isTablet ? 17 : 15 }}>
-                Request Quote
-              </Text>
-            </Pressable>
+              Quick Actions
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                marginHorizontal: -8,
+              }}
+            >
+              {quickActions.map((action, index) => {
+                const IconComponent = action.icon;
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      width: isLargeTablet ? "25%" : isTablet ? "50%" : "50%",
+                      padding: 8,
+                    }}
+                  >
+                    <Pressable
+                      onPress={() => router.push(action.route as any)}
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: isTablet ? 16 : 12,
+                        padding: isTablet ? 20 : 16,
+                        alignItems: "center",
+                        shadowColor: "#000",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.05,
+                        shadowRadius: 8,
+                        elevation: 2,
+                      }}
+                    >
+                      <View
+                        style={{
+                          backgroundColor: `${action.color}15`,
+                          width: isTablet ? 56 : 48,
+                          height: isTablet ? 56 : 48,
+                          borderRadius: isTablet ? 14 : 12,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: 12,
+                        }}
+                      >
+                        <IconComponent size={isTablet ? 28 : 24} color={action.color} strokeWidth={2} />
+                      </View>
+                      <Text
+                        style={{
+                          fontSize: isTablet ? 14 : 13,
+                          fontWeight: "600",
+                          color: TROJAN_NAVY,
+                          textAlign: "center",
+                        }}
+                      >
+                        {action.title}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </View>
           </View>
 
-          {/* Stats Section */}
-          <StatsSection />
+          {/* Role Badge */}
+          <View
+            style={{
+              backgroundColor: TROJAN_GOLD,
+              borderRadius: isTablet ? 16 : 12,
+              padding: isTablet ? 20 : 16,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: isTablet ? 16 : 14,
+                fontWeight: "700",
+                color: TROJAN_NAVY,
+              }}
+            >
+              Your Role: {effectiveRole.toUpperCase()}
+            </Text>
+            <Text
+              style={{
+                fontSize: isTablet ? 14 : 12,
+                color: TROJAN_NAVY,
+                marginTop: 4,
+                textAlign: "center",
+              }}
+            >
+              {canManage ? "You have access to manage operations" : "Standard access level"}
+            </Text>
+          </View>
         </View>
       </ScrollView>
-
-      {/* FAB Group */}
-      <FABGroup />
     </SafeAreaView>
   );
 }
-
