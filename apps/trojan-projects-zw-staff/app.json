@@ -1,13 +1,13 @@
 {
   "expo": {
-    "scheme": "trojan_projects_zw",
+    "scheme": "trojan_projects_staff",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
       "bundler": "metro"
     },
-    "name": "trojan_projects_zw",
-    "slug": "trojan_projects_zw",
+    "name": "Trojan Projects Staff",
+    "slug": "trojan-projects-staff",
     "version": "1.0.0",
     "plugins": [
       "expo-font"
@@ -17,7 +17,7 @@
       "reactCompiler": true
     },
     "android": {
-      "package": "com.codewithkin.trojan_projects_zw",
+      "package": "com.trojanprojects.staff",
       "versionCode": 1
     },
     "extra": {
