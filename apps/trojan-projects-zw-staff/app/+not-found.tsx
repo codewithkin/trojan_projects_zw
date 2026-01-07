@@ -1,18 +1,32 @@
 import { Link, Stack } from 'expo-router';
-import { View } from 'react-native';
-import { Text } from '@/components/nativewindui/Text';
+
+  import { Text, View } from 'react-native';
+
+  import { Container } from '@/components/Container';
+
 
 export default function NotFoundScreen() {
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <View className='flex-1 items-center justify-center p-5 bg-background'>
-        <Text variant='largeTitle'>{"This screen doesn't exist."}</Text>
 
-        <Link href='/' className='m-4 py-4'>
-          <Text>Go to home screen!</Text>
-        </Link>
+  return (
+    
+      <View className={styles.container}>
+        <Stack.Screen options={{ title: "Oops!" }} />
+        <Container>
+          <Text className={styles.title}>{"This screen doesn't exist."}</Text>
+          <Link href="/" className={styles.link}>
+            <Text className={styles.linkText}>Go to home screen!</Text>
+          </Link>
+        </Container>
       </View>
-    </>
+    
   );
 }
+
+
+  const styles = {
+    container: `flex flex-1 bg-white`,
+    title: `text-xl font-bold`,
+    link: `mt-4 pt-4`,
+    linkText: `text-base text-[#2e78b7]`,
+	};
+

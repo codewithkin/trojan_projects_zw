@@ -12,24 +12,8 @@
       }
     },
     {
-      "name": "nativewindui",
-      "type": "styling",
-      "options": {
-        "selectedComponents": [
-          "action-sheet",
-          "activity-indicator",
-          "activity-view",
-          "avatar",
-          "button",
-          "date-picker",
-          "picker",
-          "progress-indicator",
-          "ratings-indicator",
-          "slider",
-          "text",
-          "toggle"
-        ]
-      }
+      "name": "nativewind",
+      "type": "styling"
     },
     {
       "name": "zustand",
