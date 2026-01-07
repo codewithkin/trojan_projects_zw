@@ -9,17 +9,14 @@ const quotesRoute = new Hono()
   .get("/", authMiddleware, async (c) => {
     const user = c.get("user");
 
-    if (!user) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
-
     const page = parseInt(c.req.query("page") || "1");
     const limit = parseInt(c.req.query("limit") || "10");
     const skip = (page - 1) * limit;
+    const userId = c.req.query("userId"); // Allow filtering by userId for non-authenticated requests
 
     try {
-      const isStaff = user.role === "staff" || user.role === "support";
-      const where = isStaff ? {} : { userId: user.id };
+      const isStaff = user && (user.role === "staff" || user.role === "support" || user.role === "admin");
+      const where = isStaff ? {} : user ? { userId: user.id } : userId ? { userId } : {};
       
       // Get total count
       const totalCount = await db.quote.count({ where });
@@ -89,13 +86,9 @@ const quotesRoute = new Hono()
   .post("/", authMiddleware, async (c) => {
     const user = c.get("user");
 
-    if (!user) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
-
     try {
       const body = await c.req.json();
-      const { serviceId, location, notes } = body;
+      const { serviceId, location, notes, userId } = body;
 
       if (!serviceId || !location) {
         return c.json({ error: "Service ID and location are required" }, 400);
@@ -113,7 +106,7 @@ const quotesRoute = new Hono()
       const quote = await db.quote.create({
         data: {
           serviceId,
-          userId: user.id,
+          userId: user?.id || userId,
           location,
           notes: notes || null,
         },
@@ -133,7 +126,7 @@ const quotesRoute = new Hono()
         await notifyQuoteCreated({
           id: quote.id,
           service: { name: quote.service.name },
-          user: { name: user.name },
+          user: { name: user?.name || "Guest" },
           location: quote.location,
         });
         
@@ -141,7 +134,7 @@ const quotesRoute = new Hono()
         await pushNewQuote(
           quote.id,
           quote.service.name,
-          user.name,
+          user?.name || "Guest",
           quote.location
         );
       } catch (notifyError) {

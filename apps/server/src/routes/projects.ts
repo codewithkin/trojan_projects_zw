@@ -14,13 +14,9 @@ const projectsRoute = new Hono()
   .post("/", authMiddleware, async (c) => {
     const user = c.get("user");
 
-    if (!user) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
-
     try {
       const body = await c.req.json();
-      const { serviceId, location, price, scheduledDate, notes } = body;
+      const { serviceId, location, price, scheduledDate, notes, userId } = body;
 
       if (!serviceId || !location) {
         return c.json(
@@ -42,7 +38,7 @@ const projectsRoute = new Hono()
       const project = await db.project.create({
         data: {
           serviceId,
-          userId: user.id,
+          userId: user?.id || userId,
           location,
           notes: notes || null,
           finalPrice: price ? price.toString() : null,
@@ -116,17 +112,14 @@ const projectsRoute = new Hono()
   .get("/", authMiddleware, async (c) => {
     const user = c.get("user");
 
-    if (!user) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
-
     const page = parseInt(c.req.query("page") || "1");
     const limit = parseInt(c.req.query("limit") || "10");
     const skip = (page - 1) * limit;
+    const userId = c.req.query("userId"); // Allow filtering by userId for non-authenticated requests
 
     try {
-      const isStaff = user.role === "staff" || user.role === "support";
-      const where = isStaff ? {} : { userId: user.id };
+      const isStaff = user && (user.role === "staff" || user.role === "support" || user.role === "admin");
+      const where = isStaff ? {} : user ? { userId: user.id } : userId ? { userId } : {};
       
       // Get total count
       const totalCount = await db.project.count({ where });
