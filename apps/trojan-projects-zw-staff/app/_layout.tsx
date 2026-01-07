@@ -1,19 +1,48 @@
+import "@/global.css";
+import { Stack } from "expo-router";
+import { HeroUINativeProvider } from "heroui-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
-  import '../global.css';
+import { AppThemeProvider } from "@/contexts/app-theme-context";
+import { AuthProvider } from "@/contexts/auth-context";
+import { ErrorBoundary } from "@/components/error-boundary";
 
+export const unstable_settings = {
+  initialRouteName: "splash",
+};
 
+export { ErrorBoundary };
 
-
-	import { Stack } from "expo-router";
-
-
+function StackLayout() {
+  return (
+    <Stack screenOptions={{}}>
+      <Stack.Screen name="splash" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="chat" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="signup" options={{ headerShown: false }} />
+      <Stack.Screen name="user-onboarding" options={{ headerShown: false }} />
+      <Stack.Screen name="new" options={{ headerShown: false }} />
+      <Stack.Screen name="service" options={{ headerShown: false }} />
+      <Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
+    </Stack>
+  );
+}
 
 export default function Layout() {
-  
-
-	return (
-    
-      <Stack />
-    
-	);
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardProvider>
+        <AppThemeProvider>
+          <AuthProvider>
+            <HeroUINativeProvider>
+              <StackLayout />
+            </HeroUINativeProvider>
+          </AuthProvider>
+        </AppThemeProvider>
+      </KeyboardProvider>
+    </GestureHandlerRootView>
+  );
 }
