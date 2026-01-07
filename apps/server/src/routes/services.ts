@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { db } from "@trojan_projects_zw/db";
 import { authMiddleware, requireAuth } from "../lib/auth/middleware";
+import { hasAdminAccess } from "../config/admins";
 
 const servicesRoute = new Hono()
   // GET /api/services - Get all services (public)
@@ -101,7 +102,7 @@ const servicesRoute = new Hono()
   .post("/", authMiddleware, async (c) => {
     const user = c.get("user");
     
-    if (!user || user.role !== "admin") {
+    if (!user || !hasAdminAccess(user)) {
       return c.json({ error: "Unauthorized - Admin only" }, 403);
     }
 
@@ -171,7 +172,7 @@ const servicesRoute = new Hono()
   .put("/:id", authMiddleware, async (c) => {
     const user = c.get("user");
     
-    if (!user || user.role !== "admin") {
+    if (!user || !hasAdminAccess(user)) {
       return c.json({ error: "Unauthorized - Admin only" }, 403);
     }
 
@@ -252,7 +253,7 @@ const servicesRoute = new Hono()
   .delete("/:id", authMiddleware, async (c) => {
     const user = c.get("user");
     
-    if (!user || user.role !== "admin") {
+    if (!user || !hasAdminAccess(user)) {
       return c.json({ error: "Unauthorized - Admin only" }, 403);
     }
 

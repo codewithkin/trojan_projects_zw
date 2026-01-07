@@ -14,6 +14,7 @@ import { hashPassword, verifyPassword } from "../lib/auth/password";
 import { createJWT, generateSessionToken, verifyJWT, extractBearerToken } from "../lib/auth/jwt";
 import { generateToken } from "../lib/auth/jwt";
 import { sendVerificationEmail, sendPasswordResetEmail, sendInviteEmail } from "../lib/email";
+import { hasAdminAccess, hasFullAdminAccess } from "../config/admins";
 
 const authRoute = new Hono();
 
@@ -600,8 +601,8 @@ authRoute.post("/invite", async (c) => {
       return c.json({ success: false, error: "Session not found" }, 401);
     }
 
-    // Only admin/staff/support can invite
-    if (session.user.role !== "admin" && session.user.role !== "staff" && session.user.role !== "support") {
+    // Only admins can invite
+    if (!hasAdminAccess(session.user)) {
       return c.json({ success: false, error: "Only admins can invite team members" }, 403);
     }
 
@@ -612,8 +613,8 @@ authRoute.post("/invite", async (c) => {
       return c.json({ success: false, error: "Email, name, password, and role are required" }, 400);
     }
 
-    // Validate role - admin can invite other admins, staff/support can only invite staff/support/user
-    const validRoles = session.user.role === "admin" 
+    // Validate role - full admins can invite other admins, others can only invite staff/support/user
+    const validRoles = hasFullAdminAccess(session.user) 
       ? ["user", "staff", "support", "admin"]
       : ["user", "staff", "support"];
     if (!validRoles.includes(role)) {

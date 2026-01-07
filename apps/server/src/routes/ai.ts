@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { stream } from "hono/streaming";
 import { authMiddleware } from "../lib/auth/middleware";
 import { getBusinessAgent } from "../mastra";
+import { hasAdminAccess } from "../config/admins";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -25,8 +26,8 @@ const aiRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    // Only staff/support/admin can use AI chat
-    if (user.role !== "staff" && user.role !== "support" && user.role !== "admin") {
+    // Only admins can use AI chat
+    if (!hasAdminAccess(user)) {
       return c.json({ error: "Forbidden" }, 403);
     }
 
@@ -122,8 +123,8 @@ const aiRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    // Only staff/support/admin can use AI chat
-    if (user.role !== "staff" && user.role !== "support" && user.role !== "admin") {
+    // Only admins can use AI chat
+    if (!hasAdminAccess(user)) {
       return c.json({ error: "Forbidden" }, 403);
     }
 
