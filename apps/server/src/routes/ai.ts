@@ -25,8 +25,8 @@ const aiRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    // Only staff/support can use AI chat
-    if (user.role !== "staff" && user.role !== "support") {
+    // Only staff/support/admin can use AI chat
+    if (user.role !== "staff" && user.role !== "support" && user.role !== "admin") {
       return c.json({ error: "Forbidden" }, 403);
     }
 
@@ -122,8 +122,8 @@ const aiRoute = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    // Only staff/support can use AI chat
-    if (user.role !== "staff" && user.role !== "support") {
+    // Only staff/support/admin can use AI chat
+    if (user.role !== "staff" && user.role !== "support" && user.role !== "admin") {
       return c.json({ error: "Forbidden" }, 403);
     }
 

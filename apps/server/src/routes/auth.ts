@@ -600,20 +600,22 @@ authRoute.post("/invite", async (c) => {
       return c.json({ success: false, error: "Session not found" }, 401);
     }
 
-    // Only staff/support can invite
-    if (session.user.role !== "staff" && session.user.role !== "support") {
+    // Only admin/staff/support can invite
+    if (session.user.role !== "admin" && session.user.role !== "staff" && session.user.role !== "support") {
       return c.json({ success: false, error: "Only admins can invite team members" }, 403);
     }
 
     const body = await c.req.json();
-    const { email, name, password, role } = body;
+    const { email, name, password, role, phone } = body;
 
     if (!email || !name || !password || !role) {
       return c.json({ success: false, error: "Email, name, password, and role are required" }, 400);
     }
 
-    // Validate role
-    const validRoles = ["user", "staff", "support"];
+    // Validate role - admin can invite other admins, staff/support can only invite staff/support/user
+    const validRoles = session.user.role === "admin" 
+      ? ["user", "staff", "support", "admin"]
+      : ["user", "staff", "support"];
     if (!validRoles.includes(role)) {
       return c.json({ success: false, error: "Invalid role" }, 400);
     }
@@ -644,6 +646,7 @@ authRoute.post("/invite", async (c) => {
         email,
         emailVerified: true, // Invited users are pre-verified
         role,
+        phone: phone || null,
       },
     });
 

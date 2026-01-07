@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
 import { useSession } from "@/hooks/use-session";
 import { getNavigationForRole } from "@/config/navigation";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,
@@ -112,32 +111,29 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
                 {/* User Section */}
                 <div className="border-t border-gray-100 p-3">
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                className={cn(
-                                    "w-full justify-start gap-3 px-3 py-6 hover:bg-gray-50",
-                                    collapsed && "justify-center px-2"
-                                )}
-                            >
-                                <Avatar className="h-9 w-9">
-                                    <AvatarImage src={user?.image || undefined} />
-                                    <AvatarFallback style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
-                                        {userInitials}
-                                    </AvatarFallback>
-                                </Avatar>
-                                {!collapsed && (
-                                    <>
-                                        <div className="flex-1 text-left">
-                                            <p className="text-sm font-medium text-gray-900 truncate">
-                                                {user?.name || "User"}
-                                            </p>
-                                            <p className="text-xs text-gray-500 capitalize">{userRole}</p>
-                                        </div>
-                                        <ChevronDown size={16} className="text-gray-400" />
-                                    </>
-                                )}
-                            </Button>
+                        <DropdownMenuTrigger
+                            className={cn(
+                                "w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors outline-none",
+                                collapsed && "justify-center px-2"
+                            )}
+                        >
+                            <Avatar className="h-9 w-9">
+                                <AvatarImage src={user?.image || undefined} />
+                                <AvatarFallback style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
+                                    {userInitials}
+                                </AvatarFallback>
+                            </Avatar>
+                            {!collapsed && (
+                                <>
+                                    <div className="flex-1 text-left">
+                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                            {user?.name || "User"}
+                                        </p>
+                                        <p className="text-xs text-gray-500 capitalize">{userRole}</p>
+                                    </div>
+                                    <ChevronDown size={16} className="text-gray-400" />
+                                </>
+                            )}
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuLabel>

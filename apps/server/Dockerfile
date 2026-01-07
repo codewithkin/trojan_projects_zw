@@ -9,7 +9,6 @@ COPY package.json bun.lock ./
 COPY apps/server/package.json ./apps/server/
 COPY apps/web/package.json ./apps/web/
 COPY apps/native/package.json ./apps/native/
-COPY packages/auth/package.json ./packages/auth/
 COPY packages/config/package.json ./packages/config/
 COPY packages/db/package.json ./packages/db/
 COPY packages/env/package.json ./packages/env/

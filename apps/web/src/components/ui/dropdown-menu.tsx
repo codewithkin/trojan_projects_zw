@@ -54,16 +54,30 @@ function DropdownMenuGroup({ ...props }: MenuPrimitive.Group.Props) {
 function DropdownMenuLabel({
   className,
   inset,
+  standalone = true,
   ...props
-}: MenuPrimitive.GroupLabel.Props & {
+}: React.ComponentProps<"div"> & {
   inset?: boolean;
+  standalone?: boolean;
 }) {
+  // If standalone (not in a group), render as a simple div
+  if (standalone) {
+    return (
+      <div
+        data-slot="dropdown-menu-label"
+        data-inset={inset}
+        className={cn("text-muted-foreground px-2 py-2 text-xs data-[inset]:pl-8", className)}
+        {...props}
+      />
+    );
+  }
+  // Otherwise render as MenuPrimitive.GroupLabel (requires Group parent)
   return (
     <MenuPrimitive.GroupLabel
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn("text-muted-foreground px-2 py-2 text-xs data-[inset]:pl-8", className)}
-      {...props}
+      {...(props as MenuPrimitive.GroupLabel.Props)}
     />
   );
 }

@@ -95,22 +95,16 @@ export function AppHeader({ onToggleSidebar, sidebarCollapsed }: AppHeaderProps)
 
                 {/* Notifications */}
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="relative text-gray-500 hover:text-gray-700"
-                        >
-                            <Bell size={20} />
-                            {unreadCount > 0 && (
-                                <span
-                                    className="absolute -top-1 -right-1 w-5 h-5 text-xs flex items-center justify-center rounded-full text-white"
-                                    style={{ backgroundColor: TROJAN_NAVY }}
-                                >
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </Button>
+                    <DropdownMenuTrigger className="relative p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors outline-none">
+                        <Bell size={20} />
+                        {unreadCount > 0 && (
+                            <span
+                                className="absolute -top-1 -right-1 w-5 h-5 text-xs flex items-center justify-center rounded-full text-white"
+                                style={{ backgroundColor: TROJAN_NAVY }}
+                            >
+                                {unreadCount}
+                            </span>
+                        )}
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-80">
                         <DropdownMenuLabel>Notifications</DropdownMenuLabel>

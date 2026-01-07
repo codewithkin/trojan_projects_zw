@@ -151,12 +151,12 @@ export default function AdminProjectsPage() {
                     <p className="text-gray-500">Manage customer projects and installations</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={fetchProjects} disabled={loading}>
+                    <Button variant="outline" onClick={fetchProjects} disabled={loading} className="flex items-center">
                         <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                         Refresh
                     </Button>
                     <Button asChild style={{ backgroundColor: TROJAN_GOLD, color: TROJAN_NAVY }}>
-                        <Link href="/projects/new">
+                        <Link href="/projects/new" className="flex items-center">
                             <Plus className="mr-2 h-4 w-4" />
                             New Project
                         </Link>

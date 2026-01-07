@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, memo } from "react";
-import { Send, Bot, User, Loader2, Sparkles, RotateCcw, Copy, Check, AlertCircle, TrendingUp, Zap, Square } from "lucide-react";
+import Image from "next/image";
+import { Send, User, Loader2, RotateCcw, Copy, Check, TrendingUp, Zap, Square, BarChart3, Clock, DollarSign, Star, Wrench, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -36,14 +37,14 @@ interface StreamEvent {
 // Chat history storage key
 const CHAT_HISTORY_KEY = "trojan-ai-chat-history";
 
-// Suggested prompts for quick start - organized by category
+// Suggested prompts for quick start - with Lucide icons
 const suggestedPrompts = [
-    { text: "What's the overview of our business today?", icon: "📊", category: "overview" },
-    { text: "Show me pending projects that need attention", icon: "⏳", category: "projects" },
-    { text: "How's our revenue looking this month?", icon: "💰", category: "revenue" },
-    { text: "Who are our top customers?", icon: "⭐", category: "customers" },
-    { text: "Which services are most popular?", icon: "🔧", category: "services" },
-    { text: "What happened in the last 7 days?", icon: "📅", category: "activity" },
+    { text: "What's the overview of our business today?", icon: BarChart3, category: "overview" },
+    { text: "Show me pending projects that need attention", icon: Clock, category: "projects" },
+    { text: "How's our revenue looking this month?", icon: DollarSign, category: "revenue" },
+    { text: "Who are our top customers?", icon: Star, category: "customers" },
+    { text: "Which services are most popular?", icon: Wrench, category: "services" },
+    { text: "What happened in the last 7 days?", icon: Calendar, category: "activity" },
 ];
 
 // Quick action follow-ups
@@ -304,29 +305,31 @@ export default function AIChatPage() {
     const messageCount = messages.filter(m => m.role === "user").length;
 
     return (
-        <div className="flex flex-col h-[calc(100vh-7rem)] md:h-[calc(100vh-7rem)] bg-gradient-to-b from-gray-50 to-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">
             {/* Chat Header */}
             <div
-                className="flex items-center justify-between px-3 md:px-6 py-3 md:py-4 border-b border-gray-200"
-                style={{ backgroundColor: `${TROJAN_NAVY}08` }}
+                className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-gray-200"
+                style={{ backgroundColor: TROJAN_NAVY }}
             >
-                <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-                    <div
-                        className="w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: TROJAN_GOLD }}
-                    >
-                        <Bot size={20} className="md:hidden" style={{ color: TROJAN_NAVY }} />
-                        <Bot size={22} className="hidden md:block" style={{ color: TROJAN_NAVY }} />
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-white p-1">
+                        <Image
+                            src="/trojan-logo.svg"
+                            alt="Trojan"
+                            width={32}
+                            height={32}
+                            className="w-full h-full object-contain"
+                        />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="font-semibold text-sm md:text-base truncate" style={{ color: TROJAN_NAVY }}>
-                            Trojan Business Insights
+                        <h2 className="font-semibold text-sm md:text-base truncate text-white">
+                            Trojan
                         </h2>
-                        <p className="text-[10px] md:text-xs text-gray-500 hidden sm:block">
-                            AI-powered analytics • Ask me anything about your business
+                        <p className="text-[10px] md:text-xs text-gray-300 hidden sm:block">
+                            Your business intelligence assistant
                         </p>
-                        <p className="text-[10px] text-gray-500 sm:hidden">
-                            {messageCount > 0 ? `${messageCount} questions asked` : "AI Business Analytics"}
+                        <p className="text-[10px] text-gray-300 sm:hidden">
+                            {messageCount > 0 ? `${messageCount} questions` : "Business Assistant"}
                         </p>
                     </div>
                 </div>
@@ -335,7 +338,7 @@ export default function AIChatPage() {
                         variant="outline"
                         size="sm"
                         onClick={resetChat}
-                        className="gap-1 md:gap-2 text-xs md:text-sm shrink-0 ml-2"
+                        className="gap-1 md:gap-2 text-xs md:text-sm shrink-0 ml-2 bg-white/10 border-white/20 text-white hover:bg-white/20"
                     >
                         <RotateCcw size={14} />
                         <span className="hidden sm:inline">New Chat</span>
@@ -345,26 +348,29 @@ export default function AIChatPage() {
             </div>
 
             {/* Messages Area */}
-            <div ref={scrollAreaRef} className="flex-1 overflow-hidden">
+            <div ref={scrollAreaRef} className="flex-1 overflow-hidden bg-gray-50">
                 <ScrollArea className="h-full px-4">
                     {messages.length === 0 ? (
                         // Empty state with suggestions
                         <div className="flex flex-col items-center justify-center h-full py-12">
-                            <div
-                                className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-                                style={{ backgroundColor: `${TROJAN_GOLD}20` }}
-                            >
-                                <Sparkles size={40} style={{ color: TROJAN_GOLD }} />
+                            <div className="w-20 h-20 rounded-full overflow-hidden mb-6 bg-white shadow-lg p-2">
+                                <Image
+                                    src="/trojan-logo.svg"
+                                    alt="Trojan"
+                                    width={64}
+                                    height={64}
+                                    className="w-full h-full object-contain"
+                                />
                             </div>
                             <h3
                                 className="text-xl font-semibold mb-2"
                                 style={{ color: TROJAN_NAVY }}
                             >
-                                How can I help you today?
+                                Hey! I&apos;m Trojan, your business assistant
                             </h3>
                             <p className="text-gray-500 text-sm mb-8 text-center max-w-md">
-                                I can analyze your business data and provide insights on projects,
-                                revenue, customers, and more.
+                                I can help you understand your business metrics, track projects,
+                                analyze revenue, and provide actionable insights.
                             </p>
 
                             {/* Quick Stats Cards */}
@@ -380,19 +386,22 @@ export default function AIChatPage() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3 max-w-3xl px-2">
-                                {suggestedPrompts.map((prompt, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => sendMessage(prompt.text)}
-                                        disabled={isLoading}
-                                        className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group disabled:opacity-50"
-                                    >
-                                        <span className="text-lg md:text-xl">{prompt.icon}</span>
-                                        <span className="text-xs md:text-sm text-gray-700 group-hover:text-gray-900 line-clamp-2">
-                                            {prompt.text}
-                                        </span>
-                                    </button>
-                                ))}
+                                {suggestedPrompts.map((prompt, index) => {
+                                    const IconComponent = prompt.icon;
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={() => sendMessage(prompt.text)}
+                                            disabled={isLoading}
+                                            className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 bg-white border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all text-left group disabled:opacity-50"
+                                        >
+                                            <IconComponent size={18} className="shrink-0" style={{ color: TROJAN_NAVY }} />
+                                            <span className="text-xs md:text-sm text-gray-700 group-hover:text-gray-900 line-clamp-2">
+                                                {prompt.text}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     ) : (
@@ -504,15 +513,20 @@ const MessageBubble = memo(function MessageBubble({
             {/* Avatar */}
             <div
                 className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1",
-                    isUser ? "bg-gray-700" : ""
+                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 overflow-hidden",
+                    isUser ? "bg-gray-700" : "bg-white border border-gray-200"
                 )}
-                style={!isUser ? { backgroundColor: TROJAN_GOLD } : {}}
             >
                 {isUser ? (
                     <User size={16} className="text-white" />
                 ) : (
-                    <Bot size={16} style={{ color: TROJAN_NAVY }} />
+                    <Image
+                        src="/trojan-logo.svg"
+                        alt="Trojan"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5 object-contain"
+                    />
                 )}
             </div>
 
