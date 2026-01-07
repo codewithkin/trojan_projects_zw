@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { getSession, signOut as authSignOut, AuthUser } from "@/lib/auth-client";
 import { AuthModal } from "@/components/auth-modal";
+import { hasAdminAccess, hasFullAdminAccess, getEffectiveRole } from "@/config/admins";
 
 interface AuthContextType {
     user: AuthUser | null;
@@ -11,6 +12,9 @@ interface AuthContextType {
     refetchSession: () => Promise<void>;
     refreshSession: () => Promise<void>;
     requireAuth: (message?: string) => Promise<boolean>;
+    hasAdminAccess: boolean;
+    hasFullAdminAccess: boolean;
+    effectiveRole: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -92,6 +96,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 refetchSession,
                 refreshSession: refetchSession,
                 requireAuth,
+                hasAdminAccess: hasAdminAccess(user),
+                hasFullAdminAccess: hasFullAdminAccess(user),
+                effectiveRole: getEffectiveRole(user),
             }}
         >
             {children}
