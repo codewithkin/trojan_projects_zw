@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { env } from "@trojan_projects_zw/env/native";
-import { useData, useMutation } from "./use-data";
+import { useData, useMutation, useDataStore } from "./use-data";
+import { create } from "zustand";
 import type { 
   Service, 
   ServiceDetail, 
@@ -11,6 +12,80 @@ import type {
 } from "../types/services";
 
 const API_URL = env.EXPO_PUBLIC_API_URL;
+
+// ============================================
+// Service Like Store (for optimistic updates)
+// ============================================
+interface ServiceLikeState {
+  likedServices: Set<string>;
+  likeCounts: Record<string, number>;
+  toggleLike: (slug: string, currentCount: number) => { wasLiked: boolean; newCount: number };
+  rollback: (slug: string, wasLiked: boolean, previousCount: number) => void;
+  isLiked: (slug: string) => boolean;
+  getLikeCount: (slug: string, fallback: number) => number;
+  initFromServer: (slug: string, isLiked: boolean, count: number) => void;
+}
+
+export const useServiceLikeStore = create<ServiceLikeState>((set, get) => ({
+  likedServices: new Set<string>(),
+  likeCounts: {},
+  
+  toggleLike: (slug: string, currentCount: number) => {
+    const wasLiked = get().likedServices.has(slug);
+    const newCount = wasLiked ? currentCount - 1 : currentCount + 1;
+    
+    set((state) => {
+      const newLiked = new Set(state.likedServices);
+      if (wasLiked) {
+        newLiked.delete(slug);
+      } else {
+        newLiked.add(slug);
+      }
+      return {
+        likedServices: newLiked,
+        likeCounts: { ...state.likeCounts, [slug]: newCount },
+      };
+    });
+    
+    return { wasLiked, newCount };
+  },
+  
+  rollback: (slug: string, wasLiked: boolean, previousCount: number) => {
+    set((state) => {
+      const newLiked = new Set(state.likedServices);
+      if (wasLiked) {
+        newLiked.add(slug);
+      } else {
+        newLiked.delete(slug);
+      }
+      return {
+        likedServices: newLiked,
+        likeCounts: { ...state.likeCounts, [slug]: previousCount },
+      };
+    });
+  },
+  
+  isLiked: (slug: string) => get().likedServices.has(slug),
+  
+  getLikeCount: (slug: string, fallback: number) => {
+    return get().likeCounts[slug] ?? fallback;
+  },
+  
+  initFromServer: (slug: string, isLiked: boolean, count: number) => {
+    set((state) => {
+      const newLiked = new Set(state.likedServices);
+      if (isLiked) {
+        newLiked.add(slug);
+      } else {
+        newLiked.delete(slug);
+      }
+      return {
+        likedServices: newLiked,
+        likeCounts: { ...state.likeCounts, [slug]: count },
+      };
+    });
+  },
+}));
 
 // Fetch all services with optional filters
 export function useServices(filters?: { category?: string; featured?: boolean }) {
@@ -58,20 +133,38 @@ export function useFeaturedServices() {
   return useServices({ featured: true });
 }
 
-// Toggle like on a service
+// Toggle like on a service with optimistic update
 export function useLikeService() {
-  return useMutation(async (slug: string) => {
-    const res = await fetch(`${API_URL}/api/services/${slug}/like`, {
-      method: "POST",
-      credentials: "include",
-    });
-    
-    if (!res.ok) {
-      throw new Error("Failed to like service");
+  const { toggleLike, rollback, getLikeCount } = useServiceLikeStore();
+  
+  return useMutation(
+    async (slug: string) => {
+      const res = await fetch(`${API_URL}/api/services/${slug}/like`, {
+        method: "POST",
+        credentials: "include",
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to like service");
+      }
+      
+      return res.json();
+    },
+    {
+      // Optimistic update - toggle immediately
+      onMutate: (slug: string) => {
+        const currentCount = getLikeCount(slug, 0);
+        const { wasLiked, newCount } = toggleLike(slug, currentCount);
+        return { wasLiked, previousCount: currentCount };
+      },
+      // Rollback on error
+      onError: (error, slug, context) => {
+        if (context) {
+          rollback(slug, context.wasLiked, context.previousCount);
+        }
+      },
     }
-    
-    return res.json();
-  });
+  );
 }
 
 // Request a service
